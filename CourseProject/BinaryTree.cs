@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CourseProject
+﻿namespace CourseProject
 {
     public class BinaryTree
     {
+        private const string OutputBinaryTreePath = "D:\\COMPILER\\data\\tree.txt";
+
         public class Item
         {
             public string Value { get; set; }
@@ -19,15 +14,31 @@ namespace CourseProject
 
             public Item RightChild { get; set; }
 
-           
-
             public Item()
             {
                 this.Parent = null;
                 this.LeftChild = null;
                 this.RightChild = null;
             }
+        }
 
+        public class RepairItem
+        {
+            public string Value { get; set; }
+
+            public int Level { get; set; }
+
+            public RepairItem()
+            {
+                this.Value = null;
+                this.Level = 0;
+            }
+
+            public RepairItem(string value, int level)
+            {
+                Value = value;
+                Level = level;
+            }
         }
 
         public Item Root { get; set; }
@@ -38,13 +49,12 @@ namespace CourseProject
         public BinaryTree()
         {
             this.Root = new Item();
-            
         }
 
-        bool IsEmptyElement(Item item)
+        private bool IsEmptyElement(Item item)
         {
             bool flag = false;
-            if (item==null)
+            if (item == null)
             {
                 flag = true;
             }
@@ -55,7 +65,6 @@ namespace CourseProject
             return flag;
         }
 
-
         public void SetRootValue(string value)
         {
             this.Root.Value = value;
@@ -63,13 +72,29 @@ namespace CourseProject
 
         public void SetHead()
         {
-            if (Root!=null)
+            if (Root != null)
             {
                 while (!IsEmptyElement(Root.Parent))
                 {
                     Root = Root.Parent;
                 }
-            }            
+            }
+        }
+
+        public void SetLeftChild(Item tree)
+        {
+            if (tree != null)
+            {
+                Root.LeftChild = tree;
+            }
+        }
+
+        public void SetRightChild(Item tree)
+        {
+            if (tree != null)
+            {
+                Root.RightChild = tree;
+            }
         }
 
         public void AddLeftChild(string value)
@@ -100,7 +125,6 @@ namespace CourseProject
                         Root = child;
                     }
                 }
-                           
             }
         }
 
@@ -118,8 +142,6 @@ namespace CourseProject
                     item.Parent = Root;
                     Root = item;
                     //Root = Root.RightChild;
-                    
-
                 }
                 else
                 {
@@ -139,11 +161,10 @@ namespace CourseProject
 
         public void SetParent(Item item)
         {
-            if (item.Parent!=null)
+            if (item.Parent != null)
             {
                 Root = Root.Parent;
             }
-            
         }
 
         public void ResetTree()
@@ -156,34 +177,158 @@ namespace CourseProject
             throw new Exception("not realized");
         }
 
-       public void SearchElement(Item item)
-       {
-            if (item!=null)
-            {
-
-            }
-
-       }
-
-        public void ScanTree(Item item, int index=0)
+        public void SearchElement(Item item)
         {
-            if (item!=null)
+            if (item != null)
+            {
+            }
+        }
+
+        public static void SaveTreeTofile(BinaryTree tree, string path = OutputBinaryTreePath)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            if (tree != null)
+            {
+                List<string> listTree = new List<string>();
+                ConvertTreeToList(ref listTree, tree.Root);
+                try
+                {
+                    using (StreamWriter writer = new StreamWriter(path))
+                    {
+                        foreach (string line in listTree)
+                        {
+                            writer.WriteLine(line);
+                        }
+                    }
+                }
+                catch (DirectoryNotFoundException ex)
+                {
+                    Console.WriteLine(ex.StackTrace);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.StackTrace);
+                }
+            }
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        public static BinaryTree RepairTreeFromFile(string path = OutputBinaryTreePath)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            List<RepairItem> repairTree = new List<RepairItem>();
+            BinaryTree tree = new BinaryTree();
+            try
+            {
+                using (StreamReader reader = new StreamReader(path))
+                {
+                    string? line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        string value = line.Trim();
+                        int lvl = GetCountOfSpaces(line);
+                        RepairItem item = new RepairItem(value, lvl);
+                        repairTree.Add(item);
+                    }
+                }
+            }
+            catch (DirectoryNotFoundException ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+            }
+            int GetCountOfSpaces(string line)
+            {
+                int n = 0;
+                foreach (char symbol in line)
+                {
+                    if (symbol.Equals(' '))
+                        n++;
+                }
+                return n;
+            }
+            //sort by increase
+            for (int i = 0; i < repairTree.Count - 1; i++)
+            {
+                for (int j = i + 1; j < repairTree.Count; j++)
+                {
+                    if (repairTree[i].Level > repairTree[j].Level)
+                    {
+                        RepairItem item = repairTree[i];
+                        repairTree[i] = repairTree[j];
+                        repairTree[j] = item;
+                    }
+                }
+            }
+            tree.SetRootValue(repairTree[0].Value);
+            Repair(ref tree, repairTree);
+            Console.ForegroundColor = ConsoleColor.White;
+            return tree;
+        }
+
+        private static void Repair(ref BinaryTree tree, List<RepairItem> items)
+        {
+            int lvl = 1;
+            if (items != null)
+            {
+                for (int i = 1; i < items.Count; i += 2)
+                {
+                    if (items[i].Level == lvl + 1)
+                    {
+                        tree.AddLeftChild(items[i].Value);
+                        tree.SetParent(tree.Root);
+                    }
+                    if (items[i + 1].Level == lvl + 1)
+                    {
+                        tree.AddRightChild(items[i + 1].Value);
+                        tree.SetParent(tree.Root);
+                    }
+                    lvl++;
+                }
+            }
+        }
+
+        public void PrintTree(Item root, int index = 0)
+        {
+            if (root != null)
             {
                 string tmp = "";
                 for (int i = 0; i < index; i++)
                 {
-                        tmp += " ";
+                    tmp += " ";
                 }
-                tmp += "value " + item.Value;
+                tmp += "value " + root.Value;
                 Console.WriteLine(tmp);
-                
-                if (item.LeftChild != null)
-                    ScanTree(item.LeftChild, index + 1);
-                if (item.RightChild != null)
-                    ScanTree(item.RightChild, index + 1);
+                if (root.LeftChild != null)
+                    PrintTree(root.LeftChild, index + 1);
+                if (root.RightChild != null)
+                    PrintTree(root.RightChild, index + 1);
             }
-         
         }
 
+        private static void ConvertTreeToList(ref List<string> list, Item root, int index = 0)
+        {
+            if (root != null)
+            {
+                string tmp = "";
+                if (root.Value != null)
+                {
+                    for (int i = 0; i < index; i++)
+                    {
+                        tmp += " ";
+                    }
+                    tmp += root.Value;
+                    list.Add(tmp);
+                }
+
+                if (root.LeftChild != null)
+                    ConvertTreeToList(ref list, root.LeftChild, index + 1);
+                if (root.RightChild != null)
+                    ConvertTreeToList(ref list, root.RightChild, index + 1);
+            }
+        }
     }
 }

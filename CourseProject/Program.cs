@@ -1,33 +1,58 @@
 ﻿namespace CourseProject
 {
-    class CourseProject
+    internal class CourseProject
     {
-        static string path = "D:\\COMPILER\\programs\\ex4_mix.pas";
+        private static string path = "D:\\COMPILER\\programs\\ex4_mix.pas";
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            Console.WriteLine("hello world");
-            
-           SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
-           LexicAnalyzer lexic = new LexicAnalyzer();
-            //analyzer.ReadProgram(path);
-            // analyzer.Test11();
-            //TestSyntaxisAnalyzer();
-            TestLexicAnalyzer();
+            //SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
+            //LexicAnalyzer lexic = new LexicAnalyzer();
             //TestTree();
+            // TestSynaxAnalyzer();
+            //TestLexicAnalyzer();
+            // TestIOTree();
+            TestRepair();
+            Console.WriteLine("done");
+            Console.ReadKey();
         }
 
-        static void TestLexicAnalyzer()
+        private static void TestRepair()
         {
-            LexicAnalyzer la = new LexicAnalyzer();
-            string line = "(3+(4*5))";
-            la.ParseProgramLine(line);
-            //bool flag = la.CheckIdentificators();
-            //Console.WriteLine("flag="+flag);
-            //la.PrintRepairProgram();
+            SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
+            analyzer.PrintRepairProgram();
         }
 
-        static void TestTree()
+        private static void TestIOTree()
+        {
+            BinaryTree tree = new BinaryTree();
+            tree.AddLeftChild("2");
+            tree.AddRightChild("3");
+            tree.SetParent(tree.Root);
+            tree.AddLeftChild("4");
+            tree.SetHead();
+            BinaryTree.SaveTreeTofile(tree);
+            tree = BinaryTree.RepairTreeFromFile();
+        }
+
+        private static void TestSynaxAnalyzer()
+        {
+            SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
+            //string line = "(3+(4*5))";
+            BinaryTree tree = new BinaryTree();
+            string line = "if (a>10) then b:=b+52; else if (d>10) then s:=45+45; else c:=45;";
+            //analyzer.ParseOperatorIf(line, 0, ref tree);
+            line = "a:=(3+(4*5))";
+            BinaryTree assign = analyzer.ParseAssignOperator(line);
+            int f = 0;
+            //analyzer.ParseExpression(line);
+            //analyzer.ParseProgramLine(line);
+            //bool flag = analyzer.CheckIdentificators();
+            //Console.WriteLine("flag=" + flag);
+            //analyzer.PrintRepairProgram();
+        }
+
+        private static void TestTree()
         {
             BinaryTree tree = new BinaryTree();
             tree.AddLeftChild("1234");
@@ -35,16 +60,15 @@
             tree.SetParent(tree.Root);
             tree.AddRightChild("67655");
             tree.SetHead();
-            tree.ScanTree(tree.Root);
+            // tree.ScanTree(tree.Root);
         }
 
-        static void TestSyntaxisAnalyzer()
+        private static void TestLexicAnalyzer()
         {
-           
-            SyntaxisAnalyzer sa = new SyntaxisAnalyzer();
-            sa.ReadProgram(path);
-            sa.FormTokens();
-            sa.FormIndentificators();
+            LexicAnalyzer analyzer = new LexicAnalyzer();
+            analyzer.ReadProgram(path);
+            analyzer.FormTokens();
+            analyzer.FormIndentificators();
         }
     }
 }

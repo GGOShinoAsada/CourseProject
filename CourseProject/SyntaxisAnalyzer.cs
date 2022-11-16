@@ -1,44 +1,68 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.ConstrainedExecution;
-using System.Text;
-using System.Text.Json.Serialization.Metadata;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 
 namespace CourseProject
 {
     public class SyntaxisAnalyzer
     {
+        private const string IdentificatorsPath = "D:\\COMPILER\\data\\identificators.txt";
 
+        private const string TokensPath = "D:\\COMPILER\\data\\tokens.txt";
 
-        const string IdentificatorsPath = "D:\\COMPILER\\data\\identificators.txt";
+        private const string PatternsPath = "D:\\COMPILER\\data\\patterns.txt";
 
-        const string TokensPath = "D:\\COMPILER\\data\\tokens.txt";
+        // const string OutputBinaryTreePath = "D:\\COMPILER\\data\\tree.txt";
 
-        const string PatternsPath = "D:\\COMPILER\\data\\patterns.txt";
-
-
-
-        struct Item
+        private struct Item
         {
             public string Value { get; set; }
 
             public int Position { get; set; }
         }
 
-        public void FormSyntaxisTree()
+        public void ParseOperatorIf(string line, int lvl, ref BinaryTree tree)
         {
-
+            //if find if
+            int si = line.IndexOf("(");
+            int ei = line.IndexOf(")");
+            string exp = line.Substring(si + 1, ei - 1);
+            tree.SetRootValue(exp);
+            if (line.IndexOf("then") > 0)
+            {
+                string thenBody = line.Substring(line.IndexOf("then") + 5, line.IndexOf("else") - 1);
+                tree.AddLeftChild(thenBody);
+                tree.SetParent(tree.Root);
+            }
+            //if find else
+            if (line.IndexOf("else") > 0)
+            {
+                string newLine = line.Remove(0, line.IndexOf("else"));
+                if (newLine.IndexOf("if") > 0)
+                {
+                    ParseOperatorIf(newLine, lvl + 1, ref tree);
+                }
+                else
+                {
+                    string elseBody = line.Substring(line.IndexOf("else") + 1, line.Length);
+                    tree.AddRightChild(elseBody);
+                }
+            }
         }
 
+        public BinaryTree ParseAssignOperator(string line)
+        {
+            BinaryTree tree = new BinaryTree();
+            tree.SetRootValue(":=");
+            string arg0 = line.Split(":=")[0];
+            string arg1 = line.Split(":=")[1];
+            tree.AddLeftChild(arg0);
+            tree.SetParent(tree.Root);
+            BinaryTree exp = ParseExpression(arg1);
+            tree.SetRightChild(exp.Root);
+            tree.SetParent(tree.Root);
+            return tree;
+        }
 
-
-
-        public void ParseProgramLine(string line)
+        public BinaryTree ParseExpression(string line)
         {
             BinaryTree tree = new BinaryTree();
             int st = 0;
@@ -65,17 +89,18 @@ namespace CourseProject
                         tree.SetParent(tree.Root);
                     }
                 }
-                int t = 0;
+
                 tree.SetHead();
-                tree.ScanTree(tree.Root);
+                //tree.ScanTree(tree.Root);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace);
             }
-
+            return tree;
         }
-        List<string> ReadProgram()
+
+        public List<string> ReadProgram()
         {
             List<string> program = new List<string>();
             string path = "D:\\COMPILER\\programs\\ex4_mix.pas";
@@ -103,75 +128,6 @@ namespace CourseProject
             return program;
         }
 
-        List<string> ParseExpression(string e)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            List<string> result = new List<string>();
-            List<int> startPositions = new List<int>();
-            List<int> endPositions = new List<int>();
-            for (int i = 0; i < e.Length; i++)
-            {
-                if (e[i].Equals('('))
-                {
-                    startPositions.Add(i);
-                }
-            }
-
-            for (int i = e.Length - 1; i > 0; i--)
-            {
-                if (e[i].Equals(')'))
-                {
-                    endPositions.Add(i);
-                }
-            }
-            if (startPositions.Count == endPositions.Count)
-            {
-                foreach (int sp in startPositions)
-                {
-                    string line = "";
-                    int ind = 0;
-                    for (int j = sp + 1; j < e.Length; j++)
-                    {
-
-                        if (e[j].Equals('('))
-                            ind++;
-
-                        if ((!e[j].Equals('(')) && (!e[j].Equals(')')) && (ind == 0))
-                        {
-                            line += e[j];
-                            if (e[j + 1].Equals(')'))
-                            {
-                                break;
-                            }
-                        }
-
-                        if (e[j].Equals(')'))
-
-                            ind--;
-                    }
-                    result.Add(line);
-                }
-            }
-            else
-            {
-                Console.WriteLine("count of open and close parentheses mus be equal");
-            }
-            for (int i = 0; i < startPositions.Count; i++)
-            {
-                Console.WriteLine("startpoint {0}", startPositions[i]);
-            }
-            for (int i = 0; i < endPositions.Count; i++)
-            {
-                Console.WriteLine("endpoint {0}", endPositions[i]);
-            }
-            foreach (string tmp in result)
-            {
-                Console.WriteLine(tmp);
-            }
-            Console.ForegroundColor = ConsoleColor.White;
-            return result;
-        }
-
         public void PrintRepairProgram()
         {
             int ind = 0;
@@ -180,21 +136,19 @@ namespace CourseProject
                 using (StreamReader reader = new StreamReader(TokensPath))
                 {
                     string? line = File.ReadLines(TokensPath).Last();
-                    ind = int.Parse(line.Split(" ")[1]);
+                    ind = int.Parse(line.Split("##")[1]);
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace);
             }
-            for (int i = 0; i < ind; i++)
+            for (int i = 0; i < ind + 1; i++)
             {
                 string line = RepairProgramLine(i);
                 Console.WriteLine(line);
             }
         }
-
-
 
         public bool CheckIdentificators()
         {
@@ -210,8 +164,8 @@ namespace CourseProject
                     string? line;
                     while ((line = reader.ReadLine()) != null)
                     {
-                        int col = int.Parse(line.Split(' ')[1]);
-                        string name = line.Split(' ')[0];
+                        int col = int.Parse(line.Split("##")[1]);
+                        string name = line.Split("##")[0];
                         Item item = new Item();
                         item.Position = col;
                         item.Value = name;
@@ -228,7 +182,6 @@ namespace CourseProject
                         {
                             identificators.Add(item);
                         }
-
                     }
                 }
                 using (StreamReader reader = new StreamReader(TokensPath))
@@ -238,8 +191,8 @@ namespace CourseProject
                     {
                         if (IsContainsBaseType(line))
                         {
-                            int col = int.Parse(line.Split(' ')[1]);
-                            string val = line.Split(' ')[0];
+                            int col = int.Parse(line.Split("##")[1]);
+                            string val = line.Split("##")[0];
                             types.Add(col, val);
                         }
                     }
@@ -263,7 +216,6 @@ namespace CourseProject
                     {
                         Console.WriteLine(ex2.StackTrace);
                     }
-
                 }
             }
             catch (Exception ex)
@@ -300,6 +252,67 @@ namespace CourseProject
             return flag;
         }
 
+        public string RepairLine(int col)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            string str = "";
+            int n = 0;
+            List<Item> items = new List<Item>();
+            try
+            {
+               using (StreamReader reader = new StreamReader(TokensPath))
+               {
+                    string? line;
+                    while ((line=reader.ReadLine())!=null)
+                    {
+                        int column = int.Parse(line.Split("##")[1]);
+                        if (column == col)
+                        {
+                            string name = line.Split("##")[0];
+                            int row = int.Parse(line.Split("##")[2]);
+                            Item item = new Item();
+                            item.Value = name;
+                            item.Position = row;
+                            items.Add(item);
+                        }
+                    }
+               }
+               using (StreamReader reader = new StreamReader(IdentificatorsPath))
+               {
+                    string? line;
+                    while ((line=reader.ReadLine())!=null)
+                    {
+                        int column = int.Parse(line.Split("##")[1]);
+                        if (col == column)
+                        {
+                            string name = line.Split("##")[0];
+                            int row = int.Parse(line.Split("##")[2]);
+                            Item item = new Item();
+                            item.Value = name;
+                            item.Position = row;
+                            items.Add(item);
+                        }
+                    }
+               }
+                Console.WriteLine("col #" + col);
+               for (int j=0; j<items.Count; j++)
+               {
+                    Console.WriteLine("#{0}: name {1}, row {2}", j, items[j].Value, items[j].Position);
+               }
+               
+            }
+            catch (DirectoryNotFoundException ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+            }
+            Console.ForegroundColor = ConsoleColor.White;
+            return str;
+        }
+
         public string RepairProgramLine(int col)
         {
             List<Item> items = new List<Item>();
@@ -311,9 +324,9 @@ namespace CourseProject
                     string? tmp;
                     while ((tmp = reader.ReadLine()) != null)
                     {
-                        string arg0 = tmp.Split(" ")[0];
-                        int arg1 = int.Parse(tmp.Split(" ")[1]);
-                        int arg2 = int.Parse(tmp.Split(" ")[2]);
+                        string arg0 = tmp.Split("##")[0];
+                        int arg1 = int.Parse(tmp.Split("##")[1]);
+                        int arg2 = int.Parse(tmp.Split("##")[2]);
                         if (arg1 == col)
                         {
                             Item item = new Item();
@@ -328,9 +341,9 @@ namespace CourseProject
                     string? tmp;
                     while ((tmp = reader.ReadLine()) != null)
                     {
-                        string arg0 = tmp.Split(" ")[0];
-                        int arg1 = int.Parse(tmp.Split(" ")[1]);
-                        int arg2 = int.Parse(tmp.Split(" ")[2]);
+                        string arg0 = tmp.Split("##")[0];
+                        int arg1 = int.Parse(tmp.Split("##")[1]);
+                        int arg2 = int.Parse(tmp.Split("##")[2]);
                         if (arg1 == col)
                         {
                             Item item = new Item();
@@ -338,7 +351,6 @@ namespace CourseProject
                             item.Value = arg0;
                             items.Add(item);
                         }
-
                     }
                 }
             }
@@ -368,6 +380,5 @@ namespace CourseProject
             }
             return line;
         }
-
     }
 }
