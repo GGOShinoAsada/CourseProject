@@ -595,12 +595,19 @@ namespace CourseProject
                             item.Col = i;
                             item.Row = line.IndexOf(n);
                             tokens.Add(item);
+                        }                      
+                    }
+                    if (line.Contains('\"'))
+                    {
+                        List<int> indexes = GetAllContains(line, "\"");
+                        foreach (int pos in indexes)
+                        {
+                            Item item = new Item();
+                            item.Name = "\"";
+                            item.Col = i;
+                            item.Row = pos;
+                            tokens.Add(item);
                         }
-
-                      
-                        
-                        
-                      
                     }
                 }
                 //foreach (Item item1 in tokens)
@@ -665,6 +672,18 @@ namespace CourseProject
                
             }
             return names;
+        }
+
+        private List<int> GetAllContains(string line, string value)
+        {
+            List<int> indexes = new List<int>();
+            int ind = line.IndexOf(value);
+            while (ind>0)
+            {
+                indexes.Add(ind);
+                ind = line.IndexOf(value, ind+value.Length);
+            }
+            return indexes;
         }
 
         private string RemoveSpaces(string input)
