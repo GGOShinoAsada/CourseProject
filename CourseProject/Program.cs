@@ -2,16 +2,16 @@
 {
     internal class CourseProject
     {
-        private static string path = "D:\\COMPILER\\programs\\ex4_mix.pas";
+        private static string path = "D:\\COMPILER\\programs\\program11.pas";
 
         private static void Main(string[] args)
         {
             //SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
             //LexicAnalyzer lexic = new LexicAnalyzer();
             //TestTree();
-            // TestSynaxAnalyzer();
+            //TestSynaxAnalyzer();
             //TestLexicAnalyzer();
-            // TestIOTree();
+            //TestIOTree();
             TestRepair();
             Console.WriteLine("done");
             Console.ReadKey();

@@ -19,6 +19,32 @@ namespace CourseProject
             public int Position { get; set; }
         }
 
+        public BinaryTree FormBinaryTree()
+        {
+            BinaryTree tree = new BinaryTree();
+            List<string> program = ReadProgram();
+            int i = 0;
+            while (!program[i].Contains("begin"))
+            {
+                string line = program[i];
+                if (line.StartsWith("var"))
+                {
+                    tree.AddLeftChild("var");
+                    line = line.Remove(0, 4);
+                }
+                string[] arg0 = line.Split(":")[0].Split(",");
+                string arg1 = line.Split(":")[1];
+                for (int j=0; j<arg0.Length; j++)
+                {
+                    tree.AddRightChild(arg1);
+                    tree.SetParent(tree.Root);
+                    tree.AddLeftChild(arg0[j]);
+                }
+                i++;
+            }
+            return tree;
+        }
+
         public void ParseOperatorIf(string line, int lvl, ref BinaryTree tree)
         {
             //if find if
