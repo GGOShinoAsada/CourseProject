@@ -2,7 +2,7 @@
 
 namespace CourseProject
 {
-    public class LexicAnalyzer
+    public class LexicAnalyzer: Service
     {
         private struct Item
         {
@@ -11,33 +11,25 @@ namespace CourseProject
             public int Row { get; set; }
         }
 
-        
-
         private List<string> program = new List<string>();
 
         private List<string> Identificatorslist = new List<string>();
 
         private List<string> TokensList = new List<string>();
 
-        private const string IdentificatorsPath = "D:\\COMPILER\\data\\identificators.txt";
-
-        private const string TokensPath = "D:\\COMPILER\\data\\tokens.txt";
-
-        private const string PatternsPath = "D:\\COMPILER\\data\\patterns.txt";
-
-        public void Test()
-        {
-            string[] data = { "abc$", "aBc1434", "DEf45_", "_fdg45", "14gfg", "12574" };
-            foreach (string r in data)
-            {
-                if (Regex.IsMatch(r, @"^[a-zA-Z0-9]*$"))
-                {
-                    Console.WriteLine("item {0} is correct", r);
-                }
-            }
-        }
-
        
+
+        //public void Test()
+        //{
+        //    string[] data = { "abc$", "aBc1434", "DEf45_", "_fdg45", "14gfg", "12574" };
+        //    foreach (string r in data)
+        //    {
+        //        if (Regex.IsMatch(r, @"^[a-zA-Z0-9]*$"))
+        //        {
+        //            Console.WriteLine("item {0} is correct", r);
+        //        }
+        //    }
+        //}
 
         public void ExecuteNumber(String line)
         {
@@ -215,8 +207,6 @@ namespace CourseProject
                             }
                         }
                     }
-                  
-                    
                 }
                 items1.ForEach(item => items.Add(item));
 
@@ -227,9 +217,9 @@ namespace CourseProject
                     string item = program[i];
                     int bi = 0;
                     int si = item.IndexOfAny(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
-                    if (si>=0)
+                    if (si >= 0)
                     {
-                        for (int j=0; j<si; j++)
+                        for (int j = 0; j < si; j++)
                         {
                             if (item[j].Equals('"'))
                             {
@@ -239,7 +229,7 @@ namespace CourseProject
                     }
                     int start_index = si;
                     bool sf = true;
-                    if (bi %2 ==0)
+                    if (bi % 2 == 0)
                     {
                         if (si >= 0)
                         {
@@ -320,7 +310,6 @@ namespace CourseProject
                             }
                         }
                     }
-                    
                 }
                 //foreach (Item item in items)
                 //{
@@ -350,9 +339,9 @@ namespace CourseProject
         {
             List<int> positions = new List<int>();
             int index = line.IndexOf(value);
-            while (index>-1)
+            while (index > -1)
             {
-                if (index+value.Length < line.Length)
+                if (index + value.Length < line.Length)
                 {
                     char c = line[index + value.Length];
                     if (c.Equals(':') || c.Equals(';') || c.Equals('+') || c.Equals('-') || c.Equals('/')
@@ -419,8 +408,7 @@ namespace CourseProject
                     if (IsContainsSymbols(line, BorderOfStatements) >= 0)
                     {
                         List<string> names = GetContainsSymbolName(line, BorderOfStatements);
-                       
-                    
+
                         foreach (string n in names)
                         {
                             Item item = new Item();
@@ -484,7 +472,7 @@ namespace CourseProject
                             }
                         }
                     }
-                 
+
                     if (IsContainsSymbols(line, compareOperators) >= 0)
                     {
                         List<string> names = GetContainsSymbolName(line, compareOperators);
@@ -587,12 +575,9 @@ namespace CourseProject
                         //item.Col = i;
                         //item.Row = line.IndexOf(pattern);
                         //tokens.Add(item);
-                        
                     }
                     if (IsContainsSymbols(line, serviceSymbols) >= 0)
                     {
-
-
                         //if (line.Contains(".."))
                         //{
                         //    string name = "..";
@@ -634,7 +619,6 @@ namespace CourseProject
                                 item.Row = si;
                                 tokens.Add(item);
                             }
-                          
                         }
 
                         if (line.Contains(":") && !(line.Contains(":=")))
@@ -646,9 +630,9 @@ namespace CourseProject
                             item.Row = si;
                             tokens.Add(item);
                         }
-                       
+
                         List<Item> items = GetAllContainsSymbols(line, serviceSymbols);
-                        for (int j=0; j<items.Count; j++)
+                        for (int j = 0; j < items.Count; j++)
                         {
                             Item tmp = items[j];
                             tmp.Col = i;
@@ -657,7 +641,7 @@ namespace CourseProject
                         foreach (Item item in items)
                         {
                             tokens.Add(item);
-                        }                      
+                        }
                     }
                     if (line.Contains('\"'))
                     {
@@ -673,7 +657,6 @@ namespace CourseProject
                                 tokens.Add(item);
                             }
                         }
-                        
                     }
                 }
                 //foreach (Item item1 in tokens)
@@ -741,7 +724,6 @@ namespace CourseProject
                             item.Name = p;
                             result.Add(item);
                         }
-
                     }
                 }
                 else
@@ -756,10 +738,8 @@ namespace CourseProject
                             item.Name = p;
                             result.Add(item);
                         }
-
                     }
                 }
-
             }
 
             return result;
@@ -768,7 +748,7 @@ namespace CourseProject
         private List<string> GetContainsSymbolName(string line, string[] patterns)
         {
             List<string> names = new List<string>();
-            
+
             foreach (string p in patterns)
             {
                 if (p.Equals("."))
@@ -788,7 +768,6 @@ namespace CourseProject
                         {
                             names.Add(p);
                         }
-                       
                     }
                 }
                 else
@@ -800,10 +779,8 @@ namespace CourseProject
                         {
                             names.Add(p);
                         }
-                      
                     }
                 }
-               
             }
             return names;
         }
@@ -812,10 +789,10 @@ namespace CourseProject
         {
             List<int> indexes = new List<int>();
             int ind = line.IndexOf(value);
-            while (ind>=0)
+            while (ind >= 0)
             {
                 indexes.Add(ind);
-                ind = line.IndexOf(value, ind+value.Length);
+                ind = line.IndexOf(value, ind + value.Length);
             }
             return indexes;
         }

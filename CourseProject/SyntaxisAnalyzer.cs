@@ -1,19 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace CourseProject
 {
-    public class SyntaxisAnalyzer
+    public class SyntaxisAnalyzer: Service
     {
-        private const string IdentificatorsPath = "D:\\COMPILER\\data\\identificators.txt";
+        
 
-        private const string TokensPath = "D:\\COMPILER\\data\\tokens.txt";
-
-        private const string PatternsPath = "D:\\COMPILER\\data\\patterns.txt";
-
-        private const string DefaultValue = "OP";
-
-        // const string OutputBinaryTreePath = "D:\\COMPILER\\data\\tree.txt";
+      
 
         private struct Item
         {
@@ -38,7 +31,7 @@ namespace CourseProject
             public string Type { get; set; }
         }
 
-        string[] ConditionOperators = { "=", "<>", ">", "<", ">=", "<=" };
+        private string[] ConditionOperators = { "=", "<>", ">", "<", ">=", "<=" };
 
         public BinaryTree FormBinaryTree()
         {
@@ -46,14 +39,13 @@ namespace CourseProject
             BinaryTree tree = new BinaryTree();
             tree.SetRootValue("start");
             int n = GetProgramSize();
-            
+
             int index = 0;
             try
             {
                 string line = RepairProgramLine(index);
                 while (!line.Contains("begin"))
                 {
-                   
                     if (line.StartsWith("var"))
                     {
                         tree.AddLeftChild("var");
@@ -76,45 +68,49 @@ namespace CourseProject
                     line = RepairProgramLine(index);
                 }
                 tree.SetHead();
-                Console.WriteLine("#1");
-                tree.PrintTree(tree.Root);
+               // Console.WriteLine("#1");
+                //tree.PrintTree(tree.Root);
 
                 int opIndex = 0;
-                for (int i = index; i < n; i++)
+                for (int i = index; i < n+1; i++)
                 {
+                    //only with bool = xor, not; for condition can be use or, and
                     //:=, while, if, then, else, until, begin, end;
                     line = RepairProgramLine(i);
                     if (line.Contains(":="))
                     {
-
                         tree.AddRightChild(DefaultValue + opIndex);
+                        string expression = line.Split(":=")[1];
                         tree.AddLeftChild(":=");
-                        BinaryTree assTree = ParseAssignOperator(line);
-                        tree.SetRightChild(assTree.Root);
+                        BinaryTree expTree = ParseExpression(expression);
+                        tree.SetRightChild(expTree.Root);
                         tree.SetParent(tree.Root);
                         opIndex++;
                     }
-                    if (line.Contains("while"))
+                    if (line.Contains("repeat"))
                     {
-                        string expression = line.Substring(line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
-                        foreach (string item in ConditionOperators)
-                        {
-                            if (line.Contains(item))
-                            {
-                                string arg0 = expression.Split(item)[0];
-                                string arg1 = expression.Split(item)[1];
-                                tree.AddRightChild(DefaultValue + opIndex);
-                                tree.AddLeftChild(item);
-                                tree.SetRightChild(ParseExpression(arg1).Root);
-                                tree.SetLeftChild(ParseExpression(arg0).Root);
-                                tree.SetParent(tree.Root);
-                            }
-                        }
+                        tree.AddRightChild(DefaultValue + opIndex);
+                        tree.AddLeftChild("repeat");
+                        tree.SetParent(tree.Root);
+                        //string expression = line.Substring(line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
+                        //foreach (string item in ConditionOperators)
+                        //{
+                        //    if (line.Contains(item))
+                        //    {
+                        //        string arg0 = expression.Split(item)[0];
+                        //        string arg1 = expression.Split(item)[1];
+                        //        tree.AddRightChild(DefaultValue + opIndex);
+                        //        tree.AddLeftChild(item);
+                        //        tree.SetRightChild(ParseExpression(arg1).Root);
+                        //        tree.SetLeftChild(ParseExpression(arg0).Root);
+                        //        tree.SetParent(tree.Root);
+                        //    }
+                        //}
                         opIndex++;
                     }
                     if (line.Contains("until"))
                     {
-                        string expresssion = line.Substring(line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
+                        string expresssion = GetSubsString(line,line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
                         foreach (string item in ConditionOperators)
                         {
                             if (expresssion.Contains(item))
@@ -135,7 +131,7 @@ namespace CourseProject
                     if (line.Contains("write"))
                     {
                         string pattern = "write";
-                        string msg = line.Substring(line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
+                        string msg = GetSubsString(line,line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
                         tree.AddRightChild(DefaultValue + n);
                         if (line.Contains("writeln"))
                         {
@@ -149,7 +145,7 @@ namespace CourseProject
                     if (line.Contains("read"))
                     {
                         string pattern = "read";
-                        string msg = line.Substring(line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
+                        string msg = GetSubsString(line,line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
                         tree.AddRightChild(DefaultValue + n);
                         if (line.Contains("readln"))
                         {
@@ -162,8 +158,7 @@ namespace CourseProject
                     }
                     if (line.Contains("if"))
                     {
-
-                        string expression = line.Substring(line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
+                        string expression = GetSubsString(line, line.IndexOf("(") + 1, line.LastIndexOf(')') - 1);
 
                         foreach (string item in ConditionOperators)
                         {
@@ -175,7 +170,6 @@ namespace CourseProject
                                 tree.SetRightChild(ParseExpression(arg1).Root);
                                 tree.SetLeftChild(ParseExpression(arg1).Root);
                                 tree.SetParent(tree.Root);
-
                             }
                         }
                         opIndex++;
@@ -211,7 +205,15 @@ namespace CourseProject
             return tree;
         }
 
-        
+        private string GetSubsString(string line, int sp, int ep)
+        {
+            string result = string.Empty;
+            for (int i=sp; i <= ep; i++)
+            {
+                result += line[i];
+            }
+            return result;
+        }
 
         private int GetProgramSize()
         {
@@ -311,34 +313,6 @@ namespace CourseProject
             return tree;
         }
 
-        public List<string> ReadProgram()
-        {
-            List<string> program = new List<string>();
-            string path = "C:\\Users\\IRIS\\Documents\\COMP\\COMPILER\\programs\\ex4_mix.pas";
-            Console.ForegroundColor = ConsoleColor.Red;
-            try
-            {
-                using (StreamReader reader = new StreamReader(path))
-                {
-                    string? line;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        program.Add(line);
-                    }
-                }
-            }
-            catch (DirectoryNotFoundException ex)
-            {
-                Console.WriteLine(ex.StackTrace);
-            }
-            catch (Exception ex0)
-            {
-                Console.WriteLine(ex0.StackTrace);
-            }
-            Console.ForegroundColor = ConsoleColor.White;
-            return program;
-        }
-
         public void PrintRepairProgram()
         {
             int ind = 0;
@@ -361,6 +335,34 @@ namespace CourseProject
             }
         }
 
+        //public List<string> ReadProgram()
+        //{
+        //    List<string> program = new List<string>();
+        //    string path = "C:\\Users\\IRIS\\Documents\\COMP\\COMPILER\\programs\\ex4_mix.pas";
+        //    Console.ForegroundColor = ConsoleColor.Red;
+        //    try
+        //    {
+        //        using (StreamReader reader = new StreamReader(path))
+        //        {
+        //            string? line;
+        //            while ((line = reader.ReadLine()) != null)
+        //            {
+        //                program.Add(line);
+        //            }
+        //        }
+        //    }
+        //    catch (DirectoryNotFoundException ex)
+        //    {
+        //        Console.WriteLine(ex.StackTrace);
+        //    }
+        //    catch (Exception ex0)
+        //    {
+        //        Console.WriteLine(ex0.StackTrace);
+        //    }
+        //    Console.ForegroundColor = ConsoleColor.White;
+        //    return program;
+        //}
+
         public bool CheckIdentificators()
         {
             Console.ForegroundColor = ConsoleColor.Red;
@@ -372,7 +374,7 @@ namespace CourseProject
                 string? line;
                 using (StreamReader reader = new StreamReader(TokensPath))
                 {
-                    while ((line=reader.ReadLine())!=null)
+                    while ((line = reader.ReadLine()) != null)
                     {
                         string arg0 = line.Split("##")[0];
                         string arg1 = line.Split("##")[1];
@@ -385,13 +387,11 @@ namespace CourseProject
                             item.Row = int.Parse(arg2);
                             tokens.Add(item);
                         }
-                        
                     }
                 }
                 using (StreamReader reader = new StreamReader(IdentificatorsPath))
                 {
-                    
-                    while ((line=reader.ReadLine())!=null)
+                    while ((line = reader.ReadLine()) != null)
                     {
                         string arg0 = line.Split("##")[0];
                         string arg1 = line.Split("##")[1];
@@ -415,7 +415,6 @@ namespace CourseProject
                                 item.Row = int.Parse(arg2);
                                 identificators.Add(item);
                             }
-                  
                         }
                     }
                 }
@@ -433,7 +432,7 @@ namespace CourseProject
                         }
                     }
                 }
-                for (int i=0; i<identificators.Count; i++)
+                for (int i = 0; i < identificators.Count; i++)
                 {
                     bool isExist = false;
                     foreach (IdentTypes item in dictionary)
@@ -450,7 +449,6 @@ namespace CourseProject
                         Console.WriteLine("find unknown identioficator, line is {0}, position is {1}", identificators[i].Column, identificators[i].Row);
                     }
                 }
-                         
             }
             catch (DirectoryNotFoundException ex)
             {
@@ -532,9 +530,19 @@ namespace CourseProject
             return IsCorrect;
         }
 
+        public bool CheckCorrectAssign()
+        {
+            bool flag = true;
+            //логические операторы and, or, not, xor
+            //для целых/вещественных +,-,*,/
+            //для целых div, mod
+            //проверить корректное присвоение переменных и операции с ними
+
+            return flag;
+        }
+
         public bool IsCorrectIdentificator(string line)
         {
-            
             bool flag = true;
             flag = !Regex.IsMatch(line[0].ToString(), @"^[0-9]*$") || line[0].Equals('_') || Regex.IsMatch(line[0].ToString(), @"^[a-zA-Z]+$");
             string arg = line.Remove(0, 1);
@@ -570,8 +578,6 @@ namespace CourseProject
             }
             return flag;
         }
-
-     
 
         public string RepairProgramLine(int col)
         {

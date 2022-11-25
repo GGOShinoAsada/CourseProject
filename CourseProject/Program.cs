@@ -1,5 +1,4 @@
-﻿
-namespace CourseProject
+﻿namespace CourseProject
 {
     internal class CourseProject
     {
@@ -13,17 +12,16 @@ namespace CourseProject
             //TestSynaxAnalyzer();
             //TestLexicAnalyzer();
             //TestIOTree();
-            TestRepair();
-            //TestFormTree();
+            //TestRepair();
+            TestFormTree();
             Console.WriteLine("done");
             Console.ReadKey();
         }
 
-
         private static void TestFormTree()
         {
             SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
-            BinaryTree tree =analyzer.FormBinaryTree();
+            BinaryTree tree = analyzer.FormBinaryTree();
             int k = 0;
         }
 

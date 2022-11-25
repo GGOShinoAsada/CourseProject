@@ -1,8 +1,8 @@
 ﻿namespace CourseProject
 {
-    public class BinaryTree
+    public class BinaryTree: Service
     {
-        private const string OutputBinaryTreePath = "D:\\COMPILER\\data\\tree.txt";
+        
 
         public class Item
         {
