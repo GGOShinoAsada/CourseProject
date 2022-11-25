@@ -1,8 +1,9 @@
-﻿namespace CourseProject
+﻿
+namespace CourseProject
 {
     internal class CourseProject
     {
-        private static string path = "D:\\COMPILER\\programs\\program11.pas";
+        private static string path = "C:\\Users\\IRIS\\Documents\\COMP\\COMPILER\\programs\\program11.pas";
 
         private static void Main(string[] args)
         {
@@ -13,8 +14,17 @@
             //TestLexicAnalyzer();
             //TestIOTree();
             TestRepair();
+            //TestFormTree();
             Console.WriteLine("done");
             Console.ReadKey();
+        }
+
+
+        private static void TestFormTree()
+        {
+            SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
+            BinaryTree tree =analyzer.FormBinaryTree();
+            int k = 0;
         }
 
         private static void TestRepair()
@@ -43,12 +53,12 @@
             string line = "if (a>10) then b:=b+52; else if (d>10) then s:=45+45; else c:=45;";
             //analyzer.ParseOperatorIf(line, 0, ref tree);
             line = "a:=(3+(4*5))";
-            BinaryTree assign = analyzer.ParseAssignOperator(line);
+            //BinaryTree assign = analyzer.ParseAssignOperator(line);
             int f = 0;
             //analyzer.ParseExpression(line);
             //analyzer.ParseProgramLine(line);
-            //bool flag = analyzer.CheckIdentificators();
-            //Console.WriteLine("flag=" + flag);
+            bool flag = analyzer.CheckIdentificators();
+            Console.WriteLine("flag=" + flag);
             //analyzer.PrintRepairProgram();
         }
 

@@ -17,23 +17,25 @@ namespace CourseProject
 
         private List<string> TokensList = new List<string>();
 
-        private const string IdentificatorsPath = "D:\\COMPILER\\data\\identificators.txt";
+        private const string IdentificatorsPath = "C:\\Users\\IRIS\\Documents\\COMP\\COMPILER\\data\\identificators.txt";
 
-        private const string TokensPath = "D:\\COMPILER\\data\\tokens.txt";
+        private const string TokensPath = "C:\\Users\\IRIS\\Documents\\COMP\\COMPILER\\data\\tokens.txt";
 
-        private const string PatternsPath = "D:\\COMPILER\\data\\patterns.txt";
+        private const string PatternsPath = "C:\\Users\\IRIS\\Documents\\COMP\\COMPILER\\data\\patterns.txt";
 
         public void Test()
         {
             string[] data = { "abc$", "aBc1434", "DEf45_", "_fdg45", "14gfg", "12574" };
             foreach (string r in data)
             {
-                if (Regex.IsMatch(r, @"^[0-9]*$"))
+                if (Regex.IsMatch(r, @"^[a-zA-Z0-9]*$"))
                 {
                     Console.WriteLine("item {0} is correct", r);
                 }
             }
         }
+
+       
 
         public void ExecuteNumber(String line)
         {
