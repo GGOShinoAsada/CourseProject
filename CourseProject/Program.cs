@@ -3,7 +3,7 @@ namespace CourseProject
 {
     internal class CourseProject
     {
-        private static string path = "C:\\Users\\IRIS\\Documents\\COMP\\COMPILER\\programs\\program11.pas";
+        private static string path = "D:\\COMPILER\\programs\\program11.pas";
 
         private static void Main(string[] args)
         {

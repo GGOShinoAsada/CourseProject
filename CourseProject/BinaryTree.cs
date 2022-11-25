@@ -2,7 +2,7 @@
 {
     public class BinaryTree
     {
-        private const string OutputBinaryTreePath = "C:\\Users\\IRIS\\Documents\\COMP\\COMPILER\\data\\tree.txt";
+        private const string OutputBinaryTreePath = "D:\\COMPILER\\data\\tree.txt";
 
         public class Item
         {

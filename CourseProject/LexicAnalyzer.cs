@@ -11,17 +11,19 @@ namespace CourseProject
             public int Row { get; set; }
         }
 
+        
+
         private List<string> program = new List<string>();
 
         private List<string> Identificatorslist = new List<string>();
 
         private List<string> TokensList = new List<string>();
 
-        private const string IdentificatorsPath = "C:\\Users\\IRIS\\Documents\\COMP\\COMPILER\\data\\identificators.txt";
+        private const string IdentificatorsPath = "D:\\COMPILER\\data\\identificators.txt";
 
-        private const string TokensPath = "C:\\Users\\IRIS\\Documents\\COMP\\COMPILER\\data\\tokens.txt";
+        private const string TokensPath = "D:\\COMPILER\\data\\tokens.txt";
 
-        private const string PatternsPath = "C:\\Users\\IRIS\\Documents\\COMP\\COMPILER\\data\\patterns.txt";
+        private const string PatternsPath = "D:\\COMPILER\\data\\patterns.txt";
 
         public void Test()
         {
@@ -417,6 +419,8 @@ namespace CourseProject
                     if (IsContainsSymbols(line, BorderOfStatements) >= 0)
                     {
                         List<string> names = GetContainsSymbolName(line, BorderOfStatements);
+                       
+                    
                         foreach (string n in names)
                         {
                             Item item = new Item();
@@ -642,14 +646,16 @@ namespace CourseProject
                             item.Row = si;
                             tokens.Add(item);
                         }
-
-                        List<string> names = GetContainsSymbolName(line, serviceSymbols);
-                        foreach (string n in names)
+                       
+                        List<Item> items = GetAllContainsSymbols(line, serviceSymbols);
+                        for (int j=0; j<items.Count; j++)
                         {
-                            Item item = new Item();
-                            item.Name = n;
-                            item.Col = i;
-                            item.Row = line.IndexOf(n);
+                            Item tmp = items[j];
+                            tmp.Col = i;
+                            items[j] = tmp;
+                        }
+                        foreach (Item item in items)
+                        {
                             tokens.Add(item);
                         }                      
                     }
@@ -706,27 +712,95 @@ namespace CourseProject
             return pos;
         }
 
-        private List<string> GetContainsSymbolName(string line, string[] paterns)
+        private List<Item> GetAllContainsSymbols(string line, string[] patterns)
         {
-            List<string> names = new List<string>();
-            foreach (string p in paterns)
+            List<Item> result = new List<Item>();
+
+            foreach (string p in patterns)
             {
                 if (p.Equals("."))
                 {
                     if (line.Contains(".."))
                     {
-                        names.Add("..");
+                        List<int> indexes = GetAllContains(line, p);
+                        foreach (int index in indexes)
+                        {
+                            Item item = new Item();
+                            item.Row = index;
+                            item.Name = p;
+                            result.Add(item);
+                        }
                     }
                     if (line.Contains(".") && !line.Contains(".."))
                     {
-                        names.Add(".");
+                        List<int> indexes = GetAllContains(line, p);
+                        foreach (int index in indexes)
+                        {
+                            Item item = new Item();
+                            item.Row = index;
+                            item.Name = p;
+                            result.Add(item);
+                        }
+
                     }
                 }
                 else
                 {
                     if (line.Contains(p) && !p.Equals(".") && !p.Equals(".."))
                     {
-                        names.Add(p);
+                        List<int> indexes = GetAllContains(line, p);
+                        foreach (int index in indexes)
+                        {
+                            Item item = new Item();
+                            item.Row = index;
+                            item.Name = p;
+                            result.Add(item);
+                        }
+
+                    }
+                }
+
+            }
+
+            return result;
+        }
+
+        private List<string> GetContainsSymbolName(string line, string[] patterns)
+        {
+            List<string> names = new List<string>();
+            
+            foreach (string p in patterns)
+            {
+                if (p.Equals("."))
+                {
+                    if (line.Contains(".."))
+                    {
+                        List<int> indexes = GetAllContains(line, p);
+                        foreach (int index in indexes)
+                        {
+                            names.Add(p);
+                        }
+                    }
+                    if (line.Contains(".") && !line.Contains(".."))
+                    {
+                        List<int> indexes = GetAllContains(line, p);
+                        foreach (int index in indexes)
+                        {
+                            names.Add(p);
+                        }
+                       
+                    }
+                }
+                else
+                {
+                    if (line.Contains(p) && !p.Equals(".") && !p.Equals(".."))
+                    {
+                        List<int> indexes = GetAllContains(line, p);
+                        foreach (int index in indexes)
+                        {
+                            names.Add(p);
+                        }
+                      
                     }
                 }
                
@@ -738,7 +812,7 @@ namespace CourseProject
         {
             List<int> indexes = new List<int>();
             int ind = line.IndexOf(value);
-            while (ind>0)
+            while (ind>=0)
             {
                 indexes.Add(ind);
                 ind = line.IndexOf(value, ind+value.Length);

@@ -5,11 +5,11 @@ namespace CourseProject
 {
     public class SyntaxisAnalyzer
     {
-        private const string IdentificatorsPath = "C:\\Users\\IRIS\\Documents\\COMP\\COMPILER\\data\\identificators.txt";
+        private const string IdentificatorsPath = "D:\\COMPILER\\data\\identificators.txt";
 
-        private const string TokensPath = "C:\\Users\\IRIS\\Documents\\COMP\\COMPILER\\data\\tokens.txt";
+        private const string TokensPath = "D:\\COMPILER\\data\\tokens.txt";
 
-        private const string PatternsPath = "C:\\Users\\IRIS\\Documents\\COMP\\COMPILER\\data\\patterns.txt";
+        private const string PatternsPath = "D:\\COMPILER\\data\\patterns.txt";
 
         private const string DefaultValue = "OP";
 
