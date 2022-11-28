@@ -1,8 +1,8 @@
 ﻿namespace CourseProject
 {
-    internal class CourseProject
+    public class CourseProject
     {
-        private static string path = "D:\\COMPILER\\programs\\program11.pas";
+        private static string path = "D:\\COMPILER\\programs\\ex1-operatorCompare.pas";
 
         private static void Main(string[] args)
         {
@@ -12,10 +12,37 @@
             //TestSynaxAnalyzer();
             //TestLexicAnalyzer();
             //TestIOTree();
-            //TestRepair();
-            TestFormTree();
+            TestRepair();
+            //TestMethod();
+            //TestFormTree();
+            //--------------------//
+            //ExecuteLexicAnalyzer();
+            //ExecuteSyntaxAnalyzer();
             Console.WriteLine("done");
             Console.ReadKey();
+        }
+
+
+        static void TestMethod()
+        {
+           LexicAnalyzer analyzer = new LexicAnalyzer();
+            analyzer.Test();
+        }
+
+        /// <summary>
+        /// start lexic analyzer
+        /// </summary>
+        private static void ExecuteLexicAnalyzer()
+        {
+
+        }
+
+        /// <summary>
+        /// start syntaz analyzer
+        /// </summary>
+        private static void ExecuteSyntaxAnalyzer()
+        {
+
         }
 
         private static void TestFormTree()
@@ -55,7 +82,7 @@
             int f = 0;
             //analyzer.ParseExpression(line);
             //analyzer.ParseProgramLine(line);
-            bool flag = analyzer.CheckIdentificators();
+            bool flag = analyzer.CheckProgram();
             Console.WriteLine("flag=" + flag);
             //analyzer.PrintRepairProgram();
         }

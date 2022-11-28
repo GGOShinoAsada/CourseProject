@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace CourseProject
 {
@@ -6,7 +7,37 @@ namespace CourseProject
     {
         
 
-      
+       private class Error
+       {
+
+            public string Message { get; set; }
+
+            public int Col { get; set; }
+
+            public int Row { get; set; }
+
+            public Error()
+            {
+                Col = -1;
+                Row = -1;
+                Message = "undefined";
+            }
+
+            public Error(int col, int row)
+            {
+                this.Col = col;
+                this.Row = row;
+                Message = "undefined";
+            }
+
+            public Error(int col, int row, string message)
+            {
+                this.Col = col;
+                this.Row = row;
+                this.Message = message;
+            }            
+
+       }
 
         private struct Item
         {
@@ -72,7 +103,7 @@ namespace CourseProject
                 //tree.PrintTree(tree.Root);
 
                 int opIndex = 0;
-                for (int i = index; i < n+1; i++)
+                for (int i = index; i < n; i++)
                 {
                     //only with bool = xor, not; for condition can be use or, and
                     //:=, while, if, then, else, until, begin, end;
@@ -92,20 +123,7 @@ namespace CourseProject
                         tree.AddRightChild(DefaultValue + opIndex);
                         tree.AddLeftChild("repeat");
                         tree.SetParent(tree.Root);
-                        //string expression = line.Substring(line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
-                        //foreach (string item in ConditionOperators)
-                        //{
-                        //    if (line.Contains(item))
-                        //    {
-                        //        string arg0 = expression.Split(item)[0];
-                        //        string arg1 = expression.Split(item)[1];
-                        //        tree.AddRightChild(DefaultValue + opIndex);
-                        //        tree.AddLeftChild(item);
-                        //        tree.SetRightChild(ParseExpression(arg1).Root);
-                        //        tree.SetLeftChild(ParseExpression(arg0).Root);
-                        //        tree.SetParent(tree.Root);
-                        //    }
-                        //}
+                        
                         opIndex++;
                     }
                     if (line.Contains("until"))
@@ -221,8 +239,11 @@ namespace CourseProject
             int n = 0;
             try
             {
-                string line = File.ReadAllLines(TokensPath).Last();
-                n = int.Parse(line.Split("##")[1]);
+                if (File.ReadAllLines(TokensPath).Length>0)
+                {
+                    string line = File.ReadAllLines(TokensPath).Last();
+                    n = int.Parse(line.Split("##")[1]) + 1;
+                }  
             }
             catch (Exception ex)
             {
@@ -230,49 +251,6 @@ namespace CourseProject
             }
             Console.ForegroundColor = ConsoleColor.White;
             return n;
-        }
-
-        public void ParseOperatorIf(string line, int lvl, ref BinaryTree tree)
-        {
-            //if find if
-            int si = line.IndexOf("(");
-            int ei = line.IndexOf(")");
-            string exp = line.Substring(si + 1, ei - 1);
-            tree.SetRootValue(exp);
-            if (line.IndexOf("then") > 0)
-            {
-                string thenBody = line.Substring(line.IndexOf("then") + 5, line.IndexOf("else") - 1);
-                tree.AddLeftChild(thenBody);
-                tree.SetParent(tree.Root);
-            }
-            //if find else
-            if (line.IndexOf("else") > 0)
-            {
-                string newLine = line.Remove(0, line.IndexOf("else"));
-                if (newLine.IndexOf("if") > 0)
-                {
-                    ParseOperatorIf(newLine, lvl + 1, ref tree);
-                }
-                else
-                {
-                    string elseBody = line.Substring(line.IndexOf("else") + 1, line.Length);
-                    tree.AddRightChild(elseBody);
-                }
-            }
-        }
-
-        public BinaryTree ParseAssignOperator(string line)
-        {
-            BinaryTree tree = new BinaryTree();
-            tree.SetRootValue(":=");
-            string arg0 = line.Split(":=")[0];
-            string arg1 = line.Split(":=")[1];
-            tree.AddLeftChild(arg0);
-            tree.SetParent(tree.Root);
-            BinaryTree exp = ParseExpression(arg1);
-            tree.SetRightChild(exp.Root);
-            tree.SetParent(tree.Root);
-            return tree;
         }
 
         public BinaryTree ParseExpression(string line)
@@ -363,10 +341,62 @@ namespace CourseProject
         //    return program;
         //}
 
-        public bool CheckIdentificators()
-        {
+		public bool CheckProgram()
+		{
             Console.ForegroundColor = ConsoleColor.Red;
-            bool IsCorrect = true;
+			bool flag = true;
+            List<Error> errors = new List<Error>();
+            errors = CheckIdentificators();
+			if (errors.Count >0)
+            {
+                flag = false;
+                foreach (Error error in errors)
+                {
+                    Console.WriteLine("find unknown identificator, location: col {0}, row {1}", error.Col, error.Row);
+                }
+            }
+            errors = CheckCorrectAssign();
+            if (errors.Count>0)
+            {
+                flag = false;
+
+            }
+            errors = CheckRepeatedDeclare();
+            if (errors.Count>0)
+            {
+                flag = false;
+                foreach (Error error in errors)
+                {
+                    Console.WriteLine("find duplicaded variable declare: col {0}", error.Col);
+                }
+            }
+            errors = CheckPairSymbols();
+            if (errors.Count>0)
+            {
+                flag = false;
+                foreach (Error error in errors)
+                {
+                    switch (error.Message)
+                    {
+                        case "BEGIN_END":
+                            Console.WriteLine("please check count of begin and end");
+                            break;
+                        case "CIRCLE_BRACKET":
+                            Console.WriteLine("find different count of pair stymbols \"(\" and \"end\", line is {0}", error.Col);
+                            break;
+                        case "RECTANGLE_BRACKET":
+                            Console.WriteLine("find different count of pair symbols \"[\" and \"]\", line is {0}", error.Col);
+                            break;
+                    }
+                }
+            }
+            Console.ForegroundColor = ConsoleColor.White;
+			return flag;
+		}
+        
+        private List<Error> CheckIdentificators()
+        {
+            List<Error> errors = new List<Error>();
             List<Item2> identificators = new List<Item2>();
             List<Item2> tokens = new List<Item2>();
             try
@@ -440,14 +470,13 @@ namespace CourseProject
                         if (item.Identificator.Equals(identificators[i].Value))
                         {
                             isExist = true;
-                            break;
-                        }
-                    }
-                    if (!isExist)
-                    {
-                        IsCorrect = false;
-                        Console.WriteLine("find unknown identioficator, line is {0}, position is {1}", identificators[i].Column, identificators[i].Row);
-                    }
+                            Error error = new Error();
+                            error.Col = identificators[i].Column;
+                            error.Row = identificators[i].Row;
+                            errors.Add(error);
+                            //break;
+                        }                      
+                    }                   
                 }
             }
             catch (DirectoryNotFoundException ex)
@@ -458,87 +487,128 @@ namespace CourseProject
             {
                 Console.WriteLine(ex.StackTrace);
             }
-            //List<Item> identificators = new List<Item>();
-            //Dictionary<int, string> types = new Dictionary<int, string>();
-            //try
-            //{
-            //    using (StreamReader reader = new StreamReader(IdentificatorsPath))
-            //    {
-            //        string? line;
-            //        while ((line = reader.ReadLine()) != null)
-            //        {
-            //            int col = int.Parse(line.Split("##")[1]);
-            //            string name = line.Split("##")[0];
-            //            Item item = new Item();
-            //            item.Position = col;
-            //            item.Value = name;
-            //            bool IsExist = false;
-            //            foreach (Item ident in identificators)
-            //            {
-            //                if (ident.Value.Equals(name))
-            //                {
-            //                    IsExist = true;
-            //                    break;
-            //                }
-            //            }
-            //            if (!IsExist)
-            //            {
-            //                identificators.Add(item);
-            //            }
-            //        }
-            //    }
-            //    using (StreamReader reader = new StreamReader(TokensPath))
-            //    {
-            //        string? line;
-            //        while ((line = reader.ReadLine()) != null)
-            //        {
-            //            if (IsContainsBaseType(line))
-            //            {
-            //                int col = int.Parse(line.Split("##")[1]);
-            //                string val = line.Split("##")[0];
-            //                types.Add(col, val);
-            //            }
-            //        }
-            //    }
-            //    int g = 0;
-            //    foreach (Item item in identificators)
-            //    {
-            //        try
-            //        {
-            //            IsCorrect = types[item.Position] != null;
-            //        }
-            //        catch (KeyNotFoundException ex)
-            //        {
-            //            IsCorrect = false;
-            //            Console.WriteLine(ex.StackTrace);
-            //        }
-            //        catch (ArgumentNullException ex1)
-            //        {
-            //            Console.WriteLine(ex1.StackTrace);
-            //        }
-            //        catch (Exception ex2)
-            //        {
-            //            Console.WriteLine(ex2.StackTrace);
-            //        }
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine(ex.StackTrace);
-            //}
+         
             Console.ForegroundColor = ConsoleColor.White;
-            return IsCorrect;
+            return errors;
         }
 
-        public bool CheckCorrectAssign()
+        private List<Error> CheckCorrectAssign()
         {
-            bool flag = true;
+
+            List<Error> errors = new List<Error>();
             //логические операторы and, or, not, xor
             //для целых/вещественных +,-,*,/
             //для целых div, mod
             //проверить корректное присвоение переменных и операции с ними
 
-            return flag;
+            return errors;
+        }
+
+		private List<Error> CheckRepeatedDeclare()
+		{
+            List<Error> errors = new List<Error>();
+            //int a =; bool(int) a = false;
+            List<string> variables = new List<string>();
+            int n = GetProgramSize();
+            if (n>0)
+            {
+                for (int i=0; i<n; i++)
+                {
+                    string line = RepairProgramLine(i);
+                    if (line.Equals("begin"))
+                        break;
+                    if (line.Contains("var"))
+                        line = line.Remove(0, 4);
+                    string[] arg0 = line.Split(":")[0].Split(",");
+                    foreach (string arg in arg0)
+                    {
+                        foreach (string variable in variables)
+                        {
+                            if (variable.Equals(arg))
+                            {
+                                Error error = new Error();
+                                error.Col = i;
+                                errors.Add(error);
+                            }
+                        }
+                    }
+                    //variables.Add()
+                }
+                
+            }
+           
+            return errors;
+		}
+
+        private List<Error> CheckPairSymbols()
+        {
+            List<Error> errors = new List<Error>();
+            //check correct for pair symbols
+            //symbols: ( and ), [ and ], begin and end
+            int n = GetProgramSize();
+            int f1 =0; short f2 = 0; short f3 = 0;
+            for (int i = 0; i < n; i++)
+            {
+                string line = RepairProgramLine(i);
+                List<int> indexes = GetAllContains(line, "begin");
+                f1 += indexes.Count;
+                indexes = GetAllContains(line, "end");
+                f1 -= indexes.Count;
+                for (int j = 0; j < line.Length; j++)
+                {
+                    if (line[j].Equals('('))
+                    {
+                        f2++;
+                    }
+                    if (line[j].Equals(')'))
+                    {
+                        f2--;
+                    }
+                    if (line[j].Equals('['))
+                    {
+                        f3++;
+                    }
+                    if (line[j].Equals(']'))
+                    {
+                        f3--;
+
+                    }
+                }
+                if (f2!=0)
+                {
+                    Error error = new Error();
+                    error.Col = i;
+                    error.Message = "CURCLE_BRACKET";
+                    errors.Add(error);
+                }
+                if (f3!=0)
+                {
+                    Error error = new Error();
+                    error.Col = i;
+                    error.Message = "RECTANGLE_BRACKET";
+                    errors.Add(error);
+                }
+                f2 = 0; f3 = 0;
+            }
+            if (f1!=0)
+            {
+                Error e = new Error();
+                e.Message = "BEGIN_END";
+                errors.Add(new Error());
+            }
+            return errors;
+        }
+
+        private List<int> GetAllContains(string line, string value)
+        {
+            List<int> indexes = new List<int>();
+            int ind = line.IndexOf(value);
+            while (ind >= 0)
+            {
+                indexes.Add(ind);
+                ind = line.IndexOf(value, ind + value.Length);
+            }
+            return indexes;
         }
 
         public bool IsCorrectIdentificator(string line)
@@ -559,7 +629,7 @@ namespace CourseProject
             List<string> baseTypes = new List<string>();
             using (StreamReader reader = new StreamReader(PatternsPath))
             {
-                for (int i = 0; i < 17; i++)
+                for (int i = 0; i < 18; i++)
                 {
                     string? tmp = reader.ReadLine();
                     if (tmp != null)
