@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CourseProject
+﻿namespace CourseProject
 {
     public class Service
     {
@@ -17,8 +11,5 @@ namespace CourseProject
         public const string PatternsPath = "D:\\COMPILER\\data\\patterns.txt";
 
         public const string DefaultValue = "OP";
-
-
-
     }
 }

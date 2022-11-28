@@ -1,9 +1,7 @@
 ﻿namespace CourseProject
 {
-    public class BinaryTree: Service
+    public class BinaryTree : Service
     {
-        
-
         public class Item
         {
             public string Value { get; set; }

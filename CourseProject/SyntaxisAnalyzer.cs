@@ -1,15 +1,11 @@
-﻿using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace CourseProject
 {
-    public class SyntaxisAnalyzer: Service
+    public class SyntaxisAnalyzer : Service
     {
-        
-
-       private class Error
-       {
-
+        private class Error
+        {
             public string Message { get; set; }
 
             public int Col { get; set; }
@@ -35,9 +31,8 @@ namespace CourseProject
                 this.Col = col;
                 this.Row = row;
                 this.Message = message;
-            }            
-
-       }
+            }
+        }
 
         private struct Item
         {
@@ -99,7 +94,7 @@ namespace CourseProject
                     line = RepairProgramLine(index);
                 }
                 tree.SetHead();
-               // Console.WriteLine("#1");
+                // Console.WriteLine("#1");
                 //tree.PrintTree(tree.Root);
 
                 int opIndex = 0;
@@ -123,12 +118,12 @@ namespace CourseProject
                         tree.AddRightChild(DefaultValue + opIndex);
                         tree.AddLeftChild("repeat");
                         tree.SetParent(tree.Root);
-                        
+
                         opIndex++;
                     }
                     if (line.Contains("until"))
                     {
-                        string expresssion = GetSubsString(line,line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
+                        string expresssion = GetSubsString(line, line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
                         foreach (string item in ConditionOperators)
                         {
                             if (expresssion.Contains(item))
@@ -149,7 +144,7 @@ namespace CourseProject
                     if (line.Contains("write"))
                     {
                         string pattern = "write";
-                        string msg = GetSubsString(line,line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
+                        string msg = GetSubsString(line, line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
                         tree.AddRightChild(DefaultValue + n);
                         if (line.Contains("writeln"))
                         {
@@ -163,7 +158,7 @@ namespace CourseProject
                     if (line.Contains("read"))
                     {
                         string pattern = "read";
-                        string msg = GetSubsString(line,line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
+                        string msg = GetSubsString(line, line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
                         tree.AddRightChild(DefaultValue + n);
                         if (line.Contains("readln"))
                         {
@@ -226,7 +221,7 @@ namespace CourseProject
         private string GetSubsString(string line, int sp, int ep)
         {
             string result = string.Empty;
-            for (int i=sp; i <= ep; i++)
+            for (int i = sp; i <= ep; i++)
             {
                 result += line[i];
             }
@@ -239,11 +234,11 @@ namespace CourseProject
             int n = 0;
             try
             {
-                if (File.ReadAllLines(TokensPath).Length>0)
+                if (File.ReadAllLines(TokensPath).Length > 0)
                 {
                     string line = File.ReadAllLines(TokensPath).Last();
                     n = int.Parse(line.Split("##")[1]) + 1;
-                }  
+                }
             }
             catch (Exception ex)
             {
@@ -253,7 +248,7 @@ namespace CourseProject
             return n;
         }
 
-        public BinaryTree ParseExpression(string line)
+        private BinaryTree ParseExpression(string line)
         {
             BinaryTree tree = new BinaryTree();
             int st = 0;
@@ -341,13 +336,13 @@ namespace CourseProject
         //    return program;
         //}
 
-		public bool CheckProgram()
-		{
+        public bool CheckProgram()
+        {
             Console.ForegroundColor = ConsoleColor.Red;
-			bool flag = true;
+            bool flag = true;
             List<Error> errors = new List<Error>();
             errors = CheckIdentificators();
-			if (errors.Count >0)
+            if (errors.Count > 0)
             {
                 flag = false;
                 foreach (Error error in errors)
@@ -356,13 +351,12 @@ namespace CourseProject
                 }
             }
             errors = CheckCorrectAssign();
-            if (errors.Count>0)
+            if (errors.Count > 0)
             {
                 flag = false;
-
             }
             errors = CheckRepeatedDeclare();
-            if (errors.Count>0)
+            if (errors.Count > 0)
             {
                 flag = false;
                 foreach (Error error in errors)
@@ -371,7 +365,7 @@ namespace CourseProject
                 }
             }
             errors = CheckPairSymbols();
-            if (errors.Count>0)
+            if (errors.Count > 0)
             {
                 flag = false;
                 foreach (Error error in errors)
@@ -381,9 +375,11 @@ namespace CourseProject
                         case "BEGIN_END":
                             Console.WriteLine("please check count of begin and end");
                             break;
+
                         case "CIRCLE_BRACKET":
                             Console.WriteLine("find different count of pair stymbols \"(\" and \"end\", line is {0}", error.Col);
                             break;
+
                         case "RECTANGLE_BRACKET":
                             Console.WriteLine("find different count of pair symbols \"[\" and \"]\", line is {0}", error.Col);
                             break;
@@ -391,9 +387,9 @@ namespace CourseProject
                 }
             }
             Console.ForegroundColor = ConsoleColor.White;
-			return flag;
-		}
-        
+            return flag;
+        }
+
         private List<Error> CheckIdentificators()
         {
             List<Error> errors = new List<Error>();
@@ -475,8 +471,8 @@ namespace CourseProject
                             error.Row = identificators[i].Row;
                             errors.Add(error);
                             //break;
-                        }                      
-                    }                   
+                        }
+                    }
                 }
             }
             catch (DirectoryNotFoundException ex)
@@ -487,14 +483,13 @@ namespace CourseProject
             {
                 Console.WriteLine(ex.StackTrace);
             }
-         
+
             Console.ForegroundColor = ConsoleColor.White;
             return errors;
         }
 
         private List<Error> CheckCorrectAssign()
         {
-
             List<Error> errors = new List<Error>();
             //логические операторы and, or, not, xor
             //для целых/вещественных +,-,*,/
@@ -504,15 +499,15 @@ namespace CourseProject
             return errors;
         }
 
-		private List<Error> CheckRepeatedDeclare()
-		{
+        private List<Error> CheckRepeatedDeclare()
+        {
             List<Error> errors = new List<Error>();
             //int a =; bool(int) a = false;
             List<string> variables = new List<string>();
             int n = GetProgramSize();
-            if (n>0)
+            if (n > 0)
             {
-                for (int i=0; i<n; i++)
+                for (int i = 0; i < n; i++)
                 {
                     string line = RepairProgramLine(i);
                     if (line.Equals("begin"))
@@ -534,11 +529,10 @@ namespace CourseProject
                     }
                     //variables.Add()
                 }
-                
             }
-           
+
             return errors;
-		}
+        }
 
         private List<Error> CheckPairSymbols()
         {
@@ -546,7 +540,7 @@ namespace CourseProject
             //check correct for pair symbols
             //symbols: ( and ), [ and ], begin and end
             int n = GetProgramSize();
-            int f1 =0; short f2 = 0; short f3 = 0;
+            int f1 = 0; short f2 = 0; short f3 = 0;
             for (int i = 0; i < n; i++)
             {
                 string line = RepairProgramLine(i);
@@ -571,17 +565,16 @@ namespace CourseProject
                     if (line[j].Equals(']'))
                     {
                         f3--;
-
                     }
                 }
-                if (f2!=0)
+                if (f2 != 0)
                 {
                     Error error = new Error();
                     error.Col = i;
                     error.Message = "CURCLE_BRACKET";
                     errors.Add(error);
                 }
-                if (f3!=0)
+                if (f3 != 0)
                 {
                     Error error = new Error();
                     error.Col = i;
@@ -590,7 +583,7 @@ namespace CourseProject
                 }
                 f2 = 0; f3 = 0;
             }
-            if (f1!=0)
+            if (f1 != 0)
             {
                 Error e = new Error();
                 e.Message = "BEGIN_END";
@@ -611,7 +604,7 @@ namespace CourseProject
             return indexes;
         }
 
-        public bool IsCorrectIdentificator(string line)
+        private bool IsCorrectIdentificator(string line)
         {
             bool flag = true;
             flag = !Regex.IsMatch(line[0].ToString(), @"^[0-9]*$") || line[0].Equals('_') || Regex.IsMatch(line[0].ToString(), @"^[a-zA-Z]+$");
@@ -623,7 +616,7 @@ namespace CourseProject
             return flag;
         }
 
-        public bool IsContainsBaseType(string line)
+        private bool IsContainsBaseType(string line)
         {
             bool flag = false;
             List<string> baseTypes = new List<string>();
@@ -649,7 +642,7 @@ namespace CourseProject
             return flag;
         }
 
-        public string RepairProgramLine(int col)
+        private string RepairProgramLine(int col)
         {
             List<Item> items = new List<Item>();
             string line = "";

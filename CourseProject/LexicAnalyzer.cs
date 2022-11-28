@@ -2,7 +2,7 @@
 
 namespace CourseProject
 {
-    public class LexicAnalyzer: Service
+    public class LexicAnalyzer : Service
     {
         private struct Item
         {
@@ -17,8 +17,6 @@ namespace CourseProject
 
         //private List<string> TokensList = new List<string>();
 
-       
-
         //public void Test()
         //{
         //    string[] data = { "abc$", "aBc1434", "DEf45_", "_fdg45", "14gfg", "12574" };
@@ -30,10 +28,6 @@ namespace CourseProject
         //        }
         //    }
         //}
-
-
-       
-
 
         public void ExecuteNumber(String line)
         {
@@ -54,56 +48,110 @@ namespace CourseProject
             }
         }
 
+        public List<string> CheckProgram()
+        {
+            bool flag = true;
+            List<string> errors = new List<string>();
+            int body = 0;
+            for (int i = 0; i < program.Count; i++)
+            {
+                if (program[i] != "")
+                {
+                    if (program[i].Equals("begin"))
+                    {
+                        body = i + 1;
+                        break;
+                    }
+                    if (program[i].Contains("var"))
+                    {
+                        string tmp = program[i];
+                        int col = i;
+                        List<string> IdentificatorsList = tmp.Remove(tmp.IndexOf("var"), 4).Split(':')[0].Trim().Split(',').ToList();
+                        for (int j = 0; j < IdentificatorsList.Count; j++)
+                        {
+                            IdentificatorsList[j] = IdentificatorsList[j].Trim();
+                        }
+                        flag = true;
+
+                        //исключение повторений
+                        string arg = IdentificatorsList[0];
+                        for (int j = 1; j < IdentificatorsList.Count; j++)
+                        {
+                            if (arg.Contains(IdentificatorsList[j]))
+                            {
+                                flag = false;
+                            }
+                        }
+
+                        //проверка допустимыx символов A-za-z0-9_
+                        foreach (string identificator in Identificatorslist)
+                        {
+                            if (!Regex.IsMatch(identificator[0].ToString(), @"^[0-9]*$"))
+                            {
+                                flag = Regex.IsMatch(identificator, @"^[a-zA-Z0-9_]*$");
+                            }
+                        }
+                        if (!flag)
+                        {
+                            errors.Add("find uncorrect identificator, col" + i);
+                        }
+                    }
+                    else
+                    {
+                        if (flag)
+                        {
+                            string tmp = program[i];
+                            int col = i;
+                            List<string> identificatorsList = tmp.Split(':')[0].Split(',').ToList();
+
+                            flag = true;
+                            for (int j = 0; j < identificatorsList.Count; j++)
+                            {
+                                string identificator = identificatorsList[j].Trim();
+                                if (!Regex.IsMatch(identificator[0].ToString(), @"^[0-9]*$"))
+                                {
+                                    flag = Regex.IsMatch(identificator, @"^[a-zA-Z0-9_]*$");
+                                }
+                            }
+                            if (!flag)
+                            {
+                                errors.Add("find uncorrect identificator, col " + i);
+                            }
+                        }
+                    }
+                }
+            }
+            return errors;
+        }
+
         public void FormIndentificators()
         {
             Console.ForegroundColor = ConsoleColor.Red;
             List<Item> items = new List<Item>();
-            bool IsNamesCorrect = true;
             int programBody = 0;
             try
             {
-                for (int i = 0; i < program.Count; i++)
+                if (CheckProgram().Count == 0)
                 {
-                    if (program[i] != "")
+                    for (int i = 0; i < program.Count; i++)
                     {
-                        if (program[i].Equals("begin"))
+                        if (program[i] != "")
                         {
-                            programBody = i + 1;
-                            break;
-                        }
-                        if (program[i].Contains("var"))
-                        {
-                            string tmp = program[i];
-                            int col = i;
-                            List<string> IdentificatorsList = tmp.Remove(tmp.IndexOf("var"), 4).Split(':')[0].Trim().Split(',').ToList();
-                            for (int j = 0; j < IdentificatorsList.Count; j++)
+                            if (program[i].Equals("begin"))
                             {
-                                IdentificatorsList[j] = IdentificatorsList[j].Trim();
+                                programBody = i + 1;
+                                break;
                             }
-                            IsNamesCorrect = true;
-
-                            //исключение повторений
-                            string arg = IdentificatorsList[0];
-                            for (int j = 1; j < IdentificatorsList.Count; j++)
+                            if (program[i].Contains("var"))
                             {
-                                if (arg.Contains(IdentificatorsList[j]))
+                                string tmp = program[i];
+                                int col = i;
+                                List<string> IdentificatorsList = tmp.Remove(tmp.IndexOf("var"), 4).Split(':')[0].Trim().Split(',').ToList();
+                                for (int j = 0; j < IdentificatorsList.Count; j++)
                                 {
-                                    IsNamesCorrect = false;
+                                    IdentificatorsList[j] = IdentificatorsList[j].Trim();
                                 }
-                            }
-                            
 
-                            //проверка допустимыx символов A-za-z0-9_
-                            foreach (string identificator in Identificatorslist)
-                            {
-                                if (!Regex.IsMatch(identificator[0].ToString(), @"^[0-9]*$"))
-                                {
-                                    IsNamesCorrect = Regex.IsMatch(identificator, @"^[a-zA-Z0-9_]*$");
-                                }
-                            }
-
-                            if (IsNamesCorrect)
-                            {
                                 List<int> rows = new List<int>();
                                 int t1 = tmp.IndexOf(':');
                                 List<int> delimiters = new List<int>(0);
@@ -137,26 +185,15 @@ namespace CourseProject
                             }
                             else
                             {
-                                Console.WriteLine("find uncorrect identificator, col {0}", col);
-                            }
-                        }
-                        else
-                        {
-                            string tmp = program[i];
-                            int col = i;
-                            List<string> identificatorsList = tmp.Split(':')[0].Split(',').ToList();
+                                string tmp = program[i];
+                                int col = i;
+                                List<string> identificatorsList = tmp.Split(':')[0].Split(',').ToList();
 
-                            IsNamesCorrect = true;
-                            for (int j = 0; j < identificatorsList.Count; j++)
-                            {
-                                string identificator = identificatorsList[j].Trim();
-                                if (!Regex.IsMatch(identificator[0].ToString(), @"^[0-9]*$"))
+                                for (int j = 0; j < identificatorsList.Count; j++)
                                 {
-                                    IsNamesCorrect = Regex.IsMatch(identificator, @"^[a-zA-Z0-9_]*$");
+                                    string identificator = identificatorsList[j].Trim();
                                 }
-                            }
-                            if (IsNamesCorrect)
-                            {
+
                                 List<int> rows = new List<int>();
                                 List<int> delimiters = new List<int>();
                                 for (int j = 0; j < tmp.Length; j++)
@@ -188,29 +225,29 @@ namespace CourseProject
                                     items.Add(item);
                                 }
                             }
-                            else
-                            {
-                                Console.WriteLine("find uncorrect identificator, col {0}", col);
-                            }
                         }
                     }
                 }
+
                 List<Item> items1 = new List<Item>();
                 for (int i = programBody; i < program.Count; i++)
                 {
                     string line = program[i];
-                    if (!line.Contains("write"))
+                    if (!line.Equals(""))
                     {
-                        foreach (Item item in items)
+                        if (!line.Contains("write"))
                         {
-                            List<int> indexes = GetStartPositions(line, item.Name);
-                            foreach (int ind in indexes)
+                            foreach (Item item in items)
                             {
-                                Item tmp = new Item();
-                                tmp.Name = item.Name;
-                                tmp.Col = i;
-                                tmp.Row = ind;
-                                items1.Add(tmp);
+                                List<int> indexes = GetStartPositions(line, item.Name);
+                                foreach (int ind in indexes)
+                                {
+                                    Item tmp = new Item();
+                                    tmp.Name = item.Name;
+                                    tmp.Col = i;
+                                    tmp.Row = ind;
+                                    items1.Add(tmp);
+                                }
                             }
                         }
                     }
@@ -222,11 +259,10 @@ namespace CourseProject
                 for (int i = 0; i < program.Count; i++)
                 {
                     string item = program[i];
-                    if (item!="")
+                    if (item != "")
                     {
-                        
                         int si = item.IndexOfAny(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
-                        
+
                         int start_index = si;
                         bool sf = true;
                         if (!IsLocatedInSpaces(item, si))
@@ -235,20 +271,19 @@ namespace CourseProject
                             {
                                 string number = "";
                                 bool f1 = true; bool f2 = true;
-                                if (si>0)
+                                if (si > 0)
                                 {
-                                    if (item[si-1].Equals("_") || Regex.IsMatch(item[si-1].ToString(), @"^[a-zA-Z]*$"))
+                                    if (item[si - 1].Equals("_") || Regex.IsMatch(item[si - 1].ToString(), @"^[a-zA-Z]*$"))
                                     {
                                         f1 = false;
                                     }
                                     //<-
                                 }
-                                if (item[si + 1].Equals(" ") || Regex.IsMatch(item[si + 1].ToString(), @"^[a-zA-Z]*$") || item[si+1].Equals("_"))
+                                if (item[si + 1].Equals(" ") || Regex.IsMatch(item[si + 1].ToString(), @"^[a-zA-Z]*$") || item[si + 1].Equals("_"))
                                 {
                                     f2 = false;
                                 }
                                 //->
-
 
                                 if (f1 && f2)
                                 {
@@ -296,7 +331,6 @@ namespace CourseProject
                                         }
                                     }
                                 }
-                               
                             }
                             if (IsHexDigitValue(item))
                             {
@@ -331,7 +365,6 @@ namespace CourseProject
                             }
                         }
                     }
-                   
                 }
                 //foreach (Item item in items)
                 //{
@@ -367,24 +400,23 @@ namespace CourseProject
                 {
                     char c = line[index + value.Length];
                     string varn = "";
-                    for (int j=index; j>0; j--)
+                    for (int j = index; j > 0; j--)
                     {
                         if (IsBorderSymbol(line[j]))
                             break;
                         varn += line[j];
-                        
                     }
                     char[] arr = varn.ToCharArray();
                     Array.Reverse(arr);
                     varn = new string(arr);
 
-                    for (int j=index+1; j<line.Length; j++)
+                    for (int j = index + 1; j < line.Length; j++)
                     {
                         if (IsBorderSymbol(line[j]))
                             break;
                         varn += line[j];
                     }
-                   
+
                     if (IsAllowVariable(varn))
                         if (c.Equals(':') || c.Equals(';') || c.Equals('+') || c.Equals('-') || c.Equals('/')
                             || c.Equals('*') || c.Equals('=') || c.Equals('>') || c.Equals('<')
@@ -433,7 +465,7 @@ namespace CourseProject
 
         private string[] BorderOfStatements = { "begin", "end" };
 
-         string[] ArrayStructure = { "array", "of"};
+        private string[] ArrayStructure = { "array", "of" };
 
         private string[] RepeatStructure = { "repeat", "until" };
 
@@ -444,7 +476,7 @@ namespace CourseProject
         private bool IsAllowVariable(string variable)
         {
             bool f = true;
-            for (int i=0; i<BaseTypes.Length; i++)
+            for (int i = 0; i < BaseTypes.Length; i++)
             {
                 f = !variable.Equals(BaseTypes[i]);
                 if (!f)
@@ -452,7 +484,7 @@ namespace CourseProject
             }
             if (f)
             {
-                for (int i=0; i<ConditionStructure.Length; i++)
+                for (int i = 0; i < ConditionStructure.Length; i++)
                 {
                     f = !variable.Equals(ConditionStructure[i]);
                     if (!f)
@@ -461,7 +493,7 @@ namespace CourseProject
             }
             if (f)
             {
-                for (int i=0; i<LogicalOperators.Length; i++)
+                for (int i = 0; i < LogicalOperators.Length; i++)
                 {
                     f = !variable.Equals(LogicalOperators[i]);
                     if (!f)
@@ -470,7 +502,7 @@ namespace CourseProject
             }
             if (f)
             {
-                for (int i=0; i<LogicalValues.Length; i++)
+                for (int i = 0; i < LogicalValues.Length; i++)
                 {
                     f = !variable.Equals(LogicalValues[i]);
                     if (!f)
@@ -479,7 +511,7 @@ namespace CourseProject
             }
             if (f)
             {
-                for (int i=0; i<BorderOfStatements.Length; i++)
+                for (int i = 0; i < BorderOfStatements.Length; i++)
                 {
                     f = !variable.Equals(BorderOfStatements[i]);
                     if (!f)
@@ -488,7 +520,7 @@ namespace CourseProject
             }
             if (f)
             {
-                for (int i=0; i<ArrayStructure.Length; i++)
+                for (int i = 0; i < ArrayStructure.Length; i++)
                 {
                     f = !variable.Equals(ArrayStructure[i]);
                     if (!f)
@@ -497,7 +529,7 @@ namespace CourseProject
             }
             if (f)
             {
-                for (int i=0; i<RepeatStructure.Length; i++)
+                for (int i = 0; i < RepeatStructure.Length; i++)
                 {
                     f = !variable.Equals(RepeatStructure[i]);
                     if (!f)
@@ -506,7 +538,7 @@ namespace CourseProject
             }
             if (f)
             {
-                for (int i=0; i<IOStructure.Length; i++)
+                for (int i = 0; i < IOStructure.Length; i++)
                 {
                     f = !variable.Equals(IOStructure[i]);
                     if (!f)
@@ -515,24 +547,24 @@ namespace CourseProject
             }
             return f;
         }
-       
-        public void Test()
-        {
-            string tmp = "a:=b xor c or f";
-            List<int> indexesXor = new List<int>();
-            List<int> indexesOr = new List<int>();
-            int ind = tmp.IndexOf("xor");
-             if (ind>0)
-             {
-                tmp = tmp.Remove(tmp.IndexOf("xor"), 3);
-                ind = tmp.IndexOf("xor");
-             }
-            var demo = GetContainsSymbolName(tmp, LogicalOperators);
-            foreach (var t in demo)
-            {
-                Console.WriteLine(t.Name+" "+t.Col+" "+t.Row);
-            }
-        }
+
+        //public void Test()
+        //{
+        //    string tmp = "a:=b xor c or f";
+        //    List<int> indexesXor = new List<int>();
+        //    List<int> indexesOr = new List<int>();
+        //    int ind = tmp.IndexOf("xor");
+        //    if (ind > 0)
+        //    {
+        //        tmp = tmp.Remove(tmp.IndexOf("xor"), 3);
+        //        ind = tmp.IndexOf("xor");
+        //    }
+        //    var demo = GetContainsSymbolName(tmp, LogicalOperators);
+        //    foreach (var t in demo)
+        //    {
+        //        Console.WriteLine(t.Name + " " + t.Col + " " + t.Row);
+        //    }
+        //}
 
         public void FormTokens()
         {
@@ -543,7 +575,7 @@ namespace CourseProject
                 for (int i = 0; i < program.Count; i++)
                 {
                     string line = program[i];
-                    if (line!="")
+                    if (line != "")
                     {
                         if (line.Contains("var"))
                         {
@@ -566,7 +598,6 @@ namespace CourseProject
                                     tmp.Col = i;
                                     tokens.Add(tmp);
                                 }
-
                             }
                         }
                         if (IsContainsSymbols(line, BaseTypes) > 0)
@@ -637,9 +668,7 @@ namespace CourseProject
                                     Item tmp = item;
                                     tmp.Col = i;
                                     tokens.Add(tmp);
-
                                 }
-
                             }
                         }
 
@@ -653,9 +682,7 @@ namespace CourseProject
                                     Item tmp = item;
                                     tmp.Col = i;
                                     tokens.Add(tmp);
-
                                 }
-
                             }
                         }
 
@@ -713,7 +740,7 @@ namespace CourseProject
                                 }
                             }
                         }
-                     
+
                         if (IsContainsSymbols(line, IOStructure) >= 0)
                         {
                             string pattern = "";
@@ -879,9 +906,9 @@ namespace CourseProject
         private bool IsLocatedInSpaces(string line, int pos)
         {
             short ind = 0;
-            for (int i=0; i<line.Length; i++)
+            for (int i = 0; i < line.Length; i++)
             {
-                if (i==pos)
+                if (i == pos)
                 {
                     break;
                 }
@@ -889,9 +916,8 @@ namespace CourseProject
                 {
                     ind++;
                 }
-                
             }
-            return ind%2==1;
+            return ind % 2 == 1;
         }
 
         private int IsContainsSymbols(string line, string[] symbols)
@@ -956,12 +982,9 @@ namespace CourseProject
             return result;
         }
 
-        
         private List<Item> GetContainsSymbolName(string line, string[] patterns)
         {
             List<Item> items = new List<Item>();
-
-            
 
             foreach (string p in patterns)
             {
@@ -990,8 +1013,6 @@ namespace CourseProject
                         line = line.Remove(index, 1);
                         index = line.IndexOf(".");
                     }
-
-                  
                 }
                 if (f1)
                 {
@@ -1025,12 +1046,11 @@ namespace CourseProject
                         line = line.Remove(index, 1);
                         index = line.IndexOf(">");
                     }
-
                 }
                 if (f2)
                 {
                     int index = line.IndexOf("xor");
-                    while (index>0)
+                    while (index > 0)
                     {
                         Item item = new Item();
                         item.Name = "xor";
@@ -1040,7 +1060,7 @@ namespace CourseProject
                         index = line.IndexOf("xor");
                     }
                     index = line.IndexOf("or");
-                    while (index>0)
+                    while (index > 0)
                     {
                         Item item = new Item();
                         item.Name = "or";
@@ -1049,10 +1069,8 @@ namespace CourseProject
                         line = line.Remove(index, 2);
                         index = line.IndexOf("or");
                     }
-                    
-                 
                 }
-                if (line.Contains(p) && !f && !f1 &!f2)
+                if (line.Contains(p) && !f && !f1 & !f2)
                 {
                     List<int> indexes = GetAllContains(line, p);
                     foreach (int index in indexes)
@@ -1063,7 +1081,6 @@ namespace CourseProject
                         items.Add(item);
                     }
                 }
-
             }
             return items;
         }
