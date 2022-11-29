@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Data;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 
 namespace CourseProject
 {
@@ -10,6 +12,28 @@ namespace CourseProject
             public int Col { get; set; }
             public int Row { get; set; }
         }
+
+        private string[] BaseTypes = { "integer", "shortint", "smallint", "longint", "int64", "byte", "word", "longword", "cardinal", "uint64", "BigInteger", "real", "double", "single", "decimal", "boolean", "string", "char" };
+
+        private string[] CompareOperators = { ">", "<", ">=", "<=",/* "=",*/ "<>" };
+
+        private string[] ArifmeticOperators = { "+", "-", "/", "*", "div", "mod" };
+
+        private string[] ConditionStructure = { "if", "then", "else" };
+
+        private string[] LogicalOperators = { "and", "or", "not", "xor" };
+
+        private string[] LogicalValues = { "true", "false" };
+
+        private string[] BorderOfStatements = { "begin", "end" };
+
+        private string[] ArrayStructure = { "array", "of" };
+
+        private string[] RepeatStructure = { "repeat", "until" };
+
+        private string[] IOStructure = { "read", "readln", "write", "writeln" };
+
+        private string[] ServiceSymbols = { "[", "]", "{", "}", "(", ")", "..", ".", ",", ";", /*":=", ":"*/ };
 
         private List<string> program = new List<string>();
 
@@ -52,6 +76,17 @@ namespace CourseProject
         {
             bool flag = true;
             List<string> errors = new List<string>();
+            //int ind = 0;
+            //string line = program[ind];
+            //while (line.Equals("begin") || (ind==program.Count))
+            //{
+            //    if (line.Contains("var"))
+            //    {
+            //        line = line.Remove(line.IndexOf("var"), 4);
+            //        string[] args = line.Split(':')[0].Trim().Split(',');
+            //    }
+            // }
+
             int body = 0;
             for (int i = 0; i < program.Count; i++)
             {
@@ -71,6 +106,7 @@ namespace CourseProject
                         {
                             IdentificatorsList[j] = IdentificatorsList[j].Trim();
                         }
+                        //#2
                         flag = true;
 
                         //исключение повторений
@@ -94,6 +130,24 @@ namespace CourseProject
                         if (!flag)
                         {
                             errors.Add("find uncorrect identificator, col" + i);
+                        }
+                        //#3
+                        flag = false;
+                        string basetype = program[i].Split(":")[1];
+                        if (basetype.IndexOf(";")>=0)
+                            basetype = basetype.Remove(basetype.IndexOf(";"), 1);
+                        basetype = basetype.Trim();
+                        foreach (string type in BaseTypes)
+                        {
+                            if (type.Equals(basetype))
+                            {
+                                flag = true;
+                                break;
+                            }                                
+                        }
+                        if (!flag)
+                        {
+                            errors.Add("find uncorrect base type");
                         }
                     }
                     else
@@ -131,10 +185,12 @@ namespace CourseProject
             int programBody = 0;
             try
             {
+                
                 if (CheckProgram().Count == 0)
                 {
                     for (int i = 0; i < program.Count; i++)
                     {
+                        string temp = program[i];
                         if (program[i] != "")
                         {
                             if (program[i].Equals("begin"))
@@ -227,157 +283,224 @@ namespace CourseProject
                             }
                         }
                     }
-                }
-
-                List<Item> items1 = new List<Item>();
-                for (int i = programBody; i < program.Count; i++)
-                {
-                    string line = program[i];
-                    if (!line.Equals(""))
+                    List<Item> items1 = new List<Item>();
+                    for (int i = programBody; i < program.Count; i++)
                     {
-                        if (!line.Contains("write"))
+                        string line = program[i];
+                        if (!line.Equals(""))
                         {
-                            foreach (Item item in items)
+                            if (!line.Contains("write"))
                             {
-                                List<int> indexes = GetStartPositions(line, item.Name);
-                                foreach (int ind in indexes)
+                                foreach (Item item in items)
                                 {
-                                    Item tmp = new Item();
-                                    tmp.Name = item.Name;
-                                    tmp.Col = i;
-                                    tmp.Row = ind;
-                                    items1.Add(tmp);
+                                    List<int> indexes = GetStartPositions(line, item.Name);
+                                    foreach (int ind in indexes)
+                                    {
+                                        Item tmp = new Item();
+                                        tmp.Name = item.Name;
+                                        tmp.Col = i;
+                                        tmp.Row = ind;
+                                        items1.Add(tmp);
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                items1.ForEach(item => items.Add(item));
+                    items1.ForEach(item => items.Add(item));
 
-                //numbers
+                    //numbers
 
-                for (int i = 0; i < program.Count; i++)
-                {
-                    string item = program[i];
-                    if (item != "")
+                    for (int i = 0; i < program.Count; i++)
                     {
-                        int si = item.IndexOfAny(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
-
-                        int start_index = si;
-                        bool sf = true;
-                        if (!IsLocatedInSpaces(item, si))
+                        string item = program[i];
+                        if (item != "")
                         {
-                            if (si >= 0)
-                            {
-                                string number = "";
-                                bool f1 = true; bool f2 = true;
-                                if (si > 0)
-                                {
-                                    if (item[si - 1].Equals("_") || Regex.IsMatch(item[si - 1].ToString(), @"^[a-zA-Z]*$"))
-                                    {
-                                        f1 = false;
-                                    }
-                                    //<-
-                                }
-                                if (item[si + 1].Equals(" ") || Regex.IsMatch(item[si + 1].ToString(), @"^[a-zA-Z]*$") || item[si + 1].Equals("_"))
-                                {
-                                    f2 = false;
-                                }
-                                //->
+                            int si = item.IndexOfAny(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' });
 
-                                if (f1 && f2)
-                                {
-                                    for (int j = si; j < item.Length; j++)
-                                    {
-                                        if (Regex.IsMatch(item[j].ToString(), @"^[0-9]*$") || (item[j].Equals('.')))
-                                        {
-                                            if (sf)
-                                            {
-                                                start_index = j;
-                                                sf = false;
-                                            }
-                                            number += item[j];
-                                            // cSi = j;
-                                        }
-                                        else
-                                        {
-                                            if (!number.Equals(""))
-                                            {
-                                                Item item1 = new Item();
-                                                if (number.Contains(".."))
-                                                {
-                                                    string[] tmp = number.Split("..");
-                                                    item1.Name = tmp[0];
-                                                    item1.Col = i;
-                                                    item1.Row = si;
-                                                    items.Add(item1);
-                                                    item1 = new Item();
-                                                    item1.Name = tmp[1];
-                                                    item1.Col = i;
-                                                    item1.Row = start_index + number.IndexOf("..") + 2;
-                                                    items.Add(item1);
-                                                    number = "";
-                                                }
-                                                else
-                                                {
-                                                    item1.Name = number;
-                                                    item1.Col = i;
-                                                    item1.Row = start_index;
-                                                    items.Add(item1);
-                                                    number = "";
-                                                }
-                                                sf = true;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            if (IsHexDigitValue(item))
+                            int start_index = si;
+                            bool sf = true;
+                            if (!IsLocatedInSpaces(item, si))
                             {
-                                List<int> indexes = new List<int>();
-                                for (int j = item.IndexOf('$'); j < item.Length; j++)
-                                {
-                                    if (item[j].Equals('$'))
-                                    {
-                                        indexes.Add(j);
-                                    }
-                                }
-                                foreach (int index in indexes)
+                                if (si >= 0)
                                 {
                                     string number = "";
-                                    for (int j = index; j < item.Length; j++)
+                                    bool f1 = true; bool f2 = true;
+                                    if (si > 0)
                                     {
-                                        if (Regex.IsMatch(item[j].ToString(), @"^[a-fA-F0-9]*$"))
+                                        if (item[si - 1].Equals("_") || Regex.IsMatch(item[si - 1].ToString(), @"^[a-zA-Z]*$"))
                                         {
-                                            number += item[j];
+                                            f1 = false;
                                         }
-                                        else
+                                        //<-
+                                    }
+                                    if (item[si + 1].Equals(" ") || Regex.IsMatch(item[si + 1].ToString(), @"^[a-zA-Z]*$") || item[si + 1].Equals("_"))
+                                    {
+                                        f2 = false;
+                                    }
+                                    //->
+
+                                    if (f1 && f2)
+                                    {
+                                        if (item[si-1].Equals("&") && item[si-1].Equals("$") && item[si-1].Equals("%"))
+                                        for (int j = si; j < item.Length; j++)
                                         {
-                                            Item item1 = new Item();
-                                            item1.Name = number;
-                                            item1.Col = i;
-                                            item1.Row = index;
-                                            items.Add(item1);
-                                            number = "";
+                                            if (Regex.IsMatch(item[j].ToString(), @"^[0-9]*$") || (item[j].Equals('.')))
+                                            {
+                                                if (sf)
+                                                {
+                                                    start_index = j;
+                                                    sf = false;
+                                                }
+                                                number += item[j];
+                                                // cSi = j;
+                                            }
+                                            else
+                                            {
+                                                if (!number.Equals(""))
+                                                {
+                                                    Item item1 = new Item();
+                                                    if (number.Contains(".."))
+                                                    {
+                                                        string[] tmp = number.Split("..");
+                                                        item1.Name = tmp[0];
+                                                        item1.Col = i;
+                                                        item1.Row = si;
+                                                        items.Add(item1);
+                                                        item1 = new Item();
+                                                        item1.Name = tmp[1];
+                                                        item1.Col = i;
+                                                        item1.Row = start_index + number.IndexOf("..") + 2;
+                                                        items.Add(item1);
+                                                        number = "";
+                                                    }
+                                                    else
+                                                    {
+                                                        item1.Name = number;
+                                                        item1.Col = i;
+                                                        item1.Row = start_index;
+                                                        items.Add(item1);
+                                                        number = "";
+                                                    }
+                                                    sf = true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                if (IsHexDigitValue(item))
+                                {
+                                    List<int> indexes = new List<int>();
+                                    for (int j = item.IndexOf('$'); j < item.Length; j++)
+                                    {
+                                        if (item[j].Equals('$'))
+                                        {
+                                            indexes.Add(j);
+                                        }
+                                    }
+                                    foreach (int index in indexes)
+                                    {
+                                        string number = "";
+                                        for (int j = index + 1; j < item.Length; j++)
+                                        {
+                                            if (Regex.IsMatch(item[j].ToString(), @"^[a-fA-F0-9]*$"))
+                                            {
+                                                number += item[j];
+                                            }
+                                            else
+                                            {
+                                                if (number!="")
+                                                {
+                                                    Item item1 = new Item();
+                                                    item1.Name = "$" + number;
+                                                    item1.Col = i;
+                                                    item1.Row = index;
+                                                    items.Add(item1);
+                                                    break;
+                                                }
+                                               
+                                            }
+                                        }
+                                    }
+                                }
+                                bool fff = IsOctDigitValue(item);
+                                if (IsOctDigitValue(item))
+                                {
+                                    List<int> indexes = new List<int>();
+                                    for (int j = item.IndexOf('&'); j < item.Length; j++)
+                                    {
+                                        if (item[j].Equals('&'))
+                                        {
+                                            indexes.Add(j);
+                                        }
+                                    }
+                                    foreach (int index in indexes)
+                                    {
+                                        string number = "";
+                                        for (int j = index + 1; j < item.Length; j++)
+                                        {
+                                            if (Regex.IsMatch(item[j].ToString(), @"^[0-7]*$"))
+                                            {
+                                                number += item[j];
+                                            }
+                                            else
+                                            {
+                                                Item item1 = new Item();
+                                                item1.Name = "&" + number;
+                                                item1.Col = i;
+                                                item1.Row = index;
+                                                items.Add(item1);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                if (IsBinDigitValue(item))
+                                {
+                                    List<int> indexes = new List<int>();
+                                    for (int j = item.IndexOf('%'); j < item.Length; j++)
+                                    {
+                                        if (item[j].Equals('%'))
+                                        {
+                                            indexes.Add(j);
+                                        }
+                                    }
+                                    foreach (int index in indexes)
+                                    {
+                                        string number = "";
+                                        for (int j = index + 1; j < item.Length; j++)
+                                        {
+                                            if (item[j].Equals('0') || item[j].Equals('1'))
+                                            {
+                                                number += item[j];
+                                            }
+                                            else
+                                            {
+                                                Item item1 = new Item();
+                                                item1.Name = "%" + number;
+                                                item1.Col = i;
+                                                item1.Row = index;
+                                                items.Add(item1);
+                                                break;
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                }
-                //foreach (Item item in items)
-                //{
-                //    Console.WriteLine("name {0}, col {1}, row {2}", item.Name, item.Col, item.Row);
-                //}
+                    //foreach (Item item in items)
+                    //{
+                    //    Console.WriteLine("name {0}, col {1}, row {2}", item.Name, item.Col, item.Row);
+                    //}
 
-                using (StreamWriter writer = new StreamWriter(IdentificatorsPath))
-                {
-                    foreach (Item it in items)
+                    using (StreamWriter writer = new StreamWriter(IdentificatorsPath))
                     {
-                        writer.WriteLine(it.Name + "##" + it.Col + "##" + it.Row);
+                        foreach (Item it in items)
+                        {
+                            writer.WriteLine(it.Name + "##" + it.Col + "##" + it.Row);
+                        }
                     }
-                }
+                } 
             }
             catch (DirectoryNotFoundException ex0)
             {
@@ -440,38 +563,147 @@ namespace CourseProject
         private bool IsHexDigitValue(string line)
         {
             bool flag = true;
-
-            if (line != null)
+            if (line.IndexOf('$')>=0)
             {
-                flag = line[0].Equals('$');
-                line = line.Remove(0, 1);
-                flag = Regex.IsMatch(line, @"^[a-fA-F0-9]*$");
+                List<int> indexes = new List<int>();
+                if (line.IndexOf(';') >= 0)
+                    line = line.Remove(line.IndexOf(';'), 1);
+                for (int j = 0; j < line.Length; j++)
+                {
+                    if (line[j].Equals('$'))
+                    {
+                        indexes.Add(j);
+                    }
+                }
+                if (indexes.Count == 1)
+                    indexes.Add(line.Length);
+                if (indexes.Count > 0)
+                {
+                    for (int i = 0; i < indexes.Count - 1; i++)
+                    {
+                        for (int j = indexes[i] + 1; j < indexes[i + 1]; j++)
+                        {
+                            flag = Regex.IsMatch(line[j].ToString(), @"^[a-fA-F0-9]*$") || IsContainsValues(line[j], new char[] { '+', '-', '/', '*' });
+                            if (!flag)
+                                break;
+                        }
+                        if (!flag)
+                            break;
+                    }
+                }
             }
+            else
+            {
+                flag = false;
+            }
+            return flag;
+            //bool flag = true;
+
+            //if (line != null)
+            //{
+            //    flag = line[0].Equals('$');
+            //    line = line.Remove(0, 1);
+            //    flag = Regex.IsMatch(line, @"^[a-fA-F0-9]*$");
+            //}
+
+            //return flag;
+        }
+
+        private bool IsOctDigitValue(string line)
+        {
+            bool flag = true;
+            if (line.IndexOf('&')>=0)
+            {
+                List<int> indexes = new List<int>();
+                if (line.IndexOf(';')>=0)
+                    line = line.Remove(line.IndexOf(';'), 1);
+                for (int j = 0; j < line.Length; j++)
+                {
+                    if (line[j].Equals('&'))
+                    {
+                        indexes.Add(j);
+                    }
+                }
+                if (indexes.Count == 1)
+                    indexes.Add(line.Length);
+                if (indexes.Count > 0)
+                {
+                    for (int i = 0; i < indexes.Count - 1; i++)
+                    {
+                        for (int j = indexes[i] + 1; j < indexes[i + 1]; j++)
+                        {
+                            flag = Regex.IsMatch(line[j].ToString(), @"^[0-7]*$") || IsContainsValues(line[j], new char[] { '+', '-', '/', '*' });
+                            if (!flag)
+                                break;
+                        }
+                        if (!flag)
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                flag = false;
+            }
+           
+          
+            return flag;
+        }
+
+        private bool IsBinDigitValue(string line)
+        {
+            bool flag = true;
+            if (line.IndexOf('%')>=0)
+            {
+                List<int> indexes = new List<int>();
+                if (line.IndexOf(';') >= 0)
+                    line = line.Remove(line.IndexOf(';'), 1);
+                for (int j = 0; j < line.Length; j++)
+                {
+                    if (line[j].Equals('%'))
+                    {
+                        indexes.Add(j);
+                    }
+                }
+                if (indexes.Count == 1)
+                    indexes.Add(line.Length);
+                if (indexes.Count > 0)
+                {
+                    for (int i = 0; i < indexes.Count - 1; i++)
+                    {
+                        for (int j = indexes[i] + 1; j < indexes[i + 1]; j++)
+                        {
+                            flag = IsContainsValues(line[j], new char[] { '0', '1' }) || IsContainsValues(line[j], new char[] { '+', '-', '/', '*' });
+                            if (!flag)
+                                break;
+                        }
+                        if (!flag)
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                flag = false;
+            }
+          
 
             return flag;
         }
 
-        private string[] BaseTypes = { "integer", "shortint", "smallint", "longint", "int64", "byte", "word", "longword", "cardinal", "uint64", "BigInteger", "real", "double", "single", "decimal", "boolean", "string", "char" };
+        private bool IsContainsValues(char line, char[] values)
+        {
+            bool f = false;
+            foreach (char v in values)
+            {
+                f = line.Equals(v);
+                if (f)
+                    break;
+            }
+            return f;
+        }
 
-        private string[] CompareOperators = { ">", "<", ">=", "<=",/* "=",*/ "<>" };
-
-        private string[] ArifmeticOperators = { "+", "-", "/", "*", "div", "mod" };
-
-        private string[] ConditionStructure = { "if", "then", "else" };
-
-        private string[] LogicalOperators = { "and", "or", "not", "xor" };
-
-        private string[] LogicalValues = { "true", "false" };
-
-        private string[] BorderOfStatements = { "begin", "end" };
-
-        private string[] ArrayStructure = { "array", "of" };
-
-        private string[] RepeatStructure = { "repeat", "until" };
-
-        private string[] IOStructure = { "read", "readln", "write", "writeln" };
-
-        private string[] ServiceSymbols = { "[", "]", "{", "}", "(", ")", "..", ".", ",", ";", /*":=", ":"*/ };
+      
 
         private bool IsAllowVariable(string variable)
         {
@@ -565,6 +797,52 @@ namespace CourseProject
         //        Console.WriteLine(t.Name + " " + t.Col + " " + t.Row);
         //    }
         //}
+
+        public void RemoveComments()
+        {
+            bool f = false;
+            List<string> data = new List<string>();
+            for (int i=0; i<program.Count; i++)
+            {
+                string line = program[i];
+                if (line.IndexOf("{") >= 0 && line.IndexOf("}") >= 0)
+                {
+                   int n = line.IndexOf("}") - line.IndexOf("{");
+                   data.Add(line.Remove(line.IndexOf("{"), n));
+
+                }
+                if (line.IndexOf("{")>=0 && line.IndexOf("}")==-1)
+                {
+                    string tmp = line.Substring(0, line.IndexOf("{"));
+                    if (tmp!="")
+                        data.Add(tmp);
+                    f = true;
+                }
+                if (program[i].IndexOf("}")>=0 && program[i].IndexOf("{")==-1)
+                {
+                    string tmp = line.Substring(program[i].IndexOf("}"), line.Length);
+                    if ((tmp != "") && !(tmp.Equals("}")))
+                        data.Add(tmp);
+                    f = false;
+                }
+                if (!f)
+                {
+                    if (line.IndexOf("//") >= 0)
+                    {
+                        string tmp = line.Substring(0, line.IndexOf("//"));
+                        data.Add(tmp);
+                    }
+                    else
+                    {
+                        if ((line!="") && !(line.Equals("}")))
+                            data.Add(line);
+                    }
+                }
+               
+            }
+            program = data;
+               
+        }
 
         public void FormTokens()
         {

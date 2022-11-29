@@ -2,14 +2,16 @@
 {
     public class CourseProject
     {
-        private const string PATH = "D:\\COMPILER\\programs\\ex1-operatorCompare.pas";
+        private const string PATH = "D:\\\\COMPILER\\\\programs\\\\ex5_different_types.pas";//"D:\\\\COMPILER\\\\programs\\\\ex1-operatorCompare.pas"; //"D:\\COMPILER\\programs\\ex5_different_types.pas";
 
         private static void Main(string[] args)
         {
-            ExecuteLexicAnalyzer(PATH);
-            ExecuteSyntaxAnalyzer();
-            ExecuteCodeGenerator();
-
+            //ExecuteLexicAnalyzer(PATH);
+            //ExecuteSyntaxAnalyzer();
+            //ExecuteCodeGenerator();
+            //TestLexicAnalyzer();
+            TestRepair();
+            //TestSynaxAnalyzer();
             Console.WriteLine("done");
             Console.ReadKey();
         }
@@ -24,6 +26,7 @@
         {
             LexicAnalyzer analyzer = new LexicAnalyzer();
             analyzer.ReadProgram(path);
+            analyzer.RemoveComments();
             List<string> errors = analyzer.CheckProgram();
             if (errors.Count == 0)
             {
@@ -71,11 +74,11 @@
         //    int k = 0;
         //}
 
-        //private static void TestRepair()
-        //{
-        //    SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
-        //    analyzer.PrintRepairProgram();
-        //}
+        private static void TestRepair()
+        {
+            SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
+            analyzer.PrintRepairProgram();
+        }
 
         //private static void TestIOTree()
         //{
@@ -89,22 +92,22 @@
         //    tree = BinaryTree.RepairTreeFromFile();
         //}
 
-        //private static void TestSynaxAnalyzer()
-        //{
-        //    SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
-        //    //string line = "(3+(4*5))";
-        //    BinaryTree tree = new BinaryTree();
-        //    string line = "if (a>10) then b:=b+52; else if (d>10) then s:=45+45; else c:=45;";
-        //    //analyzer.ParseOperatorIf(line, 0, ref tree);
-        //    line = "a:=(3+(4*5))";
-        //    //BinaryTree assign = analyzer.ParseAssignOperator(line);
-        //    int f = 0;
-        //    //analyzer.ParseExpression(line);
-        //    //analyzer.ParseProgramLine(line);
-        //    bool flag = analyzer.CheckProgram();
-        //    Console.WriteLine("flag=" + flag);
-        //    //analyzer.PrintRepairProgram();
-        //}
+        private static void TestSynaxAnalyzer()
+        {
+            SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
+            //string line = "(3+(4*5))";
+            BinaryTree tree = new BinaryTree();
+            string line = "if (a>10) then b:=b+52; else if (d>10) then s:=45+45; else c:=45;";
+            //analyzer.ParseOperatorIf(line, 0, ref tree);
+            line = "a:=(3+(4*5))";
+            //BinaryTree assign = analyzer.ParseAssignOperator(line);
+            int f = 0;
+            //analyzer.ParseExpression(line);
+            //analyzer.ParseProgramLine(line);
+            bool flag = analyzer.CheckProgram();
+            Console.WriteLine("flag=" + flag);
+            //analyzer.PrintRepairProgram();
+        }
 
         //private static void TestTree()
         //{
@@ -117,13 +120,14 @@
         //    // tree.ScanTree(tree.Root);
         //}
 
-        //private static void TestLexicAnalyzer()
-        //{
-        //    LexicAnalyzer analyzer = new LexicAnalyzer();
-        //    analyzer.ReadProgram(PATH);
-        //    analyzer.FormTokens();
-        //    analyzer.FormIndentificators();
-        //}
+        private static void TestLexicAnalyzer()
+        {
+            LexicAnalyzer analyzer = new LexicAnalyzer();
+            analyzer.ReadProgram(PATH);
+            analyzer.RemoveComments();
+            analyzer.FormTokens();
+            analyzer.FormIndentificators();
+        }
 
         //SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
         //LexicAnalyzer lexic = new LexicAnalyzer();
