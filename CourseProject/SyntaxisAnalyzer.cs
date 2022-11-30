@@ -1,4 +1,7 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Linq.Expressions;
+using System.Text.RegularExpressions;
+using static CourseProject.BinaryTree;
 
 namespace CourseProject
 {
@@ -320,7 +323,14 @@ namespace CourseProject
         //            string? line;
         //            while ((line = reader.ReadLine()) != null)
         //            {
-        //                program.Add(line);
+        //                string[] array = line.Split(";");
+        //                foreach (string item in array)
+        //                {
+        //                    if (item != "")
+        //                    {
+        //                        program.Add(item + ";");
+        //                    }
+        //                }
         //            }
         //        }
         //    }
@@ -350,10 +360,19 @@ namespace CourseProject
                     Console.WriteLine("find unknown identificator, location: col {0}, row {1}", error.Col, error.Row);
                 }
             }
-            errors = CheckCorrectAssign();
-            if (errors.Count > 0)
+            //errors = CheckCorrectAssign();
+            //if (errors.Count > 0)
+            //{
+            //    flag = false;
+            //}
+            errors = CheckInicializeVariables();
+            if (errors.Count>0)
             {
                 flag = false;
+                foreach (Error error in errors)
+                {
+                    Console.WriteLine(error.Message);
+                }
             }
             errors = CheckRepeatedDeclare();
             if (errors.Count > 0)
@@ -435,6 +454,7 @@ namespace CourseProject
                             }
                             if (!isExist)
                             {
+                                
                                 Item2 item = new Item2();
                                 item.Value = arg0;
                                 item.Column = int.Parse(arg1);
@@ -444,6 +464,7 @@ namespace CourseProject
                         }
                     }
                 }
+               
                 List<IdentTypes> dictionary = new List<IdentTypes>();
                 foreach (Item2 token in tokens)
                 {
@@ -460,18 +481,22 @@ namespace CourseProject
                 }
                 for (int i = 0; i < identificators.Count; i++)
                 {
-                    bool isExist = false;
+                    bool IsExist = false;
                     foreach (IdentTypes item in dictionary)
                     {
                         if (item.Identificator.Equals(identificators[i].Value))
                         {
-                            isExist = true;
-                            Error error = new Error();
-                            error.Col = identificators[i].Column;
-                            error.Row = identificators[i].Row;
-                            errors.Add(error);
+                            IsExist = true;
+                            break;
                             //break;
                         }
+                    }
+                    if (!IsExist)
+                    {
+                        Error error = new Error();
+                        error.Col = identificators[i].Column;
+                        error.Row = identificators[i].Row;
+                        errors.Add(error);
                     }
                 }
             }
@@ -483,19 +508,413 @@ namespace CourseProject
             {
                 Console.WriteLine(ex.StackTrace);
             }
-
+            
             Console.ForegroundColor = ConsoleColor.White;
             return errors;
         }
+       
+        private List<Error> CheckInicializeVariables()
+        {
+            List<Error> errors = new List<Error>();
+            int n = GetProgramSize();
+            int body = 0;
+            List<IdentTypes> variables = new List<IdentTypes>();
+            for (int i = 0; i < n; i++)
+            {
+                string line = RepairProgramLine(i);
+                if (line.Equals("begin"))
+                {
+                    body = i + 1;
+                    break;
+                }
+                else
+                {
+                    if (line.Contains("var"))
+                    {
+                        line = line.Remove(line.IndexOf("var"), 4);
+                    }
 
+                    string[] args = line.Split(':')[0].Split(',');
+                    string type = line.Split(':')[1];
+                    if (type.IndexOf(';') >= 0)
+                    {
+                        type = type.Remove(type.IndexOf(';', 1));
+                    }
+                    for (int j = 0; j < args.Length; j++)
+                    {
+                        args[j] = args[j].Trim();
+                        IdentTypes item = new IdentTypes();
+                        item.Identificator = args[j];
+                        item.Type = type;
+                        variables.Add(item);
+                    }
+                }
+               
+            }
+            bool[] flags = new bool[variables.Count];
+            for (int j = 0; j < flags.Length; j++)
+            {
+                flags[j] = false;
+            }
+            for (int i=body; i<n; i++)
+            {
+                string line = RepairProgramLine(i);
+                if (line.Contains(":="))
+                {
+                    string arg = line.Split(":=")[0];                    
+                  
+                    for (int j=0; j<variables.Count; j++)
+                    {
+                        if (arg.Equals(variables[j].Identificator))
+                        {
+                            flags[j] = true;
+                        }
+                    }
+                }
+            }
+            for (int j=0; j<flags.Length; j++)
+            {
+                if (!flags[j])
+                {
+                    Error error = new Error();
+                    error.Message = "find non inicialize variable " + variables[j].Identificator;
+                    errors.Add(error);
+                }
+            }
+            
+            return errors;
+        }
+
+        //legasy method (a lot of strong logic)
         private List<Error> CheckCorrectAssign()
         {
             List<Error> errors = new List<Error>();
+            int n = GetProgramSize();
+            int body = 0;
+            List<IdentTypes> variables = new List<IdentTypes>();
+            for (int i=0; i<n; i++)
+            {
+                string line = RepairProgramLine(i);
+                if (line.Contains("var"))
+                {
+                    line = line.Remove(line.IndexOf("var"), 4);                    
+                }
+                string[] args = line.Split(':')[0].Split(',');
+                string type = line.Split(':')[1];
+                if (type.IndexOf(';') >= 0)
+                {
+                    type = type.Remove(type.IndexOf(';', 1));
+                }
+                for (int j = 0; j < args.Length; j++)
+                {
+                    args[j] = args[j].Trim();
+                    IdentTypes item = new IdentTypes();
+                    item.Identificator = args[j];
+                    item.Type = type;
+                    variables.Add(item);
+                }
+                if (line.Equals("begin"))
+                {
+                    body = i + 1;
+                    break;
+                }  
+            }
+            for (int i=body; i<n; i++)
+            {
+                string line = RepairProgramLine(i);
+                foreach (IdentTypes item in variables)
+                {
+                    List<int> indexes = GetAllContains(line, item.Identificator);
+                    foreach (int index in indexes)
+                    {
+                        
+                        if (IsAllowSymbol(line[index-1]) && IsAllowSymbol(line[item.Identificator.Length+1]))
+                        {
+                            if (line.Contains(":="))
+                            {
+                                string value = line.Split(":=")[1];
+                                List<string> tmp = new List<string>();
+                                string temp = "";
+                                for (int j=0; j<value.Length; j++)
+                                {
+                                    
+                                    if (value[j].Equals('+') || value[j].Equals('-') || value[j].Equals('/') || value[j].Equals('*'))
+                                    {
+                                        tmp.Add(temp);
+                                    }
+                                    else
+                                    {
+                                        if (!value[j].Equals('(') || !value[j].Equals(')'))
+                                        {
+                                            temp += value[j];
+                                        }
+                                    }                                  
+                                }
+                              
+                                foreach (string numb in tmp)
+                                {
+                                    int arg0 = 0;
+                                    double arg1 = 0;
+                                    bool arg2 = true;
+                                    switch (item.Type)
+                                    {
+                                        case "shortint":
+                                            bool f = int.TryParse(numb, out arg0);
+                                            bool IsCorrect = false;
+                                            if (f)
+                                            {
+                                                if (!(arg0 >= -128 && arg0 <= 127))
+                                                {
+                                                    IsCorrect = true;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                IsCorrect = true;                                                                                            
+                                            }
+                                            if (IsCorrect)
+                                            {
+                                                Error error = new Error();
+                                                error.Message = "uncorrect assign";
+                                                error.Col = i;
+                                                if (errors.Count>0)
+                                                {
+                                                    if (errors.Last().Col!=i)
+                                                    {
+                                                        errors.Add(error);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    errors.Add(error);
+                                                }
+                                                
+                                            }
+                                            break;
+                                        case "smallint":
+                                            f = int.TryParse(numb, out arg0);
+                                            IsCorrect = false;
+                                            if (f)
+                                            {
+                                                if (!(arg0 >= -32768 && arg0 <= 32767))
+                                                {
+                                                    IsCorrect = true;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                IsCorrect = true;
+                                            }
+                                            if (IsCorrect)
+                                            {
+                                                Error error = new Error();
+                                                error.Message = "uncorrect assign";
+                                                error.Col = i;
+                                                if (errors.Count > 0)
+                                                {
+                                                    if (errors.Last().Col != i)
+                                                    {
+                                                        errors.Add(error);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    errors.Add(error);
+                                                }
+
+                                            }
+                                            break;
+                                        case "integer":
+                                            f = int.TryParse(numb, out arg0);
+                                            IsCorrect = false;
+                                            if (f)
+                                            {
+                                                if (!(arg0 >= int.MinValue && arg0 <= int.MaxValue))
+                                                {
+                                                    IsCorrect = true;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                IsCorrect = true;
+                                            }
+                                            if (IsCorrect)
+                                            {
+                                                Error error = new Error();
+                                                error.Message = "uncorrect assign";
+                                                error.Col = i;
+                                                if (errors.Count > 0)
+                                                {
+                                                    if (errors.Last().Col != i)
+                                                    {
+                                                        errors.Add(error);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    errors.Add(error);
+                                                }
+
+                                            }
+                                            break;
+                                        case "longint":
+                                            //-2 147 483 648 - 2 147 483 647
+                                            break;
+                                        case "int64":
+                                            //-9223372036854775808..9223372036854775807;
+                                            break;
+                                        case "byte":
+                                            //0-255
+                                            break;
+                                        case "word":
+                                            //0-65536
+                                            break;
+                                        case "longword":
+                                            // 0..4294967295
+                                            break;
+                                        case "cardinal":
+                                            // type Cardinal = 0..4294967295;
+                                            break;
+                                        case "uint64":
+                                            //0..18446744073709551615
+                                            break;
+                                        case "BigInteger":
+                                            //dynamic 
+                                            break;
+                                        case "real":
+                                        case "double":
+                                            //	-1.8∙10^308 .. 1.8∙10^308
+                                            break;
+                                        //case "double":
+                                        //    //	-1.8∙10^308 .. 1.8∙10^308
+                                        //    break;
+                                        case "single":
+                                            //-3.4∙10^38..3.4∙10^38
+                                            break;
+                                        case "decimal":
+                                            //	-79228162514264337593543950335 .. 79228162514264337593543950335
+                                            break;
+                                        case "boolean":
+                                            IsCorrect = bool.TryParse(numb, out arg2);
+                                            if (!IsCorrect)
+                                            {
+                                                Error error = new Error();
+                                                error.Message = "uncorrect assign";
+                                                error.Col = i;
+                                                if (errors.Count > 0)
+                                                {
+                                                    if (errors.Last().Col != i)
+                                                    {
+                                                        errors.Add(error);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    errors.Add(error);
+                                                }
+                                            }
+                                            break;
+                                        //case "string":
+                                            
+                                        //    break;
+                                        case "char":
+                                            IsCorrect = numb.Length == 1;
+                                            if (!IsCorrect)
+                                            {
+                                                Error error = new Error();
+                                                error.Message = "uncorrect assign";
+                                                error.Col = i;
+                                                if (errors.Count > 0)
+                                                {
+                                                    if (errors.Last().Col != i)
+                                                    {
+                                                        errors.Add(error);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    errors.Add(error);
+                                                }
+                                            }
+                                            break;
+                                    }
+                                }
+                               
+                            }
+                            //if (line.Contains(":="))
+                            //{
+                            //    int j = line.IndexOf(":=");
+                            //    while (IsDecNumber(line[j+1]))
+                            //    {
+
+                            //    }
+                                
+                                
+                            //}
+                        }
+                       
+                                          
+                    }
+                }
+            }
             //логические операторы and, or, not, xor
             //для целых/вещественных +,-,*,/
             //для целых div, mod
             //проверить корректное присвоение переменных и операции с ними
-
+            bool IsAllowSymbol(char c)
+            {
+                return c.Equals(':') || c.Equals('*') || c.Equals('/') || c.Equals('+') || c.Equals('-') || c.Equals(' ');
+            }
+            bool IsDecNumber(char c)
+            {
+                char[] patterns = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.' };
+                return patterns.Contains(c);
+            }
+            bool IsOctValue(char c)
+            {
+                char[] patterns = new char[] { '0', '1', '3', '4', '5', '6', '7' };
+                return patterns.Contains(c);
+            }
+            bool IsHexValue(char c)
+            {
+                char[] patterns = new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+                return patterns.Contains(c);
+            }
+            bool IsIntNumber(string val, string type)
+            {
+                bool flag = true;
+                int number;
+                if (int.TryParse(val, out number))
+                {
+                    switch (type)
+                    {
+                       
+                    }
+                }
+                
+                return flag;
+            }
+            bool IsFloatNumber(string val, string type)
+            {
+                bool flag = true;
+                switch (type)
+                {
+                    case "real":
+                        break;
+                    case "double":
+                        break;
+                    case "single":
+                        break;
+                    case "decimal":
+                        break;
+                }
+                return flag;
+            }
+            bool IsBooleanNumber(string val)
+            {
+                bool f;
+                return bool.TryParse(val,out f);
+            }
             return errors;
         }
 
@@ -607,12 +1026,24 @@ namespace CourseProject
         private bool IsCorrectIdentificator(string line)
         {
             bool flag = true;
-            flag = !Regex.IsMatch(line[0].ToString(), @"^[0-9]*$") || line[0].Equals('_') || Regex.IsMatch(line[0].ToString(), @"^[a-zA-Z]+$");
-            string arg = line.Remove(0, 1);
+            flag = !Regex.IsMatch(line[0].ToString(), @"^[0-9]*$");
             if (flag)
             {
-                flag = Regex.IsMatch(arg, @"^[a-zA-Z0-9]*$") || arg.Contains("_");
+                flag = line[0].Equals('_') || Regex.IsMatch(line[0].ToString(), @"^[a-zA-Z]+$");
             }
+            if (flag)
+            {
+                flag = !line[0].Equals("&") && !line[0].Equals("$") && !line[0].Equals("%");
+            }
+            if (flag)
+            {
+                string arg = line.Remove(0, 1);
+                if (flag)
+                {
+                    flag = Regex.IsMatch(arg, @"^[a-zA-Z0-9]*$") || arg.Contains("_");
+                }
+            }
+           
             return flag;
         }
 

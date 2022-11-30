@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 
 namespace CourseProject
@@ -76,16 +77,7 @@ namespace CourseProject
         {
             bool flag = true;
             List<string> errors = new List<string>();
-            //int ind = 0;
-            //string line = program[ind];
-            //while (line.Equals("begin") || (ind==program.Count))
-            //{
-            //    if (line.Contains("var"))
-            //    {
-            //        line = line.Remove(line.IndexOf("var"), 4);
-            //        string[] args = line.Split(':')[0].Trim().Split(',');
-            //    }
-            // }
+            
 
             int body = 0;
             for (int i = 0; i < program.Count; i++)
@@ -341,50 +333,53 @@ namespace CourseProject
 
                                     if (f1 && f2)
                                     {
-                                        if (item[si-1].Equals("&") && item[si-1].Equals("$") && item[si-1].Equals("%"))
-                                        for (int j = si; j < item.Length; j++)
+                                        if (!item[si-1].Equals("&") && !item[si-1].Equals("$") && !item[si-1].Equals("%"))
                                         {
-                                            if (Regex.IsMatch(item[j].ToString(), @"^[0-9]*$") || (item[j].Equals('.')))
+                                            for (int j = si; j < item.Length; j++)
                                             {
-                                                if (sf)
+                                                if (Regex.IsMatch(item[j].ToString(), @"^[0-9]*$") || (item[j].Equals('.')))
                                                 {
-                                                    start_index = j;
-                                                    sf = false;
+                                                    if (sf)
+                                                    {
+                                                        start_index = j;
+                                                        sf = false;
+                                                    }
+                                                    number += item[j];
+                                                    // cSi = j;
                                                 }
-                                                number += item[j];
-                                                // cSi = j;
-                                            }
-                                            else
-                                            {
-                                                if (!number.Equals(""))
+                                                else
                                                 {
-                                                    Item item1 = new Item();
-                                                    if (number.Contains(".."))
+                                                    if (!number.Equals(""))
                                                     {
-                                                        string[] tmp = number.Split("..");
-                                                        item1.Name = tmp[0];
-                                                        item1.Col = i;
-                                                        item1.Row = si;
-                                                        items.Add(item1);
-                                                        item1 = new Item();
-                                                        item1.Name = tmp[1];
-                                                        item1.Col = i;
-                                                        item1.Row = start_index + number.IndexOf("..") + 2;
-                                                        items.Add(item1);
-                                                        number = "";
+                                                        Item item1 = new Item();
+                                                        if (number.Contains(".."))
+                                                        {
+                                                            string[] tmp = number.Split("..");
+                                                            item1.Name = tmp[0];
+                                                            item1.Col = i;
+                                                            item1.Row = si;
+                                                            items.Add(item1);
+                                                            item1 = new Item();
+                                                            item1.Name = tmp[1];
+                                                            item1.Col = i;
+                                                            item1.Row = start_index + number.IndexOf("..") + 2;
+                                                            items.Add(item1);
+                                                            number = "";
+                                                        }
+                                                        else
+                                                        {
+                                                            item1.Name = number;
+                                                            item1.Col = i;
+                                                            item1.Row = start_index;
+                                                            items.Add(item1);
+                                                            number = "";
+                                                        }
+                                                        sf = true;
                                                     }
-                                                    else
-                                                    {
-                                                        item1.Name = number;
-                                                        item1.Col = i;
-                                                        item1.Row = start_index;
-                                                        items.Add(item1);
-                                                        number = "";
-                                                    }
-                                                    sf = true;
                                                 }
                                             }
                                         }
+                                        
                                     }
                                 }
                                 if (IsHexDigitValue(item))
@@ -1375,18 +1370,18 @@ namespace CourseProject
             return indexes;
         }
 
-        private string RemoveSpaces(string input)
-        {
-            string result = String.Empty;
-            foreach (char c in input)
-            {
-                if (!c.Equals(' '))
-                {
-                    result += c;
-                }
-            }
-            return result;
-        }
+        //private string RemoveSpaces(string input)
+        //{
+        //    string result = String.Empty;
+        //    foreach (char c in input)
+        //    {
+        //        if (!c.Equals(' '))
+        //        {
+        //            result += c;
+        //        }
+        //    }
+        //    return result;
+        //}
 
         public List<string> ReadProgram(string path)
         {
@@ -1398,7 +1393,22 @@ namespace CourseProject
                     string? line;
                     while ((line = reader.ReadLine()) != null)
                     {
-                        program.Add(line);
+                        if (line.IndexOf(";")>=0)
+                        {
+                            string[] array = line.Split(";");
+
+                            foreach (string item in array)
+                            {
+                                if (item != "" )
+                                {
+                                    program.Add(item + ";");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            program.Add(line);
+                        }
                     }
                 }
             }
@@ -1409,6 +1419,10 @@ namespace CourseProject
             catch (Exception ex0)
             {
                 Console.WriteLine(ex0.StackTrace);
+            }
+            bool IsAllovSymbol(string line)
+            {
+                return !line.Equals("begin") || !line.Equals("end") || line.Contains("if") || line.Contains("else") || line.Contains("while");
             }
             Console.ForegroundColor = ConsoleColor.White;
             return program;

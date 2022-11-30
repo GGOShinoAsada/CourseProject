@@ -6,12 +6,13 @@
 
         private static void Main(string[] args)
         {
-            //ExecuteLexicAnalyzer(PATH);
-            //ExecuteSyntaxAnalyzer();
-            //ExecuteCodeGenerator();
+            ExecuteLexicAnalyzer(PATH);
+            PrintProgram();
+            ExecuteSyntaxAnalyzer();
+            ExecuteCodeGenerator();
+            //-----------------------//
             //TestLexicAnalyzer();
-            TestRepair();
-            //TestSynaxAnalyzer();
+            //PrintProgram();
             Console.WriteLine("done");
             Console.ReadKey();
         }
@@ -74,7 +75,10 @@
         //    int k = 0;
         //}
 
-        private static void TestRepair()
+        /// <summary>
+        /// print repair program
+        /// </summary>
+        private static void PrintProgram()
         {
             SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
             analyzer.PrintRepairProgram();
