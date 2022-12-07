@@ -2,14 +2,14 @@
 {
     public class CourseProject
     {
-        private const string PATH = "D:\\\\COMPILER\\\\programs\\\\errors\\err1.pas";//"D:\\\\COMPILER\\\\programs\\\\ex1-operatorCompare.pas"; //"D:\\COMPILER\\programs\\ex5_different_types.pas";
+        private const string PATH = "D:\\\\COMPILER\\\\programs\\\\errors\\\\err1.pas";//"D:\\\\COMPILER\\\\programs\\\\ex1-operatorCompare.pas"; //"D:\\COMPILER\\programs\\ex5_different_types.pas";
 
         private static void Main(string[] args)
         {
-            TestAddBrackets();
+            //TestAddBrackets();
             //------------------------//
-           // ExecuteLexicAnalyzer(PATH);
-           // PrintProgram();
+            ExecuteLexicAnalyzer(PATH);
+            PrintProgram();
             //ExecuteSyntaxAnalyzer();
            // ExecuteCodeGenerator();
             //-----------------------//
@@ -20,11 +20,15 @@
         }
 
       
+        
+
         static void TestAddBrackets()
         {
             //string expr = "(2-2)*2/2+68*3";
-            string expr = "2+2>=65 or (a and a1) and (t<>12)";
-            //((2+2)<=65) or ((a and a1) and (t<>12)))
+            string expr = "a xor b and c and  not (a or b) and f";
+            //xor, not, and, or
+            //
+            //(((a xor b) and c) and ((not (a or b)) and f))
             //{"*","/", "+", "-", "<", ">", "<=", ">=", "=", "<>", "xor", "not", "and", "or" };
             SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
             string result = analyzer.AddBrackets(expr);
@@ -49,7 +53,7 @@
             LexicAnalyzer analyzer = new LexicAnalyzer();
             analyzer.ReadProgram(path);
             analyzer.RemoveComments();
-            analyzer.RemoveSpacesAndEmptySymbols();
+            //analyzer.RemoveSpacesAndEmptySymbols();
             List<string> errors = analyzer.CheckProgram();
             if (errors.Count == 0)
             {

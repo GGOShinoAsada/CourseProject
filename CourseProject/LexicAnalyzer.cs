@@ -170,6 +170,7 @@ namespace CourseProject
                     }
                 }
             }
+            //check a:= and uncorrect operator
             for (int i=body; i<program.Count; i++)
             {
                 if (program[i].Contains(":="))
@@ -177,7 +178,21 @@ namespace CourseProject
                     string arg1 = program[i].Split(":=")[1];
                     if (string.IsNullOrEmpty(arg1))
                     {
-                        errors.Add("uncorrect assign construction");
+                        errors.Add("uncorrect assign construction, line "+i);
+                    }
+                }
+                if (program[i].Contains("("))
+                {
+                    string[] patterns = new string[] { "if", "until", "read", "readln", "write", "writeln" };
+                    string temp = program[i].Substring(0, program[i].IndexOf('('));                  
+                    if (!temp.Contains(":="))
+                    {
+                        bool f = temp.Equals("readln");
+                        temp = temp.Trim();
+                        if (!patterns.Contains(temp))
+                        {
+                            errors.Add("find uncorrect key word \""+temp+"\", line "+i);
+                        }
                     }
                 }
             }
@@ -710,9 +725,7 @@ namespace CourseProject
                     break;
             }
             return f;
-        }
-
-      
+        }      
 
         private bool IsAllowVariable(string variable)
         {
@@ -1422,11 +1435,11 @@ namespace CourseProject
                 string line = program[i];
                 if (!string.IsNullOrEmpty(line))
                 {
-                    string newLine = "";   
-                    
+                    string newLine = "";
+
                     for (int j = 0; j < line.Length; j++)
                     {
-                        
+
                         if (!IsLocatedInSpaces(line, j))
                         {
                             if (patterns.Contains(line[j]))
@@ -1449,9 +1462,9 @@ namespace CourseProject
                                 List<int> temp = new List<int>();
                                 foreach (int ind in indexes)
                                 {
-                                    if (ind+1<line.Length)
+                                    if (ind + 1 < line.Length)
                                     {
-                                        if ((line[ind + 1] != '>') && (line[ind+1]!='='))
+                                        if ((line[ind + 1] != '>') && (line[ind + 1] != '='))
                                         {
                                             temp.Add(ind);
                                         }
@@ -1463,17 +1476,17 @@ namespace CourseProject
                                 indexes = GetAllContains(line, ">");
                                 foreach (int ind in indexes)
                                 {
-                                    if (ind -1>=0)
+                                    if (ind - 1 >= 0)
                                     {
-                                        if ((line[ind -1] != '<'))
+                                        if ((line[ind - 1] != '<'))
                                         {
-                                            if (ind+1<line.Length)
+                                            if (ind + 1 < line.Length)
                                             {
                                                 if ((line[ind - 1] != '='))
                                                 {
                                                     temp.Add(ind);
                                                 }
-                                            }                                            
+                                            }
                                         }
                                     }
                                 }
@@ -1484,9 +1497,9 @@ namespace CourseProject
                                 temp = new List<int>();
                                 foreach (int ind in indexes)
                                 {
-                                    if (ind-1>=0)
+                                    if (ind - 1 >= 0)
                                     {
-                                        if ((line[ind-1] != '>') && (line[ind-1]!='<'))
+                                        if ((line[ind - 1] != '>') && (line[ind - 1] != '<'))
                                         {
                                             temp.Add(ind);
                                         }
@@ -1500,8 +1513,8 @@ namespace CourseProject
                                 if (!line[j].Equals(' '))
                                     newLine += line[j];
                             }
-                            
-                           
+
+
                         }
                         else
                         {
@@ -1526,14 +1539,14 @@ namespace CourseProject
                     {
                         if (line[index - 1].Equals(' '))
                         {
-                            line = line.Remove(index - 1,1);
+                            line = line.Remove(index - 1, 1);
                         }
                     }
                     if (index + op.Length < line.Length)
                     {
                         if (line[index + op.Length].Equals(' '))
                         {
-                            line = line.Remove(index +op.Length ,1);
+                            line = line.Remove(index + op.Length, 1);
                         }
                     }
                 }

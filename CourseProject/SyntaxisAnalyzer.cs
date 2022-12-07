@@ -87,7 +87,7 @@ namespace CourseProject
             public string Type { get; set; }
         }
 
-        private string[] ConditionOperators = { "=", "<>", ">", "<", ">=", "<=" };
+        //private string[] ConditionOperators = { "=", "<>", ">", "<", ">=", "<=" };
 
         public BinaryTree FormBinaryTree()
         {
@@ -99,6 +99,7 @@ namespace CourseProject
             int index = 0;
             try
             {
+                
                 string line = RepairProgramLine(index);
                 while (!line.Contains("begin"))
                 {
@@ -125,7 +126,12 @@ namespace CourseProject
                 }
                 tree.SetHead();
 
+                int opIndex = 0;
 
+                for (int i=index; i<n; i++)
+                {
+
+                }
 
 
                 //----------trash---------
@@ -520,10 +526,15 @@ namespace CourseProject
 
         public string AddBrackets(string line)
         {
-           
-            string[] array = new string[] {"*","/", "+", "-", "<", ">", "<=", ">=", "=", "<>", "xor", "not", "and", "or" };
+            //xor=#, not=#_, and=#__, or=#___
 
-            char[] patterns = new char[] {' ', '*', '/', '+', '-' , '(', ')'};
+            //replase 
+
+            line = ChangeSymbols(line);
+
+            string[] array = new string[] { "*", "/", "+", "-", "<", ">", "<=", ">=", "=", "<>", "#", "#_", "#__", "#___" };
+
+            char[] patterns = new char[] {/*' ',*/ '*', '/', '+', '-', '(', ')', '<', '>', '=', '#' };
 
             List<Item> indexes = FormIndexes();
 
@@ -537,16 +548,17 @@ namespace CourseProject
                     {
                         indexes = FormIndexes();
                         int ind = indexes[i].Position;
-
+                        bool f1 = true; bool f2 = true;
+                        int lp = -1; int rp = -1;
                         int tmp = ind - 1;
                         sbyte br = 0;
 
-                        while (tmp>=0)
+                        while (tmp >= 0)
                         {
                             if (line[tmp].Equals(')'))
                                 br++;
                             if (line[tmp].Equals('('))
-                               br--;
+                                br--;
                             if (br == 0)
                             {
                                 if (patterns.Contains(line[tmp]))
@@ -554,23 +566,21 @@ namespace CourseProject
                             }
                             tmp--;
                         }
-                        if (tmp-1>=0)
+                        if (tmp == -1)
                         {
-                            if (!line[tmp - 1].Equals('('))
-                            {
-                                string arg0 = line.Substring(0, tmp);
-                                string arg1 = line.Substring(tmp);
-                                line = arg0 + '(' + arg1;
-                            }
+                            f1 = false;
+                            tmp++;
                         }
-                        else
+                        if (IsSpecificSymbol(tmp))
+                            tmp++;
+                        lp = tmp;
+                        if (tmp - 1 >= 0)
                         {
-                            if (br==0)
-                                line = '(' + line;
+                            f1 = line[tmp - 1].Equals('(');
                         }
 
 
-                
+
                         indexes = FormIndexes();
                         ind = indexes[i].Position;
                         tmp = ind + op.Length;
@@ -589,31 +599,48 @@ namespace CourseProject
                             }
                             tmp++;
                         }
+                        if (tmp == line.Length)
+                        {
+                            f2 = false;
+                            tmp--;
+                        }
+                        if (IsSpecificSymbol(tmp))
+                            tmp--;
+                        rp = tmp;
                         if (tmp + 1 < line.Length)
                         {
+                            f2 = line[tmp + 1].Equals(')');
+                        }
 
-                            if (!line[tmp + 1].Equals(')'))
-                            {
-                                string arg0 = line.Substring(0, tmp);
-                                string arg1 = line.Substring(tmp);
-                                line = arg0 + ')' + arg1;
-                            }
-                        }
-                        else
+                        if (!(f1 && f2))
                         {
-                            if (br == 0)
-                                line += ')';
+                            string arg0 = GetSubsString(line, 0, lp - 1);
+                            string arg1 = GetSubsString(line, lp, rp);
+                            string arg2 = GetSubsString(line, rp + 1, line.Length - 1);
+                            line = arg0 + "(" + arg1 + ")" + arg2;
                         }
+
                     }
                 }
             }
-           
+
+            line = ChangeSymbols(line, false);
+
+            bool IsSpecificSymbol(int index)
+            {
+                bool f = line[index].Equals('+') || line[index].Equals('-') || line[index].Equals('*')
+                    || line[index].Equals('/') /*|| line[index].Equals(' ')*/ || line[index].Equals('<')
+                    || line[index].Equals('>') || line[index].Equals('=') || line[index].Equals('#');
+                return f;
+            }
+
             List<Item> FormIndexes()
             {
                 List<Item> indexes = new List<Item>();
+                List<int> data = new List<int>();
                 foreach (string delimiter in array)
                 {
-                    if (delimiter.Equals('<') || delimiter.Equals('>') || delimiter.Equals('=') || delimiter.Equals("or"))
+                    if (delimiter.Equals("<") || delimiter.Equals(">") || delimiter.Equals("=") || delimiter.Equals("#") || delimiter.Equals("#_") || delimiter.Equals("#__"))
                     {
                         int ind = 0;
                         switch (delimiter)
@@ -625,7 +652,7 @@ namespace CourseProject
                                     bool f = ind + 1 < line.Length;
                                     if (f)
                                     {
-                                        f = !line[ind + 1].Equals('=') && !line[ind+1].Equals('>');
+                                        f = !line[ind + 1].Equals('=') && !line[ind + 1].Equals('>');
                                     }
                                     if (f)
                                     {
@@ -633,7 +660,7 @@ namespace CourseProject
                                         item.Position = ind;
                                         item.Value = delimiter;
                                         indexes.Add(item);
-                                    }                                        
+                                    }
                                     ind = line.IndexOf(delimiter, ind + delimiter.Length);
                                 }
 
@@ -646,7 +673,7 @@ namespace CourseProject
                                     if (f)
                                     {
                                         f = !line[ind + 1].Equals('=');
-                                       
+
                                     }
                                     bool f1 = ind - 1 >= 0;
                                     if (f1)
@@ -678,7 +705,341 @@ namespace CourseProject
                                         item.Position = ind;
                                         item.Value = delimiter;
                                         indexes.Add(item);
-                                    }                                        
+                                    }
+                                    ind = line.IndexOf(delimiter, ind + delimiter.Length);
+                                }
+
+                                break;
+                            case "#":
+                                data = GetAllContains(line, delimiter);
+
+                                foreach (int temp in data)
+                                {
+                                    if (ReturnCountOfLattice(temp)==1)
+                                    {
+                                        Item item = new Item();
+                                        item.Position = temp;
+                                        item.Value = delimiter;
+                                        indexes.Add(item);
+                                    }
+                                   
+
+                                }
+
+
+                                break;
+                            case "#_":
+                                data = GetAllContains(line, delimiter);
+
+                                foreach (int temp in data)
+                                {
+                                    if (ReturnCountOfLattice(temp)==2)
+                                    {
+                                        Item item = new Item();
+                                        item.Position = temp;
+                                        item.Value = delimiter;
+                                        indexes.Add(item);
+                                    }                                  
+
+                                }
+
+                                break;
+                            case "#__":
+                                data = GetAllContains(line, delimiter);
+
+                                foreach (int temp in data)
+                                {
+                                    if (ReturnCountOfLattice(temp)==3)
+                                    {
+                                        Item item = new Item();
+                                        item.Position = temp;
+                                        item.Value = delimiter;
+                                        indexes.Add(item);
+                                    }                                 
+
+                                }
+
+                                break;
+                            
+
+                        }
+                    }
+                    else
+                    {
+                        int ind = line.IndexOf(delimiter);
+                        while (ind >= 0)
+                        {
+                            Item item = new Item();
+                            item.Position = ind;
+                            item.Value = delimiter;
+                            indexes.Add(item);
+                            ind = line.IndexOf(delimiter, ind + delimiter.Length);
+                        }
+                    }
+                }
+                return indexes;
+            }
+
+            int ReturnCountOfLattice(int index)
+            {
+                int n = 0;
+                int si = 0;
+                for (int i=index; i>=0; i--)
+                {
+                    if (!line[i].Equals('#'))
+                    {
+                        si = i + 1;
+                        break;
+                    }
+                }
+                for (int i=si; i<line.Length; i++)
+                {
+                    if (!line[i].Equals('#'))
+                    {                        
+                        break;
+                    }
+                    else
+                    {
+                        n++;
+                    }
+                }
+
+                return n;
+            }
+
+            //bool CheckLattice(string value, int index)
+            //{
+            //    bool f = true;
+            //    switch (value)
+            //    {
+            //        case "###":
+            //            if (index - 1 >= 0)
+            //            {
+            //                f = !line[index - 1].Equals('#');
+            //            }
+            //            if (f)
+            //            {
+            //                if (index + 3 < line.Length)
+            //                {
+            //                    f = !line[index + 3].Equals('#');
+            //                }
+            //            }
+            //            break;
+            //        case "##":
+            //            if (index - 1 >= 0)
+            //            {
+            //                f = !line[index - 1].Equals('#');
+            //            }
+            //            if (f)
+            //            {
+            //                if (index + 2 < line.Length)
+            //                {
+            //                    f = !line[index + 2].Equals('#');
+            //                }
+            //            }
+            //            break;
+            //        case "#":
+            //            if (index - 1 >= 0)
+            //            {
+            //                f = !line[index - 1].Equals('#');
+            //            }
+            //            if (f)
+            //            {
+            //                if (index + 1 < line.Length)
+            //                {
+            //                    f = !line[index + 1].Equals('#');
+            //                }
+            //            }
+            //            break;
+            //    }
+            //    return f;
+            //}
+           
+            return line;
+        }
+
+        public string AddBracketsLog(string line)
+        {
+            //xor=#, not=##, and=###, or=####
+
+            //replase 
+
+            //line = ChangeSymbols(line);
+
+            string[] array = new string[] { "xor", "not", "and", "or" };
+
+            char[] patterns = new char[] { ' ' };
+
+            List<Item> indexes = FormIndexes();
+
+            int n = indexes.Count;
+
+            foreach (string op in array)
+            {
+                for (int i = 0; i < n; i++)
+                {
+                    if (indexes[i].Value.Equals(op))
+                    {
+                        indexes = FormIndexes();
+                        int ind = indexes[i].Position;
+                        bool f1 = true; bool f2 = true;
+                        int lp = -1; int rp = -1;
+                        int tmp = ind - 1;
+                        sbyte br = 0;
+
+                        while (tmp >= 0)
+                        {
+                            if (line[tmp].Equals(')'))
+                                br++;
+                            if (line[tmp].Equals('('))
+                                br--;
+                            if (br == 0)
+                            {
+                                if (patterns.Contains(line[tmp]))
+                                    break;
+                            }
+                            tmp--;
+                        }
+                        if (tmp == -1)
+                        {
+                            f1 = false;
+                            tmp++;
+                        }
+                        if (IsSpecificSymbol(tmp))
+                            tmp++;
+                        lp = tmp;
+                        if (tmp - 1 >= 0)
+                        {
+                            f1 = line[tmp - 1].Equals('(');
+                        }
+
+
+
+                        indexes = FormIndexes();
+                        ind = indexes[i].Position;
+                        tmp = ind + op.Length;
+                        br = 0;
+                        while (tmp < line.Length)
+                        {
+
+                            if (line[tmp].Equals(')'))
+                                br++;
+                            if (line[tmp].Equals('('))
+                                br--;
+                            if (br == 0)
+                            {
+                                if (patterns.Contains(line[tmp]))
+                                    break;
+                            }
+                            tmp++;
+                        }
+                        if (tmp == line.Length)
+                        {
+                            f2 = false;
+                            tmp--;
+                        }
+                        if (IsSpecificSymbol(tmp))
+                            tmp--;
+                        rp = tmp;
+                        if (tmp + 1 < line.Length)
+                        {
+                            f2 = line[tmp + 1].Equals(')');
+                        }
+
+                        if (!(f1 && f2))
+                        {
+                            string arg0 = GetSubsString(line, 0, lp - 1);
+                            string arg1 = GetSubsString(line, lp, rp);
+                            string arg2 = GetSubsString(line, rp + 1, line.Length - 1);
+                            line = arg0 + "(" + arg1 + ")" + arg2;
+                        }
+
+                    }
+                }
+            }
+
+            line = ChangeSymbols(line, false);
+
+            bool IsSpecificSymbol(int index)
+            {
+                bool f = line[index].Equals('+') || line[index].Equals('-') || line[index].Equals('*')
+                    || line[index].Equals('/') /*|| line[index].Equals(' ')*/ || line[index].Equals('<')
+                    || line[index].Equals('>') || line[index].Equals('=') || line[index].Equals('#');
+                return f;
+            }
+
+            List<Item> FormIndexes()
+            {
+                List<Item> indexes = new List<Item>();
+                List<int> data = new List<int>();
+                foreach (string delimiter in array)
+                {
+                    if (delimiter.Equals("<") || delimiter.Equals(">") || delimiter.Equals("=") || delimiter.Equals("#") || delimiter.Equals("##") || delimiter.Equals("###"))
+                    {
+                        int ind = 0;
+                        switch (delimiter)
+                        {
+                            case "<":
+                                ind = line.IndexOf(delimiter);
+                                while (ind >= 0)
+                                {
+                                    bool f = ind + 1 < line.Length;
+                                    if (f)
+                                    {
+                                        f = !line[ind + 1].Equals('=') && !line[ind + 1].Equals('>');
+                                    }
+                                    if (f)
+                                    {
+                                        Item item = new Item();
+                                        item.Position = ind;
+                                        item.Value = delimiter;
+                                        indexes.Add(item);
+                                    }
+                                    ind = line.IndexOf(delimiter, ind + delimiter.Length);
+                                }
+
+                                break;
+                            case ">":
+                                ind = line.IndexOf(delimiter);
+                                while (ind >= 0)
+                                {
+                                    bool f = ind + 1 < line.Length;
+                                    if (f)
+                                    {
+                                        f = !line[ind + 1].Equals('=');
+
+                                    }
+                                    bool f1 = ind - 1 >= 0;
+                                    if (f1)
+                                    {
+                                        f1 = !line[ind - 1].Equals('<');
+                                    }
+                                    if (f && f1)
+                                    {
+                                        Item item = new Item();
+                                        item.Value = delimiter;
+                                        item.Position = ind;
+                                        indexes.Add(item);
+                                    }
+                                    ind = line.IndexOf(delimiter, ind + delimiter.Length);
+                                }
+                                break;
+                            case "=":
+                                ind = line.IndexOf(delimiter);
+                                while (ind >= 0)
+                                {
+                                    bool f = ind - 1 >= 0;
+                                    if (f)
+                                    {
+                                        f = !line[ind - 1].Equals('<') && !line[ind - 1].Equals('>');
+                                    }
+                                    if (f)
+                                    {
+                                        Item item = new Item();
+                                        item.Position = ind;
+                                        item.Value = delimiter;
+                                        indexes.Add(item);
+                                    }
                                     ind = line.IndexOf(delimiter, ind + delimiter.Length);
                                 }
 
@@ -702,6 +1063,7 @@ namespace CourseProject
                                 }
                                 break;
 
+
                         }
                     }
                     else
@@ -716,9 +1078,71 @@ namespace CourseProject
                             ind = line.IndexOf(delimiter, ind + delimiter.Length);
                         }
                     }
-                }              
+                }
                 return indexes;
             }
+
+          
+            return line;
+        }
+        private string ChangeSymbols(string line, bool flag=true)
+        {
+
+            if (flag)
+            {
+                string[] array = new string[] { "xor", "not", "and", "or" };
+                foreach (string value in array)
+                {
+                    string temp = "";
+                    if (!value.Equals("not"))
+                        temp = " " + value + " ";
+                    else
+                        temp = value + " ";
+                    switch (value)
+                    {
+                        case "xor":
+                            line = line.Replace(temp, "_");
+                            break;
+                        case "not":
+                            line = line.Replace(temp, "_#");
+                            break;
+                        case "and":
+                            line = line.Replace(temp, "#__");
+                            break;
+                        case "or":
+                            line = line.Replace(temp, "#___");
+                            break;
+                    }
+                }              
+
+            }
+            else
+            {
+                string[] array = new string[] { "_", "#_", "#__", "#___" };
+                foreach (string value in array)
+                {
+                    
+                    switch (value)
+                    {
+                        case "xor":
+                            line = line.Replace(value, " xor ");
+                            break;
+                        case "not":
+                            line = line.Replace(value, "not ");
+                            break;
+                        case "and":
+                            line = line.Replace(value, " and ");
+                            break;
+                        case "or":
+                            line = line.Replace(value, " or ");
+                            break;
+                    }
+                }
+            }
+            
+
+           
+           
             return line;
         }
 
@@ -1018,18 +1442,40 @@ namespace CourseProject
             for (int i=body; i<n; i++)
             {
                 string line = RepairProgramLine(i);
-                if (line.Contains(":="))
+                line = line.Trim();
+                if (line.StartsWith("write"))
                 {
-                    string arg = line.Split(":=")[0];                    
-                  
-                    for (int j=0; j<variables.Count; j++)
+                    if (line.Contains(":="))
                     {
-                        if (arg.Equals(variables[j].Identificator))
+                        string arg = line.Split(":=")[0];
+
+                        for (int j = 0; j < variables.Count; j++)
                         {
-                            flags[j] = true;
+                            if (arg.Equals(variables[j].Identificator))
+                            {
+                                flags[j] = true;
+                            }
                         }
                     }
+                    if (line.Contains("read"))
+                    {
+                        string[] args = GetSubsString(line, line.IndexOf("("), line.IndexOf(")")).Split(',');
+                        for (int k = 0; k < args.Length; k++)
+                        {
+                            args[k] = args[k].Trim();
+                            for (int j = 0; j < variables.Count; j++)
+                            {
+                                if (args[k].Equals(variables[j].Identificator))
+                                {
+                                    flags[j] = true;
+                                }
+                            }
+                        }
+
+
+                    }
                 }
+
             }
             for (int j=0; j<flags.Length; j++)
             {
@@ -1539,7 +1985,7 @@ namespace CourseProject
             return indexes;
         }
 
-       
+      
 
         private bool IsCorrectIdentificator(string line)
         {
@@ -1657,6 +2103,26 @@ namespace CourseProject
                 line += item.Value;
             }
             return line;
+        }
+
+        public List<string> ReadProgramFromFile(string path)
+        {
+            List<string> program = new List<string>();
+            try{
+                using (StreamReader reader = new StreamReader(path))
+                {
+                    string? line;
+                    while (!string.IsNullOrEmpty(line=reader.ReadLine()))
+                    {
+                        program.Add(line);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+            }
+            return program;
         }
     }
 }
