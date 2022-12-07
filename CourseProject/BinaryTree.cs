@@ -182,6 +182,66 @@
             }
         }
 
+        string[] ArifmeticOperators = { "+", "-", "/", "*" };
+
+        bool IsNumber(string value)
+        {
+            return false;
+        }
+
+        public void OptimizeTree(Item root)
+        {
+            if (root==null)
+            {
+                return;
+            }
+            if (root.LeftChild != null)
+            {
+                if (ArifmeticOperators.Contains(root.LeftChild.Value))
+                {
+                    OptimizeTree(root.LeftChild);
+                }
+                if (IsNumber(root.LeftChild.Value))
+                {
+                    double n = double.Parse(root.LeftChild.Value);
+                    if (root.RightChild!=null)
+                    {
+                        if (ArifmeticOperators.Contains(root.RightChild.Value))
+                        {
+                            OptimizeTree(root.RightChild);
+                        }
+                        if (IsNumber(root.RightChild.Value))
+                        {
+                            double m = double.Parse(root.RightChild.Value);  
+                            if (ArifmeticOperators.Contains(root.Value))
+                            {
+                                double result = 0;
+                                switch (root.Value)
+                                {
+                                    case "+":
+                                        result = m + n;
+                                        break;
+                                    case "-":
+                                        result = m - n;
+                                        break;
+                                    case "*":
+                                        result = m * n;
+                                        break;
+                                    case "/":
+                                        result = m / n;
+                                        break;
+                                }
+                                Item item = new Item();
+                                item.Value = result.ToString();
+                                root = item;
+                            }
+                           
+                        }
+                    }
+                }
+            }
+        }
+
         public static void SaveTreeTofile(BinaryTree tree, string path = OutputBinaryTreePath)
         {
             Console.ForegroundColor = ConsoleColor.Red;

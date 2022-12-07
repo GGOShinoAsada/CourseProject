@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
@@ -7,7 +8,7 @@ namespace CourseProject
 {
     public class LexicAnalyzer : Service
     {
-        private struct Item
+        private class Item
         {
             public string Name { get; set; }
             public int Col { get; set; }
@@ -54,24 +55,24 @@ namespace CourseProject
         //    }
         //}
 
-        public void ExecuteNumber(String line)
-        {
-            Regex r = new Regex(@"^[0-9]*$");
-            string numbStr = "";
-            if (line != null)
-            {
-                if (r.IsMatch(line))
-                {
-                    int si = line.IndexOfAny(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' }, 0, line.Length);
-                    for (int i = si; i < line.Length; i++)
-                    {
-                        if (line[i] == ';')
-                            break;
-                        numbStr += line[i];
-                    }
-                }
-            }
-        }
+        //public void ExecuteNumber(String line)
+        //{
+        //    Regex r = new Regex(@"^[0-9]*$");
+        //    string numbStr = "";
+        //    if (line != null)
+        //    {
+        //        if (r.IsMatch(line))
+        //        {
+        //            int si = line.IndexOfAny(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' }, 0, line.Length);
+        //            for (int i = si; i < line.Length; i++)
+        //            {
+        //                if (line[i] == ';')
+        //                    break;
+        //                numbStr += line[i];
+        //            }
+        //        }
+        //    }
+        //}
 
         public List<string> CheckProgram()
         {
@@ -80,6 +81,8 @@ namespace CourseProject
             
 
             int body = 0;
+           
+
             for (int i = 0; i < program.Count; i++)
             {
                 if (program[i] != "")
@@ -164,6 +167,17 @@ namespace CourseProject
                                 errors.Add("find uncorrect identificator, col " + i);
                             }
                         }
+                    }
+                }
+            }
+            for (int i=body; i<program.Count; i++)
+            {
+                if (program[i].Contains(":="))
+                {
+                    string arg1 = program[i].Split(":=")[1];
+                    if (string.IsNullOrEmpty(arg1))
+                    {
+                        errors.Add("uncorrect assign construction");
                     }
                 }
             }
@@ -843,81 +857,28 @@ namespace CourseProject
         {
             Console.ForegroundColor = ConsoleColor.Red;
             List<Item> tokens = new List<Item>();
-            try
+            if (CheckProgram().Count == 0)
             {
-                for (int i = 0; i < program.Count; i++)
+                try
                 {
-                    string line = program[i];
-                    if (line != "")
-                    {
-                        if (line.Contains("var"))
-                        {
-                            Item item = new Item();
-                            item.Name = "var";
-                            item.Col = i;
-                            item.Row = line.IndexOf("var");
-                            tokens.Add(item);
-                        }
-                        if (IsContainsSymbols(line, BorderOfStatements) >= 0)
-                        {
-                            List<Item> items = GetContainsSymbolName(line, BorderOfStatements);
 
-                            foreach (Item item in items)
-                            {
-                                bool f = !IsLocatedInSpaces(line, item.Row);
-                                if (!IsLocatedInSpaces(line, item.Row))
-                                {
-                                    Item tmp = item;
-                                    tmp.Col = i;
-                                    tokens.Add(tmp);
-                                }
-                            }
-                        }
-                        if (IsContainsSymbols(line, BaseTypes) > 0)
+                    for (int i = 0; i < program.Count; i++)
+                    {
+                        string line = program[i];
+                        if (line != "")
                         {
-                            List<Item> items = GetContainsSymbolName(line, BaseTypes);
-                            foreach (Item item in items)
+                            if (line.Contains("var"))
                             {
-                                if (!IsLocatedInSpaces(line, item.Row))
-                                {
-                                    Item tmp = item;
-                                    tmp.Col = i;
-                                    tokens.Add(tmp);
-                                }
+                                Item item = new Item();
+                                item.Name = "var";
+                                item.Col = i;
+                                item.Row = line.IndexOf("var");
+                                tokens.Add(item);
                             }
-                        }
-                        if (line.Contains(' '))
-                        {
-                            int st = line.IndexOf(' ');
-                            string pr = "";
-                            for (int j = line.IndexOf(' '); j < line.Length; j++)
+                            if (IsContainsSymbols(line, BorderOfStatements) >= 0)
                             {
-                                if (line[j].Equals(' '))
-                                {
-                                    if (st < 0)
-                                        st = j;
-                                    pr += line[j];
-                                }
-                                else
-                                {
-                                    if (!pr.Equals(""))
-                                    {
-                                        Item item = new Item();
-                                        item.Name = pr;
-                                        item.Col = i;
-                                        item.Row = st;
-                                        tokens.Add(item);
-                                        st = -1;
-                                        pr = "";
-                                    }
-                                }
-                            }
-                        }
-                        if (!line.Contains("write"))
-                        {
-                            if (IsContainsSymbols(line, ArifmeticOperators) >= 0)
-                            {
-                                List<Item> items = GetContainsSymbolName(line, ArifmeticOperators);
+                                List<Item> items = GetContainsSymbolName(line, BorderOfStatements);
+
                                 foreach (Item item in items)
                                 {
                                     bool f = !IsLocatedInSpaces(line, item.Row);
@@ -929,250 +890,331 @@ namespace CourseProject
                                     }
                                 }
                             }
-                        }
-
-                        if (IsContainsSymbols(line, LogicalOperators) >= 0)
-                        {
-                            List<Item> items = GetContainsSymbolName(line, LogicalOperators);
-                            foreach (Item item in items)
+                            if (IsContainsSymbols(line, BaseTypes) > 0)
                             {
-                                if (!IsLocatedInSpaces(line, item.Row))
+                                List<Item> items = GetContainsSymbolName(line, BaseTypes);
+                                foreach (Item item in items)
                                 {
-                                    Item tmp = item;
-                                    tmp.Col = i;
-                                    tokens.Add(tmp);
+                                    if (!IsLocatedInSpaces(line, item.Row))
+                                    {
+                                        Item tmp = item;
+                                        tmp.Col = i;
+                                        tokens.Add(tmp);
+                                    }
                                 }
                             }
-                        }
-
-                        if (IsContainsSymbols(line, LogicalValues) >= 0)
-                        {
-                            List<Item> items = GetContainsSymbolName(line, LogicalValues);
-                            foreach (Item item in items)
+                            if (line.Contains(' '))
                             {
-                                if (!IsLocatedInSpaces(line, item.Row))
+                                int st = line.IndexOf(' ');
+                                string pr = "";
+                                for (int j = line.IndexOf(' '); j < line.Length; j++)
                                 {
-                                    Item tmp = item;
-                                    tmp.Col = i;
-                                    tokens.Add(tmp);
+                                    if (line[j].Equals(' '))
+                                    {
+                                        if (st < 0)
+                                            st = j;
+                                        pr += line[j];
+                                    }
+                                    else
+                                    {
+                                        if (!pr.Equals(""))
+                                        {
+                                            Item item = new Item();
+                                            item.Name = pr;
+                                            item.Col = i;
+                                            item.Row = st;
+                                            tokens.Add(item);
+                                            st = -1;
+                                            pr = "";
+                                        }
+                                    }
                                 }
                             }
-                        }
-
-                        if (IsContainsSymbols(line, CompareOperators) >= 0)
-                        {
-                            List<Item> items = GetContainsSymbolName(line, CompareOperators);
-                            foreach (Item item in items)
+                            if (!line.Contains("write"))
                             {
-                                if (!IsLocatedInSpaces(line, item.Row))
+                                if (IsContainsSymbols(line, ArifmeticOperators) >= 0)
                                 {
-                                    Item tmp = item;
-                                    tmp.Col = i;
-                                    tokens.Add(tmp);
+                                    List<Item> items = GetContainsSymbolName(line, ArifmeticOperators);
+                                    foreach (Item item in items)
+                                    {
+                                        bool f = !IsLocatedInSpaces(line, item.Row);
+                                        if (!IsLocatedInSpaces(line, item.Row))
+                                        {
+                                            Item tmp = item;
+                                            tmp.Col = i;
+                                            tokens.Add(tmp);
+                                        }
+                                    }
                                 }
-                            }
-                        }
-                        if (IsContainsSymbols(line, ConditionStructure) >= 0)
-                        {
-                            List<Item> items = GetContainsSymbolName(line, ConditionStructure);
-                            foreach (Item item in items)
-                            {
-                                bool f = !IsLocatedInSpaces(line, item.Row);
-                                if (!IsLocatedInSpaces(line, item.Row))
-                                {
-                                    Item tmp = item;
-                                    tmp.Col = i;
-                                    tokens.Add(tmp);
-                                }
-                            }
-                        }
-                        if (IsContainsSymbols(line, RepeatStructure) >= 0)
-                        {
-                            List<Item> items = GetContainsSymbolName(line, RepeatStructure);
-                            foreach (Item item in items)
-                            {
-                                bool f = !IsLocatedInSpaces(line, item.Row);
-                                if (!IsLocatedInSpaces(line, item.Row))
-                                {
-                                    Item tmp = item;
-                                    tmp.Col = i;
-                                    tokens.Add(tmp);
-                                }
-                            }
-                        }
-                        if (IsContainsSymbols(line, ArrayStructure) >= 0)
-                        {
-                            List<Item> items = GetContainsSymbolName(line, ArrayStructure);
-                            foreach (Item item in items)
-                            {
-                                if (!IsLocatedInSpaces(line, item.Row))
-                                {
-                                    Item tmp = item;
-                                    tmp.Col = i;
-                                    tokens.Add(tmp);
-                                }
-                            }
-                        }
-
-                        if (IsContainsSymbols(line, IOStructure) >= 0)
-                        {
-                            string pattern = "";
-                            if (program[i].Contains("write"))
-                            {
-                                string arg = program[i].Substring(0, program[i].IndexOf("("));
-                                arg = arg.Trim();
-                                if (arg.Equals("write"))
-                                {
-                                    pattern = "write";
-                                }
-                                if (arg.Equals("writeln"))
-                                {
-                                    pattern = "writeln";
-                                }
-                                Item item = new Item();
-                                item.Name = pattern;
-                                item.Col = i;
-                                item.Row = line.IndexOf(pattern);
-                                tokens.Add(item);
-                                int sind = program[i].IndexOf("(") + 1;
-                                int count = program[i].IndexOf(")") - sind;
-                                string msg = program[i].Substring(sind, count);
-                                item = new Item();
-                                item.Name = msg;
-                                item.Col = i;
-                                item.Row = program[i].IndexOf("(") + 1;
-                                tokens.Add(item);
-                            }
-                            if (program[i].Contains("read"))
-                            {
-                                string arg = program[i].Substring(0, program[i].IndexOf("("));
-                                arg = arg.Trim();
-                                if (arg.Equals("read"))
-                                {
-                                    pattern = "read";
-                                }
-                                if (arg.Equals("readln"))
-                                {
-                                    pattern = "readln";
-                                }
-                                Item item = new Item();
-                                item.Name = pattern;
-                                item.Col = i;
-                                item.Row = line.IndexOf(pattern);
-                                tokens.Add(item);
                             }
 
-                            //Item item = new Item();
-                            //item.Name = pattern;
-                            //item.Col = i;
-                            //item.Row = line.IndexOf(pattern);
-                            //tokens.Add(item);
-                        }
-                        if (IsContainsSymbols(line, ServiceSymbols) >= 0)
-                        {
-                            //if (line.Contains(".."))
-                            //{
-                            //    string name = "..";
-                            //    Item item = new Item();
-                            //    item.Name = name;
-                            //    item.Row = line.IndexOf("..");
-                            //    item.Col = i;
-                            //    tokens.Add(item);
-                            //}
-
-                            //if (line.Contains(".") && !line.Contains(".."))
-                            //{
-                            //    string name = ".";
-                            //    Item item = new Item();
-                            //    item.Name = name;
-                            //    item.Row = line.IndexOf(".");
-                            //    item.Col = i;
-                            //    tokens.Add(item);
-                            //}
-
-                            if (line.Contains(":="))
+                            if (IsContainsSymbols(line, LogicalOperators) >= 0)
                             {
-                                int si = line.IndexOf(":=");
-                                Item item = new Item();
-                                item.Name = ":=";
-                                item.Col = i;
-                                item.Row = si;
-                                tokens.Add(item);
+                                List<Item> items = GetContainsSymbolName(line, LogicalOperators);
+                                foreach (Item item in items)
+                                {
+                                    if (!IsLocatedInSpaces(line, item.Row))
+                                    {
+                                        Item tmp = item;
+                                        tmp.Col = i;
+                                        tokens.Add(tmp);
+                                    }
+                                }
                             }
 
-                            if (line.Contains("=") && !line.Contains(":="))
+                            if (IsContainsSymbols(line, LogicalValues) >= 0)
                             {
-                                if (!line.Contains("write"))
+                                List<Item> items = GetContainsSymbolName(line, LogicalValues);
+                                foreach (Item item in items)
                                 {
-                                    int si = line.IndexOf("=");
+                                    if (!IsLocatedInSpaces(line, item.Row))
+                                    {
+                                        Item tmp = item;
+                                        tmp.Col = i;
+                                        tokens.Add(tmp);
+                                    }
+                                }
+                            }
+
+                            if (IsContainsSymbols(line, CompareOperators) >= 0)
+                            {
+                                List<Item> items = GetContainsSymbolName(line, CompareOperators);
+                                foreach (Item item in items)
+                                {
+                                    if (!IsLocatedInSpaces(line, item.Row))
+                                    {
+                                        Item tmp = item;
+                                        tmp.Col = i;
+                                        tokens.Add(tmp);
+                                    }
+                                }
+                            }
+                            if (IsContainsSymbols(line, ConditionStructure) >= 0)
+                            {
+                                List<Item> items = GetContainsSymbolName(line, ConditionStructure);
+                                foreach (Item item in items)
+                                {
+                                    bool f = !IsLocatedInSpaces(line, item.Row);
+                                    if (!IsLocatedInSpaces(line, item.Row))
+                                    {
+                                        Item tmp = item;
+                                        tmp.Col = i;
+                                        tokens.Add(tmp);
+                                    }
+                                }
+                            }
+                            if (IsContainsSymbols(line, RepeatStructure) >= 0)
+                            {
+                                List<Item> items = GetContainsSymbolName(line, RepeatStructure);
+                                foreach (Item item in items)
+                                {
+                                    bool f = !IsLocatedInSpaces(line, item.Row);
+                                    if (!IsLocatedInSpaces(line, item.Row))
+                                    {
+                                        Item tmp = item;
+                                        tmp.Col = i;
+                                        tokens.Add(tmp);
+                                    }
+                                }
+                            }
+                            if (IsContainsSymbols(line, ArrayStructure) >= 0)
+                            {
+                                List<Item> items = GetContainsSymbolName(line, ArrayStructure);
+                                foreach (Item item in items)
+                                {
+                                    if (!IsLocatedInSpaces(line, item.Row))
+                                    {
+                                        Item tmp = item;
+                                        tmp.Col = i;
+                                        tokens.Add(tmp);
+                                    }
+                                }
+                            }
+
+                            if (IsContainsSymbols(line, IOStructure) >= 0)
+                            {
+                                string pattern = "";
+                                if (program[i].Contains("write"))
+                                {
+                                    string arg = program[i].Substring(0, program[i].IndexOf("("));
+                                    arg = arg.Trim();
+                                    if (arg.Equals("write"))
+                                    {
+                                        pattern = "write";
+                                    }
+                                    if (arg.Equals("writeln"))
+                                    {
+                                        pattern = "writeln";
+                                    }
                                     Item item = new Item();
-                                    item.Name = "=";
+                                    item.Name = pattern;
+                                    item.Col = i;
+                                    item.Row = line.IndexOf(pattern);
+                                    tokens.Add(item);
+                                    int sind = program[i].IndexOf("(") + 1;
+                                    int count = program[i].IndexOf(")") - sind;
+                                    string msg = program[i].Substring(sind, count);
+                                    item = new Item();
+                                    item.Name = msg;
+                                    item.Col = i;
+                                    item.Row = program[i].IndexOf("(") + 1;
+                                    tokens.Add(item);
+                                }
+                                if (program[i].Contains("read"))
+                                {
+                                    string arg = program[i].Substring(0, program[i].IndexOf("("));
+                                    arg = arg.Trim();
+                                    if (arg.Equals("read"))
+                                    {
+                                        pattern = "read";
+                                    }
+                                    if (arg.Equals("readln"))
+                                    {
+                                        pattern = "readln";
+                                    }
+                                    Item item = new Item();
+                                    item.Name = pattern;
+                                    item.Col = i;
+                                    item.Row = line.IndexOf(pattern);
+                                    tokens.Add(item);
+                                }
+
+                                //Item item = new Item();
+                                //item.Name = pattern;
+                                //item.Col = i;
+                                //item.Row = line.IndexOf(pattern);
+                                //tokens.Add(item);
+                            }
+                            if (IsContainsSymbols(line, ServiceSymbols) >= 0)
+                            {
+                                //if (line.Contains(".."))
+                                //{
+                                //    string name = "..";
+                                //    Item item = new Item();
+                                //    item.Name = name;
+                                //    item.Row = line.IndexOf("..");
+                                //    item.Col = i;
+                                //    tokens.Add(item);
+                                //}
+
+                                //if (line.Contains(".") && !line.Contains(".."))
+                                //{
+                                //    string name = ".";
+                                //    Item item = new Item();
+                                //    item.Name = name;
+                                //    item.Row = line.IndexOf(".");
+                                //    item.Col = i;
+                                //    tokens.Add(item);
+                                //}
+
+                                if (line.Contains(":="))
+                                {
+                                    int si = line.IndexOf(":=");
+                                    Item item = new Item();
+                                    item.Name = ":=";
                                     item.Col = i;
                                     item.Row = si;
                                     tokens.Add(item);
                                 }
-                            }
 
-                            if (line.Contains(":") && !(line.Contains(":=")))
-                            {
-                                int si = line.IndexOf(":");
-                                Item item = new Item();
-                                item.Name = ":";
-                                item.Col = i;
-                                item.Row = si;
-                                tokens.Add(item);
-                            }
-
-                            List<Item> items = GetAllContainsSymbols(line, ServiceSymbols);
-                            for (int j = 0; j < items.Count; j++)
-                            {
-                                Item tmp = items[j];
-                                tmp.Col = i;
-                                items[j] = tmp;
-                            }
-                            foreach (Item item in items)
-                            {
-                                tokens.Add(item);
-                            }
-                        }
-                        if (line.Contains('\"'))
-                        {
-                            if (!program[i].Contains("write"))
-                            {
-                                List<int> indexes = GetAllContains(line, "\"");
-                                foreach (int pos in indexes)
+                                if (line.Contains("=") && !line.Contains(":="))
                                 {
+                                    if (!line.Contains("write"))
+                                    {
+                                        int si = line.IndexOf("=");
+                                        Item item = new Item();
+                                        item.Name = "=";
+                                        item.Col = i;
+                                        item.Row = si;
+                                        tokens.Add(item);
+                                    }
+                                }
+
+                                if (line.Contains(":") && !(line.Contains(":=")))
+                                {
+                                    int si = line.IndexOf(":");
                                     Item item = new Item();
-                                    item.Name = "\"";
+                                    item.Name = ":";
                                     item.Col = i;
-                                    item.Row = pos;
+                                    item.Row = si;
                                     tokens.Add(item);
+                                }
+
+                                List<Item> items = GetAllContainsSymbols(line, ServiceSymbols);
+                                for (int j = 0; j < items.Count; j++)
+                                {
+                                    Item tmp = items[j];
+                                    tmp.Col = i;
+                                    items[j] = tmp;
+                                }
+                                foreach (Item item in items)
+                                {
+                                    tokens.Add(item);
+                                }
+                            }
+                            if (line.Contains('\"'))
+                            {
+                                if (!program[i].Contains("write"))
+                                {
+                                    List<int> indexes = GetAllContains(line, "\"");
+                                    foreach (int pos in indexes)
+                                    {
+                                        Item item = new Item();
+                                        item.Name = "\"";
+                                        item.Col = i;
+                                        item.Row = pos;
+                                        tokens.Add(item);
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                //foreach (Item item1 in tokens)
-                //{
-                //    Console.WriteLine(item1.Name + " " + item1.Col + " " + item1.Row);
-                //}
-                using (StreamWriter writer = new StreamWriter(TokensPath))
-                {
-                    foreach (Item item in tokens)
+                    //foreach (Item item1 in tokens)
+                    //{
+                    //    Console.WriteLine(item1.Name + " " + item1.Col + " " + item1.Row);
+                    //}
+                    using (StreamWriter writer = new StreamWriter(TokensPath))
                     {
-                        writer.WriteLine(item.Name + "##" + item.Col + "##" + item.Row);
+                        foreach (Item item in tokens)
+                        {
+                            writer.WriteLine(item.Name + "##" + item.Col + "##" + item.Row);
+                        }
                     }
                 }
+                catch (DirectoryNotFoundException ex)
+                {
+                    Console.WriteLine(ex.StackTrace);
+                }
+                catch (Exception ex0)
+                {
+                    Console.WriteLine(ex0.StackTrace);
+                }
+            }
+            
+            
+
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+
+        public void ResetFiles()
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            try
+            {
+                FileStream fstream = new FileStream(IdentificatorsPath, FileMode.Create, FileAccess.Write);
+                StreamWriter writer = new StreamWriter(fstream);
+                fstream = new FileStream(TokensPath, FileMode.Create, FileAccess.Write);
+                writer = new StreamWriter(fstream);
             }
             catch (DirectoryNotFoundException ex)
             {
                 Console.WriteLine(ex.StackTrace);
             }
-            catch (Exception ex0)
+            catch (Exception ex)
             {
-                Console.WriteLine(ex0.StackTrace);
+                Console.WriteLine(ex.StackTrace);
             }
-
             Console.ForegroundColor = ConsoleColor.White;
         }
 
@@ -1370,18 +1412,136 @@ namespace CourseProject
             return indexes;
         }
 
-        //private string RemoveSpaces(string input)
-        //{
-        //    string result = String.Empty;
-        //    foreach (char c in input)
-        //    {
-        //        if (!c.Equals(' '))
-        //        {
-        //            result += c;
-        //        }
-        //    }
-        //    return result;
-        //}
+        public void RemoveSpacesAndEmptySymbols()
+        {
+            char[] patterns = new char[] { '+', '-', '*', '/', '<', '>', '=' };
+
+            List<string> data = new List<string>();
+            for (int i = 0; i < program.Count; i++)
+            {
+                string line = program[i];
+                if (!string.IsNullOrEmpty(line))
+                {
+                    string newLine = "";   
+                    
+                    for (int j = 0; j < line.Length; j++)
+                    {
+                        
+                        if (!IsLocatedInSpaces(line, j))
+                        {
+                            if (patterns.Contains(line[j]))
+                            {
+                                List<int> indexes = GetAllContains(line, "+");
+                                line = DeleteSpaces(line, "+", indexes);
+                                indexes = GetAllContains(line, "-");
+                                line = DeleteSpaces(line, "*", indexes);
+                                indexes = GetAllContains(line, "*");
+                                line = DeleteSpaces(line, "*", indexes);
+                                indexes = GetAllContains(line, "/");
+                                line = DeleteSpaces(line, "/", indexes);
+                                indexes = GetAllContains(line, ">=");
+                                line = DeleteSpaces(line, ">=", indexes);
+                                indexes = GetAllContains(line, "<=");
+                                line = DeleteSpaces(line, "<=", indexes);
+                                indexes = GetAllContains(line, "<>");
+                                line = DeleteSpaces(line, "<>", indexes);
+                                indexes = GetAllContains(line, "<");
+                                List<int> temp = new List<int>();
+                                foreach (int ind in indexes)
+                                {
+                                    if (ind+1<line.Length)
+                                    {
+                                        if ((line[ind + 1] != '>') && (line[ind+1]!='='))
+                                        {
+                                            temp.Add(ind);
+                                        }
+                                    }
+                                }
+                                indexes = temp;
+                                line = DeleteSpaces(line, "<", indexes);
+
+                                indexes = GetAllContains(line, ">");
+                                foreach (int ind in indexes)
+                                {
+                                    if (ind -1>=0)
+                                    {
+                                        if ((line[ind -1] != '<'))
+                                        {
+                                            if (ind+1<line.Length)
+                                            {
+                                                if ((line[ind - 1] != '='))
+                                                {
+                                                    temp.Add(ind);
+                                                }
+                                            }                                            
+                                        }
+                                    }
+                                }
+                                indexes = temp;
+                                line = DeleteSpaces(line, ">", indexes);
+
+                                indexes = GetAllContains(line, "=");
+                                temp = new List<int>();
+                                foreach (int ind in indexes)
+                                {
+                                    if (ind-1>=0)
+                                    {
+                                        if ((line[ind-1] != '>') && (line[ind-1]!='<'))
+                                        {
+                                            temp.Add(ind);
+                                        }
+                                    }
+                                }
+                                indexes = temp;
+                                line = DeleteSpaces(line, "=", indexes);
+                            }
+                            else
+                            {
+                                if (!line[j].Equals(' '))
+                                    newLine += line[j];
+                            }
+                            
+                           
+                        }
+                        else
+                        {
+                            newLine += line[j];
+                        }
+                    }
+                    //if (newLine.StartsWith("var"))
+                    //{
+                    //    newLine = newLine.Remove(newLine.IndexOf("var"), 3);
+                    //    newLine = "var " + newLine;
+
+                    //}
+                    data.Add(newLine);
+                }
+            }
+
+            string DeleteSpaces(string line, string op, List<int> indexes)
+            {
+                foreach (int index in indexes)
+                {
+                    if (index - op.Length >= 0)
+                    {
+                        if (line[index - 1].Equals(' '))
+                        {
+                            line = line.Remove(index - 1,1);
+                        }
+                    }
+                    if (index + op.Length < line.Length)
+                    {
+                        if (line[index + op.Length].Equals(' '))
+                        {
+                            line = line.Remove(index +op.Length ,1);
+                        }
+                    }
+                }
+                return line;
+            }
+
+            program = data;
+        }
 
         public List<string> ReadProgram(string path)
         {

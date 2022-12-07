@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using static CourseProject.BinaryTree;
@@ -37,14 +38,40 @@ namespace CourseProject
             }
         }
 
-        private struct Item
+    
+        private class Operator
+        {
+            public string Value { get; set; }
+            
+            public int Position { get; set; }
+
+            public bool Flag { get; set; } = true;
+
+            public Operator(string val, int pos)
+            {
+                this.Value = val;
+                this.Position = pos;
+            }
+
+            public Operator(string val, int pos, bool f)
+            {
+                this.Value = val;
+                this.Position = pos;
+                this.Flag = f;
+            }
+
+        }
+
+        private class Item
         {
             public string Value { get; set; }
 
             public int Position { get; set; }
         }
 
-        private struct Item2
+        
+
+        private class Item2
         {
             public string Value { get; set; }
 
@@ -53,7 +80,7 @@ namespace CourseProject
             public int Row { get; set; }
         }
 
-        private struct IdentTypes
+        private class IdentTypes
         {
             public string Identificator { get; set; }
 
@@ -97,121 +124,127 @@ namespace CourseProject
                     line = RepairProgramLine(index);
                 }
                 tree.SetHead();
+
+
+
+
+                //----------trash---------
                 // Console.WriteLine("#1");
                 //tree.PrintTree(tree.Root);
 
-                int opIndex = 0;
-                for (int i = index; i < n; i++)
-                {
-                    //only with bool = xor, not; for condition can be use or, and
-                    //:=, while, if, then, else, until, begin, end;
-                    line = RepairProgramLine(i);
-                    if (line.Contains(":="))
-                    {
-                        tree.AddRightChild(DefaultValue + opIndex);
-                        string expression = line.Split(":=")[1];
-                        tree.AddLeftChild(":=");
-                        BinaryTree expTree = ParseExpression(expression);
-                        tree.SetRightChild(expTree.Root);
-                        tree.SetParent(tree.Root);
-                        opIndex++;
-                    }
-                    if (line.Contains("repeat"))
-                    {
-                        tree.AddRightChild(DefaultValue + opIndex);
-                        tree.AddLeftChild("repeat");
-                        tree.SetParent(tree.Root);
+                //int opIndex = 0;
+                //
+                //for (int i = index; i < n; i++)
+                //{
+                //    //only with bool = xor, not; for condition can be use or, and
+                //    //:=, while, if, then, else, until, begin, end;
+                //    line = RepairProgramLine(i);
+                //    if (line.Contains(":="))
+                //    {
+                //        tree.AddRightChild(DefaultValue + opIndex);
+                //        string expression = line.Split(":=")[1];
+                //        tree.AddLeftChild(":=");
+                //        BinaryTree expTree = ParseExpression(expression);
+                //        tree.SetRightChild(expTree.Root);
+                //        tree.SetParent(tree.Root);
+                //        opIndex++;
+                //    }
+                //    if (line.Contains("repeat"))
+                //    {
+                //        tree.AddRightChild(DefaultValue + opIndex);
+                //        tree.AddLeftChild("repeat");
+                //        tree.SetParent(tree.Root);
 
-                        opIndex++;
-                    }
-                    if (line.Contains("until"))
-                    {
-                        string expresssion = GetSubsString(line, line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
-                        foreach (string item in ConditionOperators)
-                        {
-                            if (expresssion.Contains(item))
-                            {
-                                string arg0 = expresssion.Split(item)[0];
-                                string arg1 = expresssion.Split(item)[1];
-                                tree.AddRightChild(DefaultValue + opIndex);
-                                tree.AddLeftChild(item);
-                                tree.SetRightChild(ParseExpression(arg1).Root);
-                                //tree.SetParent(tree.Root);
-                                tree.SetLeftChild(ParseExpression(arg0).Root);
-                                //tree.SetParent(tree.Root);
-                                tree.SetParent(tree.Root);
-                            }
-                        }
-                        opIndex++;
-                    }
-                    if (line.Contains("write"))
-                    {
-                        string pattern = "write";
-                        string msg = GetSubsString(line, line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
-                        tree.AddRightChild(DefaultValue + n);
-                        if (line.Contains("writeln"))
-                        {
-                            pattern = "writeln";
-                        }
-                        tree.AddLeftChild(pattern);
-                        tree.SetParent(tree.Root);
-                        tree.AddRightChild(msg);
-                        opIndex++;
-                    }
-                    if (line.Contains("read"))
-                    {
-                        string pattern = "read";
-                        string msg = GetSubsString(line, line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
-                        tree.AddRightChild(DefaultValue + n);
-                        if (line.Contains("readln"))
-                        {
-                            pattern = "readln";
-                        }
-                        tree.AddLeftChild(pattern);
-                        tree.SetParent(tree.Root);
-                        tree.AddRightChild(msg);
-                        opIndex++;
-                    }
-                    if (line.Contains("if"))
-                    {
-                        string expression = GetSubsString(line, line.IndexOf("(") + 1, line.LastIndexOf(')') - 1);
+                //        opIndex++;
+                //    }
+                //    if (line.Contains("until"))
+                //    {
+                //        string expresssion = GetSubsString(line, line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
+                //        foreach (string item in ConditionOperators)
+                //        {
+                //            if (expresssion.Contains(item))
+                //            {
+                //                string arg0 = expresssion.Split(item)[0];
+                //                string arg1 = expresssion.Split(item)[1];
+                //                tree.AddRightChild(DefaultValue + opIndex);
+                //                tree.AddLeftChild(item);
+                //                tree.SetRightChild(ParseExpression(arg1).Root);
+                //                //tree.SetParent(tree.Root);
+                //                tree.SetLeftChild(ParseExpression(arg0).Root);
+                //                //tree.SetParent(tree.Root);
+                //                tree.SetParent(tree.Root);
+                //            }
+                //        }
+                //        opIndex++;
+                //    }
+                //    if (line.Contains("write"))
+                //    {
+                //        string pattern = "write";
+                //        string msg = GetSubsString(line, line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
+                //        tree.AddRightChild(DefaultValue + n);
+                //        if (line.Contains("writeln"))
+                //        {
+                //            pattern = "writeln";
+                //        }
+                //        tree.AddLeftChild(pattern);
+                //        tree.SetParent(tree.Root);
+                //        tree.AddRightChild(msg);
+                //        opIndex++;
+                //    }
+                //    if (line.Contains("read"))
+                //    {
+                //        string pattern = "read";
+                //        string msg = GetSubsString(line, line.IndexOf("(") + 1, line.LastIndexOf(")") - 1);
+                //        tree.AddRightChild(DefaultValue + n);
+                //        if (line.Contains("readln"))
+                //        {
+                //            pattern = "readln";
+                //        }
+                //        tree.AddLeftChild(pattern);
+                //        tree.SetParent(tree.Root);
+                //        tree.AddRightChild(msg);
+                //        opIndex++;
+                //    }
+                //    if (line.Contains("if"))
+                //    {
+                //        string expression = GetSubsString(line, line.IndexOf("(") + 1, line.LastIndexOf(')') - 1);
 
-                        foreach (string item in ConditionOperators)
-                        {
-                            if (line.Contains(item))
-                            {
-                                string arg0 = line.Split(item)[0];
-                                string arg1 = line.Split(item)[1];
-                                tree.AddRightChild(DefaultValue + opIndex);
-                                tree.SetRightChild(ParseExpression(arg1).Root);
-                                tree.SetLeftChild(ParseExpression(arg1).Root);
-                                tree.SetParent(tree.Root);
-                            }
-                        }
-                        opIndex++;
-                    }
-                    if (line.Contains("else"))
-                    {
-                        tree.AddRightChild(DefaultValue + opIndex);
-                        tree.AddRightChild("else");
-                        opIndex++;
-                    }
-                    if (line.Contains("begin"))
-                    {
-                        tree.AddRightChild(DefaultValue + opIndex);
-                        tree.AddRightChild("begin");
-                        opIndex++;
-                    }
-                    if (line.Contains("end"))
-                    {
-                        tree.AddRightChild(DefaultValue + opIndex);
-                        tree.AddRightChild("end");
-                        opIndex++;
-                    }
-                }
-                tree.SetHead();
-                Console.WriteLine("#2");
-                tree.PrintTree(tree.Root);
+                //        foreach (string item in ConditionOperators)
+                //        {
+                //            if (line.Contains(item))
+                //            {
+                //                string arg0 = line.Split(item)[0];
+                //                string arg1 = line.Split(item)[1];
+                //                tree.AddRightChild(DefaultValue + opIndex);
+                //                tree.SetRightChild(ParseExpression(arg1).Root);
+                //                tree.SetLeftChild(ParseExpression(arg1).Root);
+                //                tree.SetParent(tree.Root);
+                //            }
+                //        }
+                //        opIndex++;
+                //    }
+                //    if (line.Contains("else"))
+                //    {
+                //        tree.AddRightChild(DefaultValue + opIndex);
+                //        tree.AddRightChild("else");
+                //        opIndex++;
+                //    }
+                //    if (line.Contains("begin"))
+                //    {
+                //        tree.AddRightChild(DefaultValue + opIndex);
+                //        tree.AddRightChild("begin");
+                //        opIndex++;
+                //    }
+                //    if (line.Contains("end"))
+                //    {
+                //        tree.AddRightChild(DefaultValue + opIndex);
+                //        tree.AddRightChild("end");
+                //        opIndex++;
+                //    }
+                //}
+                //tree.SetHead();
+                //Console.WriteLine("#2");
+                //tree.PrintTree(tree.Root);
             }
             catch (Exception ex)
             {
@@ -251,42 +284,442 @@ namespace CourseProject
             return n;
         }
 
+
         private BinaryTree ParseExpression(string line)
         {
             BinaryTree tree = new BinaryTree();
-            int st = 0;
+            Console.ForegroundColor = ConsoleColor.Red;
             try
             {
-                for (int i = 0; i < line.Length; i++)
+                if (!string.IsNullOrEmpty(line))
                 {
-                    if (line[i].Equals('('))
-                    {
-                        tree.AddLeftChild("");
-                    }
-                    if (line[i].Equals('+') || line[i].Equals('-') || line[i].Equals('*') || line[i].Equals('/'))
-                    {
-                        tree.SetRootValue(line[i].ToString());
-                        tree.AddRightChild("");
-                    }
-                    if (Regex.IsMatch(line[i].ToString(), @"^[0-9]*$"))
-                    {
-                        tree.SetRootValue(line[i].ToString());
-                        tree.SetParent(tree.Root);
-                    }
-                    if (line[i].Equals(')'))
-                    {
-                        tree.SetParent(tree.Root);
-                    }
-                }
+                    //if ((line[0] != '(') && (line.Last() != ')'))
+                    //{
+                    //    line = '(' + line + ')';
+                    //}
+                    //line = AddBrackets(line);
+                    int ind = 0;
 
+                    //number - [0-9,.]
+                    //value - a-zA-Z0-9_
+                    //and, or, xor, not, <, >, =, <>, <=, >=, +, -, *, /
+
+                    
+                    string temp = line;
+
+                    List<Operator> operators = new List<Operator>();
+
+                    List<int> indexes = GetAllContains(line, "*");
+
+                    foreach (int index in indexes)
+                    {
+                        
+                        operators.Add(new Operator("*", index));
+                    }
+
+                    indexes = GetAllContains(line, "/");
+
+                    foreach (int index in indexes)
+                    {
+                                          
+                        operators.Add(new Operator("/", index));
+                    }
+
+                    indexes = GetAllContains(line, "+");
+
+                    foreach (int index in indexes)
+                    {
+                        
+                        operators.Add(new Operator("+", index));
+                    }
+
+                    indexes = GetAllContains(line, "-");
+
+                    foreach (int index in indexes)
+                    {
+                      
+                        operators.Add(new Operator("-", index));
+                    }
+
+                    indexes = GetAllContains(line, "<=");
+
+                    foreach (int index in indexes)
+                    {
+                        operators.Add(new Operator("<=", index));
+                    }
+
+                    indexes = GetAllContains(line, ">=");
+
+                    foreach (int index in indexes)
+                    {
+                        operators.Add(new Operator(">=", index));
+                    }
+
+                    indexes = GetAllContains(line, "<>");
+
+                    foreach (int index in indexes)
+                    {
+                        operators.Add(new Operator("<>", index));
+                    }
+
+                    indexes = GetAllContains(line, "=");
+
+                    foreach (int index in indexes)
+                    {
+                        if (index-1>=0)
+                        {
+                            if (!line[index-1].Equals('<') && !line[index-1].Equals('>'))
+                            {
+                                operators.Add(new Operator("=", index));
+                            }
+                        }
+                       
+                    }
+
+                    indexes = GetAllContains(line, "<");
+
+                    foreach (int index in indexes)
+                    {
+                        if (index + 1 < line.Length)
+                        {
+                            if (!line[index + 1].Equals('>') && !line[index + 1].Equals('='))
+                            {
+                                operators.Add(new Operator("<", index));
+                            }
+                        }
+
+                    }
+
+                    indexes = GetAllContains(line, ">");
+
+                    foreach (int index in indexes)
+                    {
+                        if (index + 1 < line.Length)
+                        {
+                            if (!line[index + 1].Equals('='))
+                            {
+                                if (index-1>=0)
+                                {
+                                    if (!line[index-1].Equals('<'))
+                                    {
+                                        operators.Add(new Operator(">", index));
+                                    }
+                                }
+                               
+                            }
+                        }
+
+                    }
+
+                    indexes = GetAllContains(line, "xor");
+
+                    foreach (int index in indexes)
+                    {
+                        operators.Add(new Operator("xor", index));
+                    }
+
+                    indexes = GetAllContains(line, "or");
+
+                    foreach (int index in indexes)
+                    {
+                        if (index - 1 >=0)
+                        {
+                            if (!line[index - 1].Equals('x'))
+                            {
+                                operators.Add(new Operator("or", index));
+                            }
+                        }
+
+                    }
+
+                    indexes = GetAllContains(line, "and");
+
+                    foreach (int index in indexes)
+                    {
+                        operators.Add(new Operator("and", index));
+                    }
+
+                    indexes = GetAllContains(line, "not");
+
+                    foreach (int index in indexes)
+                    {
+                        operators.Add(new Operator("not", index));
+                    }
+
+                    while (ind < line.Length)
+                    {
+                        if (line[ind].Equals('('))
+                        {
+                            tree.AddLeftChild("");
+                        }
+                        int index = -1;
+                        for (int j=0; j<operators.Count; j++)
+                        {
+                            if (operators[j].Position == ind)
+                            {
+                                index = j;
+                                operators[j].Flag = false;
+                                break;
+                            }
+                        }
+                      
+                        if (index>=0)
+                        {
+                            //operator
+                            string op = operators[index].Value;
+                            ind += op.Length-1;
+                            tree.SetRootValue(op);
+                            tree.AddRightChild("");
+                           
+                        }             
+                        if (IsValue(line[ind]) && (index==-1))
+                        {
+                            //value
+                            string value = "";
+                          
+
+                            while (IsValue(line[ind]))
+                            {
+                                value += line[ind];
+                                ind++;
+                            }
+                            ind--;
+                            tree.SetRootValue(value);
+                            tree.SetParent(tree.Root);
+
+                        }
+                       
+                        
+                        if (line[ind].Equals(')'))
+                        {
+                            tree.SetParent(tree.Root);
+                        }
+                        ind++;
+                    }
+
+                    
+                }
                 tree.SetHead();
-                //tree.ScanTree(tree.Root);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace);
             }
+
+           
+
+            Console.ForegroundColor = ConsoleColor.White;
             return tree;
+        }
+
+
+        private bool IsValue(char c)
+        {
+            return Regex.IsMatch(c.ToString(), "^[0-9]+$") || Regex.IsMatch(c.ToString(), "^[a-zA-Z]+$") || c.Equals('.') || c.Equals('_');
+        }
+
+        public string AddBrackets(string line)
+        {
+           
+            string[] array = new string[] {"*","/", "+", "-", "<", ">", "<=", ">=", "=", "<>", "xor", "not", "and", "or" };
+
+            char[] patterns = new char[] {' ', '*', '/', '+', '-' , '(', ')'};
+
+            List<Item> indexes = FormIndexes();
+
+            int n = indexes.Count;
+
+            foreach (string op in array)
+            {
+                for (int i = 0; i < n; i++)
+                {
+                    if (indexes[i].Value.Equals(op))
+                    {
+                        indexes = FormIndexes();
+                        int ind = indexes[i].Position;
+
+                        int tmp = ind - 1;
+                        sbyte br = 0;
+
+                        while (tmp>=0)
+                        {
+                            if (line[tmp].Equals(')'))
+                                br++;
+                            if (line[tmp].Equals('('))
+                               br--;
+                            if (br == 0)
+                            {
+                                if (patterns.Contains(line[tmp]))
+                                    break;
+                            }
+                            tmp--;
+                        }
+                        if (tmp-1>=0)
+                        {
+                            if (!line[tmp - 1].Equals('('))
+                            {
+                                string arg0 = line.Substring(0, tmp);
+                                string arg1 = line.Substring(tmp);
+                                line = arg0 + '(' + arg1;
+                            }
+                        }
+                        else
+                        {
+                            if (br==0)
+                                line = '(' + line;
+                        }
+
+
+                
+                        indexes = FormIndexes();
+                        ind = indexes[i].Position;
+                        tmp = ind + op.Length;
+                        br = 0;
+                        while (tmp < line.Length)
+                        {
+
+                            if (line[tmp].Equals(')'))
+                                br++;
+                            if (line[tmp].Equals('('))
+                                br--;
+                            if (br == 0)
+                            {
+                                if (patterns.Contains(line[tmp]))
+                                    break;
+                            }
+                            tmp++;
+                        }
+                        if (tmp + 1 < line.Length)
+                        {
+
+                            if (!line[tmp + 1].Equals(')'))
+                            {
+                                string arg0 = line.Substring(0, tmp);
+                                string arg1 = line.Substring(tmp);
+                                line = arg0 + ')' + arg1;
+                            }
+                        }
+                        else
+                        {
+                            if (br == 0)
+                                line += ')';
+                        }
+                    }
+                }
+            }
+           
+            List<Item> FormIndexes()
+            {
+                List<Item> indexes = new List<Item>();
+                foreach (string delimiter in array)
+                {
+                    if (delimiter.Equals('<') || delimiter.Equals('>') || delimiter.Equals('=') || delimiter.Equals("or"))
+                    {
+                        int ind = 0;
+                        switch (delimiter)
+                        {
+                            case "<":
+                                ind = line.IndexOf(delimiter);
+                                while (ind >= 0)
+                                {
+                                    bool f = ind + 1 < line.Length;
+                                    if (f)
+                                    {
+                                        f = !line[ind + 1].Equals('=') && !line[ind+1].Equals('>');
+                                    }
+                                    if (f)
+                                    {
+                                        Item item = new Item();
+                                        item.Position = ind;
+                                        item.Value = delimiter;
+                                        indexes.Add(item);
+                                    }                                        
+                                    ind = line.IndexOf(delimiter, ind + delimiter.Length);
+                                }
+
+                                break;
+                            case ">":
+                                ind = line.IndexOf(delimiter);
+                                while (ind >= 0)
+                                {
+                                    bool f = ind + 1 < line.Length;
+                                    if (f)
+                                    {
+                                        f = !line[ind + 1].Equals('=');
+                                       
+                                    }
+                                    bool f1 = ind - 1 >= 0;
+                                    if (f1)
+                                    {
+                                        f1 = !line[ind - 1].Equals('<');
+                                    }
+                                    if (f && f1)
+                                    {
+                                        Item item = new Item();
+                                        item.Value = delimiter;
+                                        item.Position = ind;
+                                        indexes.Add(item);
+                                    }
+                                    ind = line.IndexOf(delimiter, ind + delimiter.Length);
+                                }
+                                break;
+                            case "=":
+                                ind = line.IndexOf(delimiter);
+                                while (ind >= 0)
+                                {
+                                    bool f = ind - 1 >= 0;
+                                    if (f)
+                                    {
+                                        f = !line[ind - 1].Equals('<') && !line[ind - 1].Equals('>');
+                                    }
+                                    if (f)
+                                    {
+                                        Item item = new Item();
+                                        item.Position = ind;
+                                        item.Value = delimiter;
+                                        indexes.Add(item);
+                                    }                                        
+                                    ind = line.IndexOf(delimiter, ind + delimiter.Length);
+                                }
+
+                                break;
+                            case "or":
+                                ind = line.IndexOf(delimiter);
+                                while (ind >= 0)
+                                {
+                                    bool f = ind - 2 >= 0;
+                                    if (f)
+                                    {
+                                        f = !line[ind - 2].Equals('x');
+                                    }
+                                    if (f)
+                                    {
+                                        Item item = new Item();
+                                        item.Position = ind;
+                                        item.Value = delimiter;
+                                    }
+                                    ind = line.IndexOf(delimiter, ind + delimiter.Length);
+                                }
+                                break;
+
+                        }
+                    }
+                    else
+                    {
+                        int ind = line.IndexOf(delimiter);
+                        while (ind >= 0)
+                        {
+                            Item item = new Item();
+                            item.Position = ind;
+                            item.Value = delimiter;
+                            indexes.Add(item);
+                            ind = line.IndexOf(delimiter, ind + delimiter.Length);
+                        }
+                    }
+                }              
+                return indexes;
+            }
+            return line;
         }
 
         public void PrintRepairProgram()
@@ -294,57 +727,52 @@ namespace CourseProject
             int ind = 0;
             try
             {
-                using (StreamReader reader = new StreamReader(TokensPath))
+                bool tc = string.IsNullOrEmpty(File.ReadAllText(IdentificatorsPath));
+                bool ic = string.IsNullOrEmpty(File.ReadAllText(TokensPath));
+                if (!tc && !ic)
                 {
-                    string? line = File.ReadLines(TokensPath).Last();
-                    ind = int.Parse(line.Split("##")[1]);
+                    using (StreamReader reader = new StreamReader(TokensPath))
+                    {
+                        string? line = File.ReadLines(TokensPath).Last();
+                        ind = int.Parse(line.Split("##")[1]);
+                        ind += 1;
+                    }
+                    for (int i = 0; i < ind; i++)
+                    {
+                        string line = RepairProgramLine(i);
+                        Console.WriteLine(line);
+                    }
                 }
+
+             
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace);
             }
-            for (int i = 0; i < ind + 1; i++)
-            {
-                string line = RepairProgramLine(i);
-                Console.WriteLine(line);
-            }
+           
         }
 
-        //public List<string> ReadProgram()
-        //{
-        //    List<string> program = new List<string>();
-        //    string path = "C:\\Users\\IRIS\\Documents\\COMP\\COMPILER\\programs\\ex4_mix.pas";
-        //    Console.ForegroundColor = ConsoleColor.Red;
-        //    try
-        //    {
-        //        using (StreamReader reader = new StreamReader(path))
-        //        {
-        //            string? line;
-        //            while ((line = reader.ReadLine()) != null)
-        //            {
-        //                string[] array = line.Split(";");
-        //                foreach (string item in array)
-        //                {
-        //                    if (item != "")
-        //                    {
-        //                        program.Add(item + ";");
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (DirectoryNotFoundException ex)
-        //    {
-        //        Console.WriteLine(ex.StackTrace);
-        //    }
-        //    catch (Exception ex0)
-        //    {
-        //        Console.WriteLine(ex0.StackTrace);
-        //    }
-        //    Console.ForegroundColor = ConsoleColor.White;
-        //    return program;
-        //}
+        
+        /// <summary>
+        /// group G1
+        /// </summary>
+        /// <returns></returns>
+        public List<string> ReplaseValues()
+        {
+            return null;
+        }
+        /// <summary>
+        /// group G1
+        /// </summary>
+        /// <param name="exp"></param>
+        /// <returns></returns>
+        public double CalculateExpression(string exp)
+        {
+            double result = 0;
+
+            return result;
+        }
 
         public bool CheckProgram()
         {
@@ -383,6 +811,15 @@ namespace CourseProject
                     Console.WriteLine("find duplicaded variable declare: col {0}", error.Col);
                 }
             }
+            errors = CheckDelimiters();
+            if (errors.Count > 0)
+            {
+                flag = false;
+                foreach (Error error in errors)
+                {
+                    Console.WriteLine(error.Message);
+                }
+            }
             errors = CheckPairSymbols();
             if (errors.Count > 0)
             {
@@ -407,6 +844,28 @@ namespace CourseProject
             }
             Console.ForegroundColor = ConsoleColor.White;
             return flag;
+        }
+
+        private List<Error> CheckDelimiters()
+        {
+            List<Error> errors = new List<Error>();
+            int n = GetProgramSize();
+            for (int i=0; i<n; i++)
+            {
+                string line = RepairProgramLine(i);
+                if (!(line.Contains("begin") || line.Equals("if") || line.Equals("else") || line.Equals("while") ))
+                {
+                    if (!line.Last().Equals(";"))
+                    {
+                        Error error = new Error();
+                        error.Col = i;
+                        error.Message = "please add symbol \";\" in the end line " + i;
+                        errors.Add(error);
+                    }
+
+                }
+            }
+            return errors;
         }
 
         private List<Error> CheckIdentificators()
@@ -585,9 +1044,19 @@ namespace CourseProject
             return errors;
         }
 
-        //legasy method (a lot of strong logic)
-        private List<Error> CheckCorrectAssign()
+        /// <summary>
+        /// group G1
+        /// </summary>
+        /// <returns></returns>
+        private List<Error> CheckCorrectDiapason()
         {
+            //check out of range for array and numbers, for example
+            //a: array [0..12] of integer;
+            //b: byte;
+            //begin
+            //a[45]:=65;
+            //b:=4558;
+            //end
             List<Error> errors = new List<Error>();
             int n = GetProgramSize();
             int body = 0;
@@ -1011,6 +1480,53 @@ namespace CourseProject
             return errors;
         }
 
+
+       private List<int> GetAllEnters(string line, string value)
+       {
+            List<int> indexes = new List<int>();
+            List<int> result = new List<int>();
+            int ind = line.IndexOf(value);
+            while (ind >= 0)
+            {
+                indexes.Add(ind);
+                ind = line.IndexOf(value, ind + value.Length);
+            }
+            foreach (int index in indexes)
+            {
+                bool f = false;
+                if (ind-1>=0)
+                {
+                    if (IsAllowSymbol(line[ind-1]))
+                    {
+                        f = true;
+                    }
+                    
+                }
+                if (f)
+                {
+                    if (ind + 1 < line.Length)
+                    {
+                        if (IsAllowSymbol(line[ind + 1]))
+                        {
+                            result.Add(index);
+                        }
+                    }
+                }
+                
+            }
+
+            bool IsAllowSymbol(char c)
+            {
+                return Regex.IsMatch(c.ToString(), @"^[0-9]*$") || line[0].Equals('_')
+                    || Regex.IsMatch(c.ToString(), @"^[a-zA-Z]+$")
+                    || c.Equals('$') || c.Equals('&') || c.Equals('&') ||c.Equals(' ');
+            }
+
+            return indexes;
+       }
+
+       
+
         private List<int> GetAllContains(string line, string value)
         {
             List<int> indexes = new List<int>();
@@ -1022,6 +1538,8 @@ namespace CourseProject
             }
             return indexes;
         }
+
+       
 
         private bool IsCorrectIdentificator(string line)
         {

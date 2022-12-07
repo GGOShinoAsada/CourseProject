@@ -2,14 +2,16 @@
 {
     public class CourseProject
     {
-        private const string PATH = "D:\\\\COMPILER\\\\programs\\\\ex5_different_types.pas";//"D:\\\\COMPILER\\\\programs\\\\ex1-operatorCompare.pas"; //"D:\\COMPILER\\programs\\ex5_different_types.pas";
+        private const string PATH = "D:\\\\COMPILER\\\\programs\\\\errors\\err1.pas";//"D:\\\\COMPILER\\\\programs\\\\ex1-operatorCompare.pas"; //"D:\\COMPILER\\programs\\ex5_different_types.pas";
 
         private static void Main(string[] args)
         {
-            ExecuteLexicAnalyzer(PATH);
-            PrintProgram();
-            ExecuteSyntaxAnalyzer();
-            ExecuteCodeGenerator();
+            TestAddBrackets();
+            //------------------------//
+           // ExecuteLexicAnalyzer(PATH);
+           // PrintProgram();
+            //ExecuteSyntaxAnalyzer();
+           // ExecuteCodeGenerator();
             //-----------------------//
             //TestLexicAnalyzer();
             //PrintProgram();
@@ -17,7 +19,26 @@
             Console.ReadKey();
         }
 
-     
+      
+        static void TestAddBrackets()
+        {
+            //string expr = "(2-2)*2/2+68*3";
+            string expr = "2+2>=65 or (a and a1) and (t<>12)";
+            //((2+2)<=65) or ((a and a1) and (t<>12)))
+            //{"*","/", "+", "-", "<", ">", "<=", ">=", "=", "<>", "xor", "not", "and", "or" };
+            SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
+            string result = analyzer.AddBrackets(expr);
+            int t = 0;
+        }
+
+        //static void TestParseExpression()
+        //{
+        //    string exp = "((12*5) or (4*(3+9)))";
+        //    SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
+        //    BinaryTree tree = analyzer.ParseExpression(exp);
+        //    int f = 0;
+        //}
+
 
         /// <summary>
         /// lexic analyzer
@@ -28,6 +49,7 @@
             LexicAnalyzer analyzer = new LexicAnalyzer();
             analyzer.ReadProgram(path);
             analyzer.RemoveComments();
+            analyzer.RemoveSpacesAndEmptySymbols();
             List<string> errors = analyzer.CheckProgram();
             if (errors.Count == 0)
             {
@@ -44,7 +66,6 @@
                 Console.ForegroundColor = ConsoleColor.White;
             }
         }
-
         /// <summary>
         /// syntax analyzer
         /// </summary>
