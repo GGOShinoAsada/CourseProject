@@ -37,8 +37,11 @@
 
         static void TestAddBrackets()
         {
-            string expr = "(2-2)*2/2+68<=3";
-            //string expr = "a xor b and c and  not (a or b) and f";
+            string expr = "2+2 xor b*(3+8)<=9";
+            //string expr = "2+2";
+            //string expr = "(2-2)*2/2+68*3";
+            //string expr = "(2+2) xor (3*5) and c and  not (a or b) and (8/9)";
+            //string expr = "(2+5) xor (8*(7+9)) and b";
             //xor, not, and, or
             //
             //(((a xor b) and c) and ((not (a or b)) and f))
