@@ -1430,130 +1430,310 @@ namespace CourseProject
             char[] patterns = new char[] { '+', '-', '*', '/', '<', '>', '=' };
 
             List<string> data = new List<string>();
-            for (int i = 0; i < program.Count; i++)
+            int ind = 0;
+            
+            while (!program[ind].Equals("begin"))
             {
-                string line = program[i];
-                if (!string.IsNullOrEmpty(line))
+                string line = program[ind];
+                line = RemoveLeftSpaces(line);
+                if (line.StartsWith("var"))
                 {
-                    string newLine = "";
+                    line = line.Remove(0, 4);
+                    
 
-                    for (int j = 0; j < line.Length; j++)
+                }
+                string[] args = line.Split(":")[0].Split(',');
+                string arg1 = line.Split(':')[1];
+                for (int i = 0; i < args.Length - 1; i++)
+                {
+                    args[i] = args[i].Trim() + ',';
+                }
+                args[args.Length - 1] = args[args.Length - 1].Trim();
+                line = "var ";
+                foreach (string arg in args)
+                {
+                    line += arg;
+                }
+                line += ':' + arg1;
+                program[ind] = line;
+                ind++;
+            }
+            for (int i=ind+1; i<program.Count; i++)
+            {
+                string line = RemoveLeftSpaces(program[ind]);
+                if (line.StartsWith("if"))
+                {
+                    string arg1 = line.Remove(0, 2);
+                    arg1 = RemoveLeftSpaces(arg1);
+                    arg1 = Parse(arg1);
+                    line = "until " + arg1;
+                }
+                if (line.StartsWith("until"))
+                {
+                    string arg1 = line.Remove(0, 5);
+                    arg1 = RemoveLeftSpaces(arg1);
+                    arg1 = Parse(arg1);
+                    line = "until " + arg1;
+                }
+                if (line.Contains(":="))
+                {
+                    string arg0 = line.Split(":=")[0];
+                    string arg1 = line.Split(":=")[1];
+                    arg1 = Parse(arg1);
+                    line = arg0 + ":=" + arg1;
+                    
+                }                
+                program[i] = line;
+            }
+
+            string Parse(string arg1)
+            {
+                int j = 0;
+                while (j < arg1.Length)
+                {
+                    if (patterns.Contains(arg1[j]))
                     {
-
-                        if (!IsLocatedInSpaces(line, j))
+                        int si = 0;
+                        int count = 0;
+                        if (arg1[j].Equals('='))
                         {
-                            if (patterns.Contains(line[j]))
+                            if (arg1[j - 1].Equals('<') || arg1[j - 1].Equals('>'))
                             {
-                                List<int> indexes = GetAllContains(line, "+");
-                                line = DeleteSpaces(line, "+", indexes);
-                                indexes = GetAllContains(line, "-");
-                                line = DeleteSpaces(line, "*", indexes);
-                                indexes = GetAllContains(line, "*");
-                                line = DeleteSpaces(line, "*", indexes);
-                                indexes = GetAllContains(line, "/");
-                                line = DeleteSpaces(line, "/", indexes);
-                                indexes = GetAllContains(line, ">=");
-                                line = DeleteSpaces(line, ">=", indexes);
-                                indexes = GetAllContains(line, "<=");
-                                line = DeleteSpaces(line, "<=", indexes);
-                                indexes = GetAllContains(line, "<>");
-                                line = DeleteSpaces(line, "<>", indexes);
-                                indexes = GetAllContains(line, "<");
-                                List<int> temp = new List<int>();
-                                foreach (int ind in indexes)
+                                if (arg1[j - 2].Equals(' '))
                                 {
-                                    if (ind + 1 < line.Length)
+                                    si = j - 2;
+                                    count = 0;
+                                    while (si >= 0)
                                     {
-                                        if ((line[ind + 1] != '>') && (line[ind + 1] != '='))
+                                        if (arg1[si].Equals(' '))
                                         {
-                                            temp.Add(ind);
+                                            count++;
                                         }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                        si--;
                                     }
-                                }
-                                indexes = temp;
-                                line = DeleteSpaces(line, "<", indexes);
 
-                                indexes = GetAllContains(line, ">");
-                                foreach (int ind in indexes)
-                                {
-                                    if (ind - 1 >= 0)
-                                    {
-                                        if ((line[ind - 1] != '<'))
-                                        {
-                                            if (ind + 1 < line.Length)
-                                            {
-                                                if ((line[ind - 1] != '='))
-                                                {
-                                                    temp.Add(ind);
-                                                }
-                                            }
-                                        }
-                                    }
+                                    arg1 = arg1.Remove(si, count);
                                 }
-                                indexes = temp;
-                                line = DeleteSpaces(line, ">", indexes);
 
-                                indexes = GetAllContains(line, "=");
-                                temp = new List<int>();
-                                foreach (int ind in indexes)
-                                {
-                                    if (ind - 1 >= 0)
-                                    {
-                                        if ((line[ind - 1] != '>') && (line[ind - 1] != '<'))
-                                        {
-                                            temp.Add(ind);
-                                        }
-                                    }
-                                }
-                                indexes = temp;
-                                line = DeleteSpaces(line, "=", indexes);
                             }
                             else
                             {
-                                if (!line[j].Equals(' '))
-                                    newLine += line[j];
+                                if (arg1[j - 1].Equals(' '))
+                                {
+                                    si = j - 1;
+                                    count = 0;
+                                    while (si >= 0)
+                                    {
+                                        if (arg1[si].Equals(' '))
+                                        {
+                                            count++;
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                        si--;
+                                    }
+                                    arg1 = arg1.Remove(si, count);
+                                }
                             }
-
-
+                            if (arg1[j + 1].Equals(' '))
+                            {
+                                si = j + 1;
+                                count = 0;
+                                while (si < arg1.Length)
+                                {
+                                    if (arg1[si].Equals(' '))
+                                    {
+                                        count++;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                    si++;
+                                }
+                                arg1 = arg1.Remove(j + 1, count);
+                            }
                         }
-                        else
+                        if (arg1[j].Equals('<'))
                         {
-                            newLine += line[j];
+                            if (arg1[j + 1].Equals('>') || arg1[j + 1].Equals('='))
+                            {
+                                if (arg1[j + 2].Equals(' '))
+                                {
+                                    si = j + 2;
+                                    count = 0;
+                                    while (si < arg1.Length)
+                                    {
+                                        if (arg1[si].Equals(' '))
+                                        {
+                                            count++;
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                        si++;
+                                    }
+                                    arg1 = arg1.Remove(j + 2, count);
+                                }
+                            }
+                            else
+                            {
+                                if (arg1[j + 1].Equals(' '))
+                                {
+                                    si = j + 1;
+                                    count = 0;
+                                    while (si < arg1.Length)
+                                    {
+                                        if (arg1[si].Equals(' '))
+                                        {
+                                            count++;
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                        si++;
+                                    }
+                                }
+                            }
+                        }
+                        if (arg1[j].Equals('>'))
+                        {
+                            if (arg1[j - 1].Equals('=') || arg1[j + 1].Equals('<'))
+                            {
+                                if (arg1[j - 2].Equals(' '))
+                                {
+                                    si = j - 2;
+                                    count = 0;
+                                    while (si >= 0)
+                                    {
+                                        if (arg1[si].Equals(' '))
+                                        {
+                                            count++;
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                        si--;
+                                    }
+
+                                    arg1 = arg1.Remove(si, count);
+                                }
+                            }
+                            else
+                            {
+                                if (arg1[j - 1].Equals(' '))
+                                {
+                                    si = j - 1;
+                                    count = 0;
+                                    while (si >= 0)
+                                    {
+                                        if (arg1[si].Equals(' '))
+                                        {
+                                            count++;
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                        si--;
+                                    }
+                                    arg1 = arg1.Remove(si, count);
+                                }
+                            }
+                            if (arg1[j + 1].Equals(' '))
+                            {
+                                si = j + 1;
+                                count = 0;
+                                while (si < arg1.Length)
+                                {
+                                    if (arg1[si].Equals(' '))
+                                    {
+                                        count++;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                    si++;
+                                }
+                                arg1 = arg1.Remove(j + 1, count);
+                            }
+                        }
+                        if (!arg1[j].Equals('=') && !arg1[j].Equals('<') && !arg1[j].Equals('>'))
+                        {
+                            if (arg1[j + 1].Equals(' '))
+                            {
+                                si = j + 1;
+                                count = 0;
+                                while (si < arg1.Length)
+                                {
+                                    if (arg1[si].Equals(' '))
+                                    {
+                                        count++;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                    si++;
+                                }
+                                arg1 = arg1.Remove(j - 1, count);
+                            }
+                            if (arg1[j - 1].Equals(' '))
+                            {
+                                si = j - 1;
+                                count = 0;
+                                while (si >= 0)
+                                {
+                                    if (arg1[si].Equals(' '))
+                                    {
+                                        count++;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                    si--;
+                                }
+                                arg1 = arg1.Remove(si, count);
+                            }
                         }
                     }
-                    //if (newLine.StartsWith("var"))
-                    //{
-                    //    newLine = newLine.Remove(newLine.IndexOf("var"), 3);
-                    //    newLine = "var " + newLine;
-
-                    //}
-                    data.Add(newLine);
+                    j++;
                 }
+                return arg1;
             }
-
-            string DeleteSpaces(string line, string op, List<int> indexes)
-            {
-                foreach (int index in indexes)
-                {
-                    if (index - op.Length >= 0)
-                    {
-                        if (line[index - 1].Equals(' '))
-                        {
-                            line = line.Remove(index - 1, 1);
-                        }
-                    }
-                    if (index + op.Length < line.Length)
-                    {
-                        if (line[index + op.Length].Equals(' '))
-                        {
-                            line = line.Remove(index + op.Length, 1);
-                        }
-                    }
-                }
-                return line;
-            }
-
             program = data;
+        }
+
+        private string RemoveLeftSpaces(string line)
+        {
+            if (!string.IsNullOrEmpty(line))
+            {
+                int si = 0;
+                for (int k = 0; k < line.Length; k++)
+                {
+                    if (line[k].Equals(' '))
+                    {
+                        si++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                line = line.Substring(si);
+            }
+            return line;
         }
 
         public List<string> ReadProgram(string path)

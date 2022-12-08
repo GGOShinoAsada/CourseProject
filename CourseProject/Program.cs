@@ -2,14 +2,15 @@
 {
     public class CourseProject
     {
-        private const string PATH = "D:\\\\COMPILER\\\\programs\\\\errors\\\\err1.pas";//"D:\\\\COMPILER\\\\programs\\\\ex1-operatorCompare.pas"; //"D:\\COMPILER\\programs\\ex5_different_types.pas";
+        private const string PATH = "D:\\\\COMPILER\\\\programs\\\\program_tree_demonstration.pas";//"D:\\\\COMPILER\\\\programs\\\\ex1-operatorCompare.pas"; //"D:\\COMPILER\\programs\\ex5_different_types.pas";
 
         private static void Main(string[] args)
         {
-            //TestAddBrackets();
+            //TestMethod();
+            TestAddBrackets();
             //------------------------//
-            ExecuteLexicAnalyzer(PATH);
-            PrintProgram();
+            //ExecuteLexicAnalyzer(PATH);
+            //PrintProgram();
             //ExecuteSyntaxAnalyzer();
            // ExecuteCodeGenerator();
             //-----------------------//
@@ -20,12 +21,24 @@
         }
 
       
-        
+        static void TestMethod()
+        {
+            string exp = "(1+5)";
+            for (int i=0; i<exp.Length; i++)
+            {
+                if (exp[i].Equals('+'))
+                {
+                    string arg0 = exp.Substring(0, i);
+                    string arg1 = exp.Substring(i + 1, exp.Length - i-1);
+                    exp = arg0 + " + " + arg1;
+                }
+            }
+        }
 
         static void TestAddBrackets()
         {
-            //string expr = "(2-2)*2/2+68*3";
-            string expr = "a xor b and c and  not (a or b) and f";
+            string expr = "(2-2)*2/2+68<=3";
+            //string expr = "a xor b and c and  not (a or b) and f";
             //xor, not, and, or
             //
             //(((a xor b) and c) and ((not (a or b)) and f))

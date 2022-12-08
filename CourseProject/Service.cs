@@ -11,5 +11,9 @@
         public const string PatternsPath = "D:\\COMPILER\\data\\patterns.txt";
 
         public const string DefaultValue = "OP";
+
+        
+
+       
     }
 }
