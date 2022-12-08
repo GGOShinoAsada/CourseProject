@@ -415,11 +415,12 @@ namespace CourseProject
             line = ChangeSymbols(line);
 
             List<string> lines = new List<string>();
-            
 
-            string[] array = new string[] { "*", "/", "+", "-", "<", ">", "<=", ">=", "=", "<>", "_xor_", "_not_", "_and_", "_or_" };
+            bool IsHaveBrackets = line.Contains('(') && line.Contains(')');
 
-            char[] patterns = new char[] {/*' ',*/ '*', '/', '+', '-', '(', ')', '<', '>', '=' , '_'};
+            string[] array = new string[] { "*", "/", "+", "-", "<", ">", "<=", ">=", "=", "<>", "_xor_", "not_", "_and_", "_or_" };
+
+            char[] patterns = new char[] { '*', '/', '+', '-', '(', ')', '<', '>', '=' , '_'};
 
             List<Item> indexes = FormIndexes();
 
@@ -427,7 +428,7 @@ namespace CourseProject
 
             foreach (string op in array)
             {
-                if (!(op.Equals("_xor_") || op.Equals("_not_")  || op.Equals("_and_") || op.Equals("_or_")))
+                if (!op.Equals("_xor_") && !op.Equals("not_") && !op.Equals("_and_") && !op.Equals("_or_"))
                 {
                     for (int i = 0; i < n; i++)
                     {
@@ -461,7 +462,7 @@ namespace CourseProject
                             if (IsSpecificSymbol(tmp))
                                 tmp++;
                             lp = tmp;
-                            
+
                             if (tmp - 1 >= 0)
                             {
                                 f1 = line[tmp - 1].Equals('(');
@@ -472,7 +473,7 @@ namespace CourseProject
                             //}
 
                             //indexes = FormIndexes();
-                            ind = indexes[i].Position;
+                            //ind = indexes[i].Position;
                             tmp = ind + op.Length;
                             br = 0;
                             while (tmp < line.Length)
@@ -516,184 +517,178 @@ namespace CourseProject
                         }
                     }
                 }
+
                 else
                 {
-                    int fgf = 0;
-                    //switch (op)
-                    //{
-                    //    case "xor":
-                    //    case "and":
-                    //        for (int i=0; i<n; i++)
-                    //        {
-                    //            if (indexes[i].Value.Equals(op))
-                    //            {
-                    //                indexes = FormIndexes();
-                    //                int ind = indexes[i].Position;
-                    //                bool f1 = true; bool f2 = true;
-                    //                int lp = -1; int rp = -1;
-                    //                int tmp = ind - 2;
-                    //                sbyte br = 0;
-                    //                while (tmp >= 0)
-                    //                {
-                    //                    if (line[tmp].Equals(')'))
-                    //                        br++;
-                    //                    if (line[tmp].Equals('('))
-                    //                        br--;
-                    //                    if (br == 0)
-                    //                    {
-                    //                        if (patterns.Contains(line[tmp]))
-                    //                            break;
-                    //                    }
-                    //                    tmp--;
-                    //                }
-                    //                if (tmp == -1)
-                    //                {
-                    //                    f1 = false;
-                    //                    tmp++;
-                    //                }
-                    //                if (IsSpecificSymbol(tmp))
-                    //                    tmp++;
-                    //                lp = tmp;
-                    //                if (tmp - 1 >= 0)
-                    //                {
-                    //                    f1 = line[tmp - 1].Equals('(');
-                    //                }
-                    //                else
-                    //                {
-                    //                    f1 = false;
-                    //                }
-                    //                ind = indexes[i].Position;
-                    //                tmp = ind + op.Length + 1;
-                    //                br = 0;
-                    //                while (tmp < line.Length)
-                    //                {
-                    //                    if (line[tmp].Equals('('))
-                    //                        br++;
-                    //                    if (line[tmp].Equals(')'))
-                    //                        br--;
-                    //                    if (br == 0)
-                    //                        if (patterns.Contains(line[tmp]))
-                    //                            break;
-                    //                    tmp++;
-                    //                }
-                    //                if (tmp==line.Length)
-                    //                {
-                    //                    f2 = false;
-                    //                    tmp--;
-                    //                }
-                    //                if (IsSpecificSymbol(tmp))
-                    //                    tmp--;
-                    //                rp = tmp;
-                    //                if (tmp + 1 < line.Length)
-                    //                {
-                    //                    f2 = line[tmp + 1].Equals(')');
-                    //                }
-                    //                else
-                    //                {
-                    //                    f2 = false;
-                    //                }
-                    //                if (!(f1 && f2))
-                    //                {
-                    //                    string arg0 = GetSubsString(line, 0, lp - 1);
-                    //                    string arg1 = GetSubsString(line, lp, rp);
-                    //                    string arg2 = GetSubsString(line, rp + 1, line.Length - 1);
-                    //                    line = arg0 + "(" + arg1 + ")" + arg2;
-                    //                }
-                    //            }
-                    //        }
-                    //        break;
-                    //    case "not":
-                    //        break;
-                    //    case "or":
-                    //        break;
-                    //}
+                    if (line.Contains("_xor_") || line.Contains("not_") || line.Contains("_and_") || line.Contains("_or_"))
+                    {
+                        if (IsHaveBrackets)
+                        {
+                            
+                            line = line.Substring(1);
+                            line = line.Remove(line.Length - 1, 1);
+                            IsHaveBrackets = false;
+                        }
+                       
+                    }
+                    switch (op)
+                    {
+                        case "_xor_":
+                        case "_and_":
+                        case "_or_":
+                            for (int i = 0; i < n; i++)
+                            {
+                                if (indexes[i].Value.Equals(op))
+                                {
+                                    indexes = FormIndexes();
+                                    int ind = indexes[i].Position;
+                                    bool f1 = true; bool f2 = true;
+                                    int lp = -1; int rp = -1;
+                                    int tmp = ind - 1;
+                                    sbyte br = 0;
+                                    while (tmp >= 0)
+                                    {
+                                        if (line[tmp].Equals(')'))
+                                            br++;
+                                        if (line[tmp].Equals('('))
+                                            br--;
+                                        if (br == 0)
+                                        {
+                                            if (patterns.Contains(line[tmp]))
+                                                break;
+                                        }
+                                        tmp--;
+                                    }
+                                    if (tmp == -1)
+                                    {
+                                        f1 = false;
+                                        tmp++;
+                                    }
+                                    if (IsSpecificSymbol(tmp))
+                                        tmp++;
+                                    lp = tmp;
+                                    if (tmp - 1 >= 0)
+                                    {
+                                        f1 = line[tmp - 1].Equals('(');
+                                    }
+                                    else
+                                    {
+                                        f1 = false;
+                                    }
+                                    //ind = indexes[i].Position;
+                                    tmp = ind + op.Length;
+                                    br = 0;
+                                    while (tmp < line.Length)
+                                    {
+                                        if (line[tmp].Equals('('))
+                                            br++;
+                                        if (line[tmp].Equals(')'))
+                                            br--;
+                                        if (br == 0)
+                                            if (patterns.Contains(line[tmp]))
+                                                break;
+                                        tmp++;
+                                    }
+                                    if (tmp == line.Length)
+                                    {
+                                        f2 = false;
+                                        tmp--;
+                                    }
+                                    if (IsSpecificSymbol(tmp))
+                                        tmp--;
+                                    rp = tmp;
+                                    if (tmp + 1 < line.Length)
+                                    {
+                                        f2 = line[tmp + 1].Equals(')');
+                                    }
+                                    else
+                                    {
+                                        f2 = false;
+                                    }
+                                    if (!(f1 && f2))
+                                    {
+                                        string arg0 = GetSubsString(line, 0, lp - 1);
+                                        string arg1 = GetSubsString(line, lp, rp);
+                                        string arg2 = GetSubsString(line, rp + 1, line.Length - 1);
+                                        line = arg0 + "(" + arg1 + ")" + arg2;
+                                    }
+                                }
+                            }
+                            break;
+                        case "not_":
+                            for (int i = 0; i < n; i++)
+                            {
+                                if (indexes[i].Value.Equals(op))
+                                {
+                                    indexes = FormIndexes();
+                                    int ind = indexes[i].Position;
+                                    sbyte br = 0;
+                                    bool f1 = true; bool f2 = true;
+                                    int lp = -1; int rp = -1;
+                                    int tmp = ind;
+                                    lp = tmp;
+                                    if (tmp - 1 >= 0)
+                                    {
+                                        f1 = line[tmp - 1].Equals('(');
+                                    }
+                                    else
+                                    {
+                                        f1 = false;
+                                    }
+                                    tmp = ind + op.Length;
+                                    while (tmp < line.Length)
+                                    {
+                                        if (line[tmp].Equals('('))
+                                            br++;
+                                        if (line[tmp].Equals(')'))
+                                            br--;
+                                        if (br == 0)
+                                            if (patterns.Contains(line[tmp]))
+                                                break;
+                                        tmp++;
+                                    }
+                                    if (tmp == line.Length)
+                                    {
+                                        f2 = false;
+                                        tmp--;
+                                    }
+                                    if (IsSpecificSymbol(tmp))
+                                        tmp--;
+                                    rp = tmp;
+                                    if (tmp + 1 < line.Length)
+                                    {
+                                        f2 = line[tmp + 1].Equals(')');
+                                    }
+                                    else
+                                    {
+                                        f2 = false;
+                                    }
+                                    if (!(f1 && f2))
+                                    {
+                                        string arg0 = GetSubsString(line, 0, lp - 1);
+                                        string arg1 = GetSubsString(line, lp, rp);
+                                        string arg2 = GetSubsString(line, rp + 1, line.Length - 1);
+                                        line = arg0 + "(" + arg1 + ")" + arg2;
+                                    }
+                                }
+                            }
+                            break;
+
+                    }
+                    int brackpoint = 0;
+                    
                 }
                 
             }
 
             line = ChangeSymbols(line, false);
-            //line = '(' + line + ')';
+            
 
             bool IsSpecificSymbol(int index)
             {
                 bool f = line[index].Equals('+') || line[index].Equals('-') || line[index].Equals('*')
-                    || line[index].Equals('/') ||  /*line[index].Equals(' ') ||*/ line[index].Equals('<')
-                    || line[index].Equals('>') || line[index].Equals('=') || line[index].Equals('_'); /*|| line[index].Equals('(') || line[index].Equals(')') || line[index].Equals('_'); /*|| line[index].Equals('_') || line[index].Equals('#')*/
-                return f;
-            }
-
-            int ReturnCountOfLattice(int index)
-            {
-                int n = 0;
-                int si = 0;
-                for (int i = index; i >= 0; i--)
-                {
-                    if (!line[i].Equals('#'))
-                    {
-                        si = i + 1;
-                        break;
-                    }
-                }
-                for (int i = si; i < line.Length; i++)
-                {
-                    if (!line[i].Equals('#'))
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        n++;
-                    }
-                }
-
-                return n;
-            }
-
-            bool CheckLattice(string value, int index)
-            {
-                bool f = true;
-                switch (value)
-                {
-                    case "_##":
-                        if (index - 1 >= 0)
-                        {
-                            f = !line[index - 1].Equals('#');
-                        }
-                        if (f)
-                        {
-                            if (index + 3 < line.Length)
-                            {
-                                f = !line[index + 3].Equals('#');
-                            }
-                        }
-                        break;
-                    case "_#":
-                        if (index - 1 >= 0)
-                        {
-                            f = !line[index - 1].Equals('#');
-                        }
-                        if (f)
-                        {
-                            if (index + 2 < line.Length)
-                            {
-                                f = !line[index + 2].Equals('#');
-                            }
-                        }
-                        break;
-                    case "_":
-                        if (index - 1 >= 0)
-                        {
-                            f = !line[index - 1].Equals('#');
-                        }
-                        if (f)
-                        {
-                            if (index + 1 < line.Length)
-                            {
-                                f = !line[index + 1].Equals('#');
-                            }
-                        }
-                        break;
-                }
+                    || line[index].Equals('/') ||  line[index].Equals('<')
+                    || line[index].Equals('>') || line[index].Equals('=') || line[index].Equals('_');
                 return f;
             }
 
@@ -703,7 +698,7 @@ namespace CourseProject
                 List<int> data = new List<int>();
                 foreach (string delimiter in array)
                 {
-                    if (delimiter.Equals("<") || delimiter.Equals(">") || delimiter.Equals("=") || delimiter.Equals("_") || delimiter.Equals("_#") || delimiter.Equals("_##") || delimiter.Equals("_###")) 
+                    if (delimiter.Equals("<") || delimiter.Equals(">") || delimiter.Equals("=")) 
                     {
                         int ind = 0;
                         switch (delimiter)
@@ -773,82 +768,7 @@ namespace CourseProject
                                 }
 
                                 break;
-                            //case "_":
-                            //    ind = line.IndexOf(delimiter);
-                            //    while (ind >= 0)
-                            //    {
-                            //        bool f = ind + 3 <line.Length;
-                            //        if (f)
-                            //        {
-                            //            f = !line[ind +1].Equals('#') && !line[ind+2].Equals('#') && !line[ind+3].Equals('#');
-                            //        }
-                            //        if (f)
-                            //        {
-                            //            Item item = new Item();
-                            //            item.Position = ind;
-                            //            item.Value = delimiter;
-                            //            indexes.Add(item);
-                            //        }
-                            //        ind = line.IndexOf(delimiter, ind + delimiter.Length);
-                            //    }
-                            //    break;
-                            //case "_#":
-                            //    ind = line.IndexOf(delimiter);
-                            //    while (ind >= 0)
-                            //    {
-                            //        bool f = ind + 3 < line.Length;
-                            //        if (f)
-                            //        {
-                            //            f = !line[ind + 2].Equals('#') && !line[ind + 3].Equals('#');
-                            //        }
-                            //        if (f)
-                            //        {
-                            //            Item item = new Item();
-                            //            item.Position = ind;
-                            //            item.Value = delimiter;
-                            //            indexes.Add(item);
-                            //        }
-                            //        ind = line.IndexOf(delimiter, ind + delimiter.Length);
-                            //    }
-                            //    break;
-                            //case "_##":
-                            //    ind = line.IndexOf(delimiter);
-                            //    while (ind >= 0)
-                            //    {
-                            //        bool f = ind + 3 >= 0;
-                            //        if (f)
-                            //        {
-                            //            f = !line[ind+2].Equals('#') && !line[ind + 3].Equals('#');
-                            //        }
-                            //        if (f)
-                            //        {
-                            //            Item item = new Item();
-                            //            item.Position = ind;
-                            //            item.Value = delimiter;
-                            //            indexes.Add(item);
-                            //        }
-                            //        ind = line.IndexOf(delimiter, ind + delimiter.Length);
-                            //    }
-                            //    break;
-                            //case "_###":
-                            //    ind = line.IndexOf(delimiter);
-                            //    while (ind >= 0)
-                            //    {
-                            //        bool f = ind + 3 < line.Length;
-                            //        if (f)
-                            //        {
-                            //            f = !line[ind + 3].Equals('#');
-                            //        }
-                            //        if (f)
-                            //        {
-                            //            Item item = new Item();
-                            //            item.Position = ind;
-                            //            item.Value = delimiter;
-                            //            indexes.Add(item);
-                            //        }
-                            //        ind = line.IndexOf(delimiter, ind + delimiter.Length);
-                            //    }
-                            //    break;
+                        
                                 
                         }
                     }
@@ -893,7 +813,7 @@ namespace CourseProject
                             line = line.Replace(temp, "_xor_");
                             break;
                         case "not":
-                            line = line.Replace(temp, "_not_");
+                            line = line.Replace(temp, "not_");
                             break;
                         case "and":
                             line = line.Replace(temp, "_and_");
@@ -907,22 +827,22 @@ namespace CourseProject
             }
             else
             {
-                string[] array = new string[] { "_xor_", "_not_", "_and_", "_or_" };
+                string[] array = new string[] { "_xor_", "not_", "_and_", "_or_" };
                 foreach (string value in array)
                 {
 
                     switch (value)
                     {
-                        case "_":
+                        case "_xor_":
                             line = line.Replace(value, " xor ");
                             break;
-                        case "_#":
+                        case "not_":
                             line = line.Replace(value, "not ");
                             break;
-                        case "_##":
+                        case "_and_":
                             line = line.Replace(value, " and ");
                             break;
-                        case "_###":
+                        case "_or_":
                             line = line.Replace(value, " or ");
                             break;
                     }

@@ -21,23 +21,11 @@
         }
 
       
-        static void TestMethod()
-        {
-            string exp = "(1+5)";
-            for (int i=0; i<exp.Length; i++)
-            {
-                if (exp[i].Equals('+'))
-                {
-                    string arg0 = exp.Substring(0, i);
-                    string arg1 = exp.Substring(i + 1, exp.Length - i-1);
-                    exp = arg0 + " + " + arg1;
-                }
-            }
-        }
+       
 
         static void TestAddBrackets()
         {
-            string expr = "2+2 xor b*(3+8)<=9";
+            string expr = "a and b or not 2*(2+2)";
             //string expr = "2+2";
             //string expr = "(2-2)*2/2+68*3";
             //string expr = "(2+2) xor (3*5) and c and  not (a or b) and (8/9)";
