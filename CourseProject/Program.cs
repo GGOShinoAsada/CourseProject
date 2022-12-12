@@ -2,16 +2,15 @@
 {
     public class CourseProject
     {
-        private const string PATH = "D:\\\\COMPILER\\\\programs\\\\pr1.pas";//"D:\\\\COMPILER\\\\programs\\\\ex1-operatorCompare.pas"; //"D:\\COMPILER\\programs\\ex5_different_types.pas";
+        private const string PATH = "D:\\\\COMPILER\\\\programs\\\\program_tree_demonstration.pas";//"D:\\\\COMPILER\\\\programs\\\\ex1-operatorCompare.pas"; //"D:\\COMPILER\\programs\\ex5_different_types.pas";
 
         private static void Main(string[] args)
         {
-
             //TestMethod();
             //TestAddBrackets();
             //------------------------//
             ExecuteLexicAnalyzer(PATH);
-            PrintProgram();
+            //PrintProgram();
             //ExecuteSyntaxAnalyzer();
             // ExecuteCodeGenerator();
             //-----------------------//
@@ -21,8 +20,8 @@
             Console.ReadKey();
         }
 
-      
-       
+
+
 
         //static void TestAddBrackets()
         //{
@@ -56,20 +55,12 @@
         private static void ExecuteLexicAnalyzer(string path)
         {
             LexicAnalyzer analyzer = new LexicAnalyzer();
-           //считать программу в строку (\n\r) - символ enter
-            analyzer.LoadProgramToLile(path);
-            //удалить комменты
+            analyzer.ReadProgram(path);
             analyzer.RemoveComments();
-           
-           
+            analyzer.RemoveSpacesAndEmptySymbols();
             List<string> errors = analyzer.CheckProgram();
             if (errors.Count == 0)
             {
-
-                //преобразование строки программы в список List<string> program
-                analyzer.FormatProgram();
-                //analyzer.PrintProgram();
-                //дальнейшая работа со списком
                 analyzer.FormIndentificators();
                 analyzer.FormTokens();
             }
@@ -165,7 +156,7 @@
         private static void TestLexicAnalyzer()
         {
             LexicAnalyzer analyzer = new LexicAnalyzer();
-            analyzer.LoadProgramToLile(PATH);
+            analyzer.ReadProgram(PATH);
             analyzer.RemoveComments();
             analyzer.FormTokens();
             analyzer.FormIndentificators();
