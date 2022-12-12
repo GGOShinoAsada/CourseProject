@@ -2,17 +2,18 @@
 {
     public class CourseProject
     {
-        private const string PATH = "D:\\\\COMPILER\\\\programs\\\\program_tree_demonstration.pas";//"D:\\\\COMPILER\\\\programs\\\\ex1-operatorCompare.pas"; //"D:\\COMPILER\\programs\\ex5_different_types.pas";
+        private const string PATH = "D:\\\\COMPILER\\\\programs\\\\pr1.pas";//"D:\\\\COMPILER\\\\programs\\\\ex1-operatorCompare.pas"; //"D:\\COMPILER\\programs\\ex5_different_types.pas";
 
         private static void Main(string[] args)
         {
+
             //TestMethod();
-            TestAddBrackets();
+            //TestAddBrackets();
             //------------------------//
-            //ExecuteLexicAnalyzer(PATH);
-            //PrintProgram();
+            ExecuteLexicAnalyzer(PATH);
+            PrintProgram();
             //ExecuteSyntaxAnalyzer();
-           // ExecuteCodeGenerator();
+            // ExecuteCodeGenerator();
             //-----------------------//
             //TestLexicAnalyzer();
             //PrintProgram();
@@ -23,21 +24,21 @@
       
        
 
-        static void TestAddBrackets()
-        {
-            string expr = "a and b or not 2*(2+2)";
-            //string expr = "2+2";
-            //string expr = "(2-2)*2/2+68*3";
-            //string expr = "(2+2) xor (3*5) and c and  not (a or b) and (8/9)";
-            //string expr = "(2+5) xor (8*(7+9)) and b";
-            //xor, not, and, or
-            //
-            //(((a xor b) and c) and ((not (a or b)) and f))
-            //{"*","/", "+", "-", "<", ">", "<=", ">=", "=", "<>", "xor", "not", "and", "or" };
-            SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
-            string result = analyzer.AddBrackets(expr);
-            int t = 0;
-        }
+        //static void TestAddBrackets()
+        //{
+        //    string expr = "a and b or not 2*(2+2)";
+        //    //string expr = "2+2";
+        //    //string expr = "(2-2)*2/2+68*3";
+        //    //string expr = "(2+2) xor (3*5) and c and  not (a or b) and (8/9)";
+        //    //string expr = "(2+5) xor (8*(7+9)) and b";
+        //    //xor, not, and, or
+        //    //
+        //    //(((a xor b) and c) and ((not (a or b)) and f))
+        //    //{"*","/", "+", "-", "<", ">", "<=", ">=", "=", "<>", "xor", "not", "and", "or" };
+        //    SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
+        //    string result = analyzer.AddBrackets(expr);
+        //    int t = 0;
+        //}
 
         //static void TestParseExpression()
         //{
@@ -55,12 +56,20 @@
         private static void ExecuteLexicAnalyzer(string path)
         {
             LexicAnalyzer analyzer = new LexicAnalyzer();
-            analyzer.ReadProgram(path);
+           //считать программу в строку (\n\r) - символ enter
+            analyzer.LoadProgramToLile(path);
+            //удалить комменты
             analyzer.RemoveComments();
-            //analyzer.RemoveSpacesAndEmptySymbols();
+           
+           
             List<string> errors = analyzer.CheckProgram();
             if (errors.Count == 0)
             {
+
+                //преобразование строки программы в список List<string> program
+                analyzer.FormatProgram();
+                //analyzer.PrintProgram();
+                //дальнейшая работа со списком
                 analyzer.FormIndentificators();
                 analyzer.FormTokens();
             }
@@ -156,7 +165,7 @@
         private static void TestLexicAnalyzer()
         {
             LexicAnalyzer analyzer = new LexicAnalyzer();
-            analyzer.ReadProgram(PATH);
+            analyzer.LoadProgramToLile(PATH);
             analyzer.RemoveComments();
             analyzer.FormTokens();
             analyzer.FormIndentificators();

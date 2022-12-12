@@ -83,6 +83,7 @@
         {
             if (tree != null)
             {
+                tree.Parent = Root;
                 Root.LeftChild = tree;
             }
         }
@@ -91,6 +92,7 @@
         {
             if (tree != null)
             {
+                tree.Parent = Root;
                 Root.RightChild = tree;
             }
         }
