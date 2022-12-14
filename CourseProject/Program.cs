@@ -21,7 +21,15 @@
         }
 
 
+        static void TestAddBracket()
+        {
 
+        }
+
+        static void TestParseExpression()
+        {
+
+        }
 
         //static void TestAddBrackets()
         //{
@@ -56,11 +64,13 @@
         {
             LexicAnalyzer analyzer = new LexicAnalyzer();
             analyzer.ReadProgram(path);
+            //analyzer.PrintProgram();
             analyzer.RemoveComments();
-            analyzer.RemoveSpacesAndEmptySymbols();
+            //analyzer.RemoveSpacesAndEmptySymbols();
             List<string> errors = analyzer.CheckProgram();
             if (errors.Count == 0)
             {
+                analyzer.RemoveSpacesAndEmptySymbols();
                 analyzer.FormIndentificators();
                 analyzer.FormTokens();
             }
@@ -80,10 +90,14 @@
         private static void ExecuteSyntaxAnalyzer()
         {
             SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
+            analyzer.RepairProgram();
+           // analyzer.FormatProgram(); not realized (split by key words)
             if (analyzer.CheckProgram())
             {
+                analyzer.Optimizeprogram();
                 BinaryTree tree = analyzer.FormBinaryTree();
-                analyzer.PrintRepairProgram();
+                //tree.PrintTree();
+                //analyzer.PrintRepairProgram();
                 BinaryTree.SaveTreeTofile(tree);
             }
         }

@@ -10,36 +10,36 @@ namespace CourseProject
     {
         private class Item
         {
-            public string Name { get; set; }
+            public string? Name { get; set; }
             public int Col { get; set; }
             public int Row { get; set; }
         }
 
-        private string[] BaseTypes = { "integer", "shortint", "smallint", "longint", "int64", "byte", "word", "longword", "cardinal", "uint64", "BigInteger", "real", "double", "single", "decimal", "boolean", "string", "char" };
+        private readonly string[] BaseTypes = { "integer", "shortint", "smallint", "longint", "int64", "byte", "word", "longword", "cardinal", "uint64", "BigInteger", "real", "double", "single", "decimal", "boolean", "string", "char" };
 
-        private string[] CompareOperators = { ">", "<", ">=", "<=",/* "=",*/ "<>" };
+        private readonly string[] CompareOperators = { ">", "<", ">=", "<=",/* "=",*/ "<>" };
 
-        private string[] ArifmeticOperators = { "+", "-", "/", "*", "div", "mod" };
+        private readonly string[] ArifmeticOperators = { "+", "-", "/", "*", "div", "mod" };
 
-        private string[] ConditionStructure = { "if", "then", "else" };
+        private readonly string[] ConditionStructure = { "if", "then", "else" };
 
-        private string[] LogicalOperators = { "and", "or", "not", "xor" };
+        private readonly string[] LogicalOperators = { "and", "or", "not", "xor" };
 
-        private string[] LogicalValues = { "true", "false" };
+        private readonly string[] LogicalValues = { "true", "false" };
 
-        private string[] BorderOfStatements = { "begin", "end" };
+        private readonly string[] BorderOfStatements = { "begin", "end" };
 
-        private string[] ArrayStructure = { "array", "of" };
+        private readonly string[] ArrayStructure = { "array", "of" };
 
-        private string[] RepeatStructure = { "repeat", "until" };
+        private readonly string[] RepeatStructure = { "repeat", "until" };
 
-        private string[] IOStructure = { "read", "readln", "write", "writeln" };
+        private readonly string[] IOStructure = { "read", "readln", "write", "writeln" };
 
-        private string[] ServiceSymbols = { "[", "]", "{", "}", "(", ")", "..", ".", ",", ";", /*":=", ":"*/ };
+        private readonly string[] ServiceSymbols = { "[", "]", "{", "}", "(", ")", "..", ".", ",", ";", /*":=", ":"*/ };
 
-        private List<string> program = new List<string>();
+        private List<string> program = new();
 
-        private List<string> Identificatorslist = new List<string>();
+       // private List<string> Identificatorslist = new List<string>();
 
         //private List<string> TokensList = new List<string>();
 
@@ -55,41 +55,26 @@ namespace CourseProject
         //    }
         //}
 
-        //public void ExecuteNumber(String line)
-        //{
-        //    Regex r = new Regex(@"^[0-9]*$");
-        //    string numbStr = "";
-        //    if (line != null)
-        //    {
-        //        if (r.IsMatch(line))
-        //        {
-        //            int si = line.IndexOfAny(new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' }, 0, line.Length);
-        //            for (int i = si; i < line.Length; i++)
-        //            {
-        //                if (line[i] == ';')
-        //                    break;
-        //                numbStr += line[i];
-        //            }
-        //        }
-        //    }
-        //}
+
+        public void PrintProgram()
+        {
+            foreach (string line in program)
+            {
+                Console.WriteLine(line);
+            }
+        }
 
         public List<string> CheckProgram()
         {
             bool flag = true;
-            List<string> errors = new List<string>();
-
-
-            int body = 0;
-
+            List<string> errors = new();
 
             for (int i = 0; i < program.Count; i++)
             {
                 if (program[i] != "")
                 {
                     if (program[i].Equals("begin"))
-                    {
-                        body = i + 1;
+                    {            
                         break;
                     }
                     if (program[i].Contains("var"))
@@ -101,36 +86,15 @@ namespace CourseProject
                         {
                             IdentificatorsList[j] = IdentificatorsList[j].Trim();
                         }
-                        //#2
-                        flag = true;
-
-                        //исключение повторений
-                        string arg = IdentificatorsList[0];
-                        for (int j = 1; j < IdentificatorsList.Count; j++)
-                        {
-                            if (arg.Contains(IdentificatorsList[j]))
-                            {
-                                flag = false;
-                            }
-                        }
-
-                        //проверка допустимыx символов A-za-z0-9_
-                        foreach (string identificator in Identificatorslist)
-                        {
-                            if (!Regex.IsMatch(identificator[0].ToString(), @"^[0-9]*$"))
-                            {
-                                flag = Regex.IsMatch(identificator, @"^[a-zA-Z0-9_]*$");
-                            }
-                        }
-                        if (!flag)
-                        {
-                            errors.Add("find uncorrect identificator, col" + i);
-                        }
-                        //#3
+                        //проверока корректности объявленного типа                        
                         flag = false;
                         string basetype = program[i].Split(":")[1];
                         if (basetype.IndexOf(";") >= 0)
                             basetype = basetype.Remove(basetype.IndexOf(";"), 1);
+                        if (basetype.Contains("of"))
+                        {
+                            basetype = basetype.Split("of")[1];
+                        }
                         basetype = basetype.Trim();
                         foreach (string type in BaseTypes)
                         {
@@ -142,60 +106,51 @@ namespace CourseProject
                         }
                         if (!flag)
                         {
-                            errors.Add("find uncorrect base type");
+                            errors.Add("find uncorrect base type \"" + basetype + "\", col is " + i);
                         }
-                    }
-                    else
-                    {
-                        if (flag)
+                        //Проверка идентификаторов (наличие повторений и разрешенные символы)
+                        for (int j = 0; j < IdentificatorsList.Count; j++)
                         {
-                            string tmp = program[i];
-                            int col = i;
-                            List<string> identificatorsList = tmp.Split(':')[0].Split(',').ToList();
+                            if (IsAlreadyDeclared(IdentificatorsList, IdentificatorsList[j]))
+                            {
+                                errors.Add("find repeat declare of identificator \"" + IdentificatorsList[j] + "\", line is" + i);
+                            }
+                            if (!IsAllowSymbolsInIdentificator(IdentificatorsList[j]))
+                            {
+                                errors.Add("identificator \"" + IdentificatorsList[j] + "\" have uncorrect syntax, line is " + i);
+                            }
+                        }
 
-                            flag = true;
-                            for (int j = 0; j < identificatorsList.Count; j++)
-                            {
-                                string identificator = identificatorsList[j].Trim();
-                                if (!Regex.IsMatch(identificator[0].ToString(), @"^[0-9]*$"))
-                                {
-                                    flag = Regex.IsMatch(identificator, @"^[a-zA-Z0-9_]*$");
-                                }
-                            }
-                            if (!flag)
-                            {
-                                errors.Add("find uncorrect identificator, col " + i);
-                            }
-                        }
                     }
                 }
             }
-            //check a:= and uncorrect operator
-            for (int i = body; i < program.Count; i++)
+            bool IsAlreadyDeclared(List<string> list, string identificator)
             {
-                if (program[i].Contains(":="))
+                bool flag = true;
+                for (int j = 0; j < list.Count; j++)
                 {
-                    string arg1 = program[i].Split(":=")[1];
-                    if (string.IsNullOrEmpty(arg1))
+                    if (identificator.Contains(list[j]))
                     {
-                        errors.Add("uncorrect assign construction, line " + i);
+                        flag = false;
+                        break;
                     }
                 }
-                if (program[i].Contains("("))
-                {
-                    string[] patterns = new string[] { "if", "until", "read", "readln", "write", "writeln" };
-                    string temp = program[i].Substring(0, program[i].IndexOf('('));
-                    if (!temp.Contains(":="))
-                    {
-                        bool f = temp.Equals("readln");
-                        temp = temp.Trim();
-                        if (!patterns.Contains(temp))
-                        {
-                            errors.Add("find uncorrect key word \"" + temp + "\", line " + i);
-                        }
-                    }
-                }
+                return flag;
             }
+
+            bool IsAllowSymbolsInIdentificator(string identificator)
+            {
+                bool flag = true;
+                if (!string.IsNullOrEmpty(identificator))
+                {
+                    if (!Regex.IsMatch(identificator[0].ToString(), @"^[0-9]*$"))
+                    {
+                        flag = Regex.IsMatch(identificator, @"^[a-zA-Z0-9_]*$");
+                    }
+                }
+                return flag;
+            }
+
             return errors;
         }
 
@@ -621,16 +576,7 @@ namespace CourseProject
                 flag = false;
             }
             return flag;
-            //bool flag = true;
-
-            //if (line != null)
-            //{
-            //    flag = line[0].Equals('$');
-            //    line = line.Remove(0, 1);
-            //    flag = Regex.IsMatch(line, @"^[a-fA-F0-9]*$");
-            //}
-
-            //return flag;
+       
         }
 
         private bool IsOctDigitValue(string line)
@@ -801,24 +747,6 @@ namespace CourseProject
             }
             return f;
         }
-
-        //public void Test()
-        //{
-        //    string tmp = "a:=b xor c or f";
-        //    List<int> indexesXor = new List<int>();
-        //    List<int> indexesOr = new List<int>();
-        //    int ind = tmp.IndexOf("xor");
-        //    if (ind > 0)
-        //    {
-        //        tmp = tmp.Remove(tmp.IndexOf("xor"), 3);
-        //        ind = tmp.IndexOf("xor");
-        //    }
-        //    var demo = GetContainsSymbolName(tmp, LogicalOperators);
-        //    foreach (var t in demo)
-        //    {
-        //        Console.WriteLine(t.Name + " " + t.Col + " " + t.Row);
-        //    }
-        //}
 
         public void RemoveComments()
         {
@@ -1209,7 +1137,6 @@ namespace CourseProject
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-
         public void ResetFiles()
         {
             Console.ForegroundColor = ConsoleColor.Red;
@@ -1427,9 +1354,9 @@ namespace CourseProject
 
         public void RemoveSpacesAndEmptySymbols()
         {
-            char[] patterns = new char[] { '+', '-', '*', '/', '<', '>', '=' };
+            char[] patterns = new char[] { '^','+', '-', '*', '/', '<', '>', '=' };
 
-            List<string> data = new List<string>();
+          
             int ind = 0;
 
             while (!program[ind].Equals("begin"))
@@ -1458,261 +1385,11 @@ namespace CourseProject
                 program[ind] = line;
                 ind++;
             }
-            for (int i = ind + 1; i < program.Count; i++)
+            for (int i=ind+1; i<program.Count; i++)
             {
-                string line = RemoveLeftSpaces(program[ind]);
-                if (line.StartsWith("if"))
-                {
-                    string arg1 = line.Remove(0, 2);
-                    arg1 = RemoveLeftSpaces(arg1);
-                    arg1 = Parse(arg1);
-                    line = "if " + arg1;
-                }
-                if (line.StartsWith("until"))
-                {
-                    string arg1 = line.Remove(0, 5);
-                    arg1 = RemoveLeftSpaces(arg1);
-                    arg1 = Parse(arg1);
-                    line = "until " + arg1;
-                }
-                if (line.Contains(":="))
-                {
-                    string arg0 = line.Split(":=")[0];
-                    string arg1 = line.Split(":=")[1];
-                    arg1 = Parse(arg1);
-                    line = arg0 + ":=" + arg1;
-
-                }
-                program[i] = line;
+                program[i] = RemoveLeftSpaces(program[i]);
+                program[i] = RemoveRigthSpaces(program[i]);
             }
-
-            string Parse(string arg1)
-            {
-                int j = 0;
-                while (j < arg1.Length)
-                {
-                    if (patterns.Contains(arg1[j]))
-                    {
-                        int si = 0;
-                        int count = 0;
-                        if (arg1[j].Equals('='))
-                        {
-                            if (arg1[j - 1].Equals('<') || arg1[j - 1].Equals('>'))
-                            {
-                                if (arg1[j - 2].Equals(' '))
-                                {
-                                    si = j - 2;
-                                    count = 0;
-                                    while (si >= 0)
-                                    {
-                                        if (arg1[si].Equals(' '))
-                                        {
-                                            count++;
-                                        }
-                                        else
-                                        {
-                                            break;
-                                        }
-                                        si--;
-                                    }
-
-                                    arg1 = arg1.Remove(si, count);
-                                }
-
-                            }
-                            else
-                            {
-                                if (arg1[j - 1].Equals(' '))
-                                {
-                                    si = j - 1;
-                                    count = 0;
-                                    while (si >= 0)
-                                    {
-                                        if (arg1[si].Equals(' '))
-                                        {
-                                            count++;
-                                        }
-                                        else
-                                        {
-                                            break;
-                                        }
-                                        si--;
-                                    }
-                                    arg1 = arg1.Remove(si, count);
-                                }
-                            }
-                            if (arg1[j + 1].Equals(' '))
-                            {
-                                si = j + 1;
-                                count = 0;
-                                while (si < arg1.Length)
-                                {
-                                    if (arg1[si].Equals(' '))
-                                    {
-                                        count++;
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-                                    si++;
-                                }
-                                arg1 = arg1.Remove(j + 1, count);
-                            }
-                        }
-                        if (arg1[j].Equals('<'))
-                        {
-                            if (arg1[j + 1].Equals('>') || arg1[j + 1].Equals('='))
-                            {
-                                if (arg1[j + 2].Equals(' '))
-                                {
-                                    si = j + 2;
-                                    count = 0;
-                                    while (si < arg1.Length)
-                                    {
-                                        if (arg1[si].Equals(' '))
-                                        {
-                                            count++;
-                                        }
-                                        else
-                                        {
-                                            break;
-                                        }
-                                        si++;
-                                    }
-                                    arg1 = arg1.Remove(j + 2, count);
-                                }
-                            }
-                            else
-                            {
-                                if (arg1[j + 1].Equals(' '))
-                                {
-                                    si = j + 1;
-                                    count = 0;
-                                    while (si < arg1.Length)
-                                    {
-                                        if (arg1[si].Equals(' '))
-                                        {
-                                            count++;
-                                        }
-                                        else
-                                        {
-                                            break;
-                                        }
-                                        si++;
-                                    }
-                                }
-                            }
-                        }
-                        if (arg1[j].Equals('>'))
-                        {
-                            if (arg1[j - 1].Equals('=') || arg1[j + 1].Equals('<'))
-                            {
-                                if (arg1[j - 2].Equals(' '))
-                                {
-                                    si = j - 2;
-                                    count = 0;
-                                    while (si >= 0)
-                                    {
-                                        if (arg1[si].Equals(' '))
-                                        {
-                                            count++;
-                                        }
-                                        else
-                                        {
-                                            break;
-                                        }
-                                        si--;
-                                    }
-
-                                    arg1 = arg1.Remove(si, count);
-                                }
-                            }
-                            else
-                            {
-                                if (arg1[j - 1].Equals(' '))
-                                {
-                                    si = j - 1;
-                                    count = 0;
-                                    while (si >= 0)
-                                    {
-                                        if (arg1[si].Equals(' '))
-                                        {
-                                            count++;
-                                        }
-                                        else
-                                        {
-                                            break;
-                                        }
-                                        si--;
-                                    }
-                                    arg1 = arg1.Remove(si, count);
-                                }
-                            }
-                            if (arg1[j + 1].Equals(' '))
-                            {
-                                si = j + 1;
-                                count = 0;
-                                while (si < arg1.Length)
-                                {
-                                    if (arg1[si].Equals(' '))
-                                    {
-                                        count++;
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-                                    si++;
-                                }
-                                arg1 = arg1.Remove(j + 1, count);
-                            }
-                        }
-                        if (!arg1[j].Equals('=') && !arg1[j].Equals('<') && !arg1[j].Equals('>'))
-                        {
-                            if (arg1[j + 1].Equals(' '))
-                            {
-                                si = j + 1;
-                                count = 0;
-                                while (si < arg1.Length)
-                                {
-                                    if (arg1[si].Equals(' '))
-                                    {
-                                        count++;
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-                                    si++;
-                                }
-                                arg1 = arg1.Remove(j - 1, count);
-                            }
-                            if (arg1[j - 1].Equals(' '))
-                            {
-                                si = j - 1;
-                                count = 0;
-                                while (si >= 0)
-                                {
-                                    if (arg1[si].Equals(' '))
-                                    {
-                                        count++;
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-                                    si--;
-                                }
-                                arg1 = arg1.Remove(si, count);
-                            }
-                        }
-                    }
-                    j++;
-                }
-                return arg1;
-            }
-            program = data;
         }
 
         private string RemoveLeftSpaces(string line)
@@ -1732,6 +1409,30 @@ namespace CourseProject
                     }
                 }
                 line = line.Substring(si);
+            }
+            return line;
+        }
+
+        private string RemoveRigthSpaces(string line)
+        {
+            if (!string.IsNullOrEmpty(line))
+            {
+                int index = line.Length - 1;
+                while (index>=0)
+                {
+                    if (line[index].Equals(' '))
+                    {
+                        
+                    }
+                    else
+                    {
+                        break;
+                    }
+                    index--;
+                }
+
+                
+                line = line.Remove(index+1);
             }
             return line;
         }
