@@ -1,16 +1,21 @@
-﻿namespace CourseProject
+﻿using static CourseProject.LexicAnalyzer;
+
+namespace CourseProject
 {
     public class CourseProject
     {
-        private const string PATH = "D:\\\\COMPILER\\\\programs\\\\program_tree_demonstration.pas";//"D:\\\\COMPILER\\\\programs\\\\ex1-operatorCompare.pas"; //"D:\\COMPILER\\programs\\ex5_different_types.pas";
+        private const string PATH = "D:\\COMPILER\\programs\\program_tree_demonstration.pas";//"D:\\\\COMPILER\\\\programs\\\\ex1-operatorCompare.pas"; //"D:\\COMPILER\\programs\\ex5_different_types.pas";
+
+        
 
         private static void Main(string[] args)
         {
+
             //TestMethod();
             //TestAddBrackets();
             //------------------------//
             ExecuteLexicAnalyzer(PATH);
-            //PrintProgram();
+            PrintProgram();
             //ExecuteSyntaxAnalyzer();
             // ExecuteCodeGenerator();
             //-----------------------//
@@ -20,6 +25,7 @@
             Console.ReadKey();
         }
 
+       
 
         static void TestAddBracket()
         {
@@ -66,23 +72,26 @@
             analyzer.ReadProgram(path);
             //analyzer.PrintProgram();
             analyzer.RemoveComments();
+            analyzer.RemoveSpacesAndEmptySymbols();
+            analyzer.FormIndentificators();
+            analyzer.FormTokens();
             //analyzer.RemoveSpacesAndEmptySymbols();
-            List<string> errors = analyzer.CheckProgram();
-            if (errors.Count == 0)
-            {
-                analyzer.RemoveSpacesAndEmptySymbols();
-                analyzer.FormIndentificators();
-                analyzer.FormTokens();
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                foreach (string error in errors)
-                {
-                    Console.WriteLine(error);
-                }
-                Console.ForegroundColor = ConsoleColor.White;
-            }
+            //List<string> errors = analyzer.CheckProgram();
+            //if (errors.Count == 0)
+            //{
+            //    analyzer.RemoveSpacesAndEmptySymbols();
+            //    analyzer.FormIndentificators();
+            //    analyzer.FormTokens();
+            //}
+            //else
+            //{
+            //    Console.ForegroundColor = ConsoleColor.Red;
+            //    foreach (string error in errors)
+            //    {
+            //        Console.WriteLine(error);
+            //    }
+            //    Console.ForegroundColor = ConsoleColor.White;
+            //}
         }
         /// <summary>
         /// syntax analyzer

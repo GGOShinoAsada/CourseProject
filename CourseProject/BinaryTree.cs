@@ -172,17 +172,17 @@
             this.Root = new Item();
         }
 
-        public void RemoveItem(string value)
-        {
-            throw new Exception("not realized");
-        }
+        //public void RemoveItem(string value)
+        //{
+        //    throw new Exception("not realized");
+        //}
 
-        public void SearchElement(Item item)
-        {
-            if (item != null)
-            {
-            }
-        }
+        //public void SearchElement(Item item)
+        //{
+        //    if (item != null)
+        //    {
+        //    }
+        //}
 
         string[] ArifmeticOperators = { "+", "-", "/", "*" };
 
