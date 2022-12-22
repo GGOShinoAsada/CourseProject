@@ -399,7 +399,7 @@ namespace CourseProject
                         List<Item> data = GetIdentificatorsInExpression(line, i);
                         for (int j=0; j<data.Count; j++)
                         {
-                            data[j].Row += dx;
+                            data[j].Row += dx - 1;
                         }
                         items.AddRange(data);
 

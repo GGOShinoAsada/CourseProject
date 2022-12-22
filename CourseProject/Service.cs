@@ -2,7 +2,7 @@
 {
     public class Service
     {
-        public const string OutputBinaryTreePath = "D:\\COMP\\COMPILER\\data\\tree.txt";
+        public const string OutputBinaryTreePath = "D:\\COMPILER\\data\\tree.txt";
 
         public const string IdentificatorsPath = "D:\\COMPILER\\data\\identificators.txt";
 

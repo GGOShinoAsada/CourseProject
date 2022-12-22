@@ -14,27 +14,141 @@ namespace CourseProject
             //TestMethod();
             //TestAddBrackets();
             //------------------------//
-            ExecuteLexicAnalyzer(PATH);
-            PrintProgram();
-            //ExecuteSyntaxAnalyzer();
+            //ExecuteLexicAnalyzer(PATH);
+            //PrintProgram();
+            ExecuteSyntaxAnalyzer();
             // ExecuteCodeGenerator();
             //-----------------------//
             //TestLexicAnalyzer();
             //PrintProgram();
+            //TestAddBracket();
+            //TestParseExpression();
             Console.WriteLine("done");
             Console.ReadKey();
         }
 
-       
+        //{ "not#", "^", "*", "/", "#div#", "#mod#", "#and#", "+", "-", "#or#", "#xor#", "=", "<>", "<", ">", "<=", ">=", "#in#" };
 
         static void TestAddBracket()
         {
-
+            string val = "2+2*2";
+            SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
+            val = analyzer.AddBrackets(val);
+            Console.WriteLine(val);
+            //string val = "not 67";
+            //SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
+            //val = analyzer.AddBrackets(val);
+            //Console.WriteLine(val);
+            //val = "j^5";
+            //val = analyzer.AddBrackets(val);
+            //Console.WriteLine(val);
+            //val = "h*8";
+            //val = analyzer.AddBrackets(val);
+            //Console.WriteLine(val);
+            //val = "d/9";
+            //val = analyzer.AddBrackets(val);
+            //Console.WriteLine(val);
+            //val = "g67 div 5";
+            //val = analyzer.AddBrackets(val);
+            //Console.WriteLine(val);
+            //val = "df mod 8";
+            //val = analyzer.AddBrackets(val);
+            //Console.WriteLine(val);
+            //val = "fg and 85";
+            //val = analyzer.AddBrackets(val);
+            //Console.WriteLine(val);
+            //val = "5+9";
+            //val = analyzer.AddBrackets(val);
+            //Console.WriteLine(val);
+            //val = "fh-532";
+            //val = analyzer.AddBrackets(val);
+            //Console.WriteLine(val);
+            //val = "fg or fdff";
+            //val = analyzer.AddBrackets(val);
+            //Console.WriteLine(val);
+            //val = "d xor d56";
+            //val = analyzer.AddBrackets(val);
+            //Console.WriteLine(val);
+            //val = "f=78";
+            //val = analyzer.AddBrackets(val);
+            //Console.WriteLine(val);
+            //val = "g<>78";
+            //val = analyzer.AddBrackets(val);
+            //Console.WriteLine(val);
+            //val = "gt<7";
+            //val = analyzer.AddBrackets(val);
+            //Console.WriteLine(val);
+            //val = "th>0";
+            //val = analyzer.AddBrackets(val);
+            //Console.WriteLine(val);
+            //val = "g<=7";
+            //val = analyzer.AddBrackets(val);
+            //Console.WriteLine(val);
+            //val = "g>=0";
+            //val = analyzer.AddBrackets(val);
+            //Console.WriteLine(val);
+            //val = "arg in arr";
+            //val = analyzer.AddBrackets(val);
+            //Console.WriteLine(val);
         }
 
         static void TestParseExpression()
         {
-
+            string val = "(j^5)";//"(not 67)";
+            SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
+            BinaryTree tree = analyzer.ParseExpression(val);
+           // tree.PrintTree(tree.Root);
+            //val = "(j^5)";
+            //tree = analyzer.ParseExpression(val);
+            //tree.PrintTree(tree.Root);
+            val = "h*8";
+            tree = analyzer.ParseExpression(val);
+            //tree.PrintTree(tree.Root);
+            val = "(d/9)";
+            tree = analyzer.ParseExpression(val);
+            tree.PrintTree(tree.Root);
+            val = "(g67 div 5)";
+            tree = analyzer.ParseExpression(val);
+            //tree.PrintTree(tree.Root);
+            val = "(df mod 8)";
+            tree = analyzer.ParseExpression(val);
+            //tree.PrintTree(tree.Root);
+            val = "(fg and 85)";
+            tree = analyzer.ParseExpression(val);
+            tree.PrintTree(tree.Root);
+            val = "(5+9)";
+            tree = analyzer.ParseExpression(val);
+            //tree.PrintTree(tree.Root);
+            val = "(fh-532)";
+            tree = analyzer.ParseExpression(val);
+            //tree.PrintTree(tree.Root);
+            val = "(fg or fdff)";
+            tree = analyzer.ParseExpression(val);
+            //tree.PrintTree(tree.Root);
+            val = "(d xor d56)";
+            tree = analyzer.ParseExpression(val);
+            //tree.PrintTree(tree.Root);
+            val = "(f=78)";
+            tree = analyzer.ParseExpression(val);
+            //tree.PrintTree(tree.Root);
+            val = "(g<>78)";
+            tree = analyzer.ParseExpression(val);
+            //tree.PrintTree(tree.Root);
+            val = "(gt<7)";
+            tree = analyzer.ParseExpression(val);
+            //tree.PrintTree(tree.Root);
+            val = "(th>0)";
+            tree = analyzer.ParseExpression(val);
+            //tree.PrintTree(tree.Root);
+            val = "(g<=7)";
+            tree = analyzer.ParseExpression(val);
+            //tree.PrintTree(tree.Root);
+            val = "(g>=0)";
+            tree = analyzer.ParseExpression(val);
+            //tree.PrintTree(tree.Root);
+            val = "(arg in arr)";
+            tree = analyzer.ParseExpression(val);
+            //tree.PrintTree(tree.Root);
         }
 
         //static void TestAddBrackets()
@@ -104,9 +218,10 @@ namespace CourseProject
             if (analyzer.CheckProgram())
             {
                 analyzer.Optimizeprogram();
+                //analyzer.PrintProgram();
                 BinaryTree tree = analyzer.FormBinaryTree();
-                //tree.PrintTree();
-                //analyzer.PrintRepairProgram();
+                //tree.PrintTree(tree.Root);
+                //analyzer.PrintProgram();
                 BinaryTree.SaveTreeTofile(tree);
             }
         }

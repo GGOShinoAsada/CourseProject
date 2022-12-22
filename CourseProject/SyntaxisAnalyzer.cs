@@ -110,18 +110,25 @@ namespace CourseProject
             Console.ForegroundColor = ConsoleColor.Red;
             BinaryTree tree = new BinaryTree();
             tree.SetRootValue("start");
-            int n = GetProgramSize();
+            int n = program.Count;
 
             int index = 0;
             try
             {
                 
-                string line = RepairProgramLine(index);
+                string line = program[index];
+                bool flag = true;
                 while (!line.Contains("begin"))
                 {
+
                     if (line.StartsWith("var"))
                     {
-                        tree.AddLeftChild("var");
+                        if (flag)
+                        {
+                            tree.AddLeftChild("var");
+                            flag = false;
+                        }
+                        
                         line = line.Remove(0, 4);
                     }
                     string[] arg0 = line.Split(":")[0].Split(",");
@@ -136,58 +143,83 @@ namespace CourseProject
                         tree.SetParent(tree.Root);                       
                     }
                     index++;
-                    line = RepairProgramLine(index);
+                    line = program[index];
                 }
                 tree.SetHead();
 
+                int opIondex = 0;
                 
-
                 for (int i=index; i<n; i++)
                 {
-                    line = RepairProgramLine(i);
-                    if (line.StartsWith("begin"))
+                    line = program[i];
+                    if (line.Equals("begin"))
                     {
-                        tree.AddRightChild("begin");
+                        tree.AddRightChild(DefaultValue + opIondex);
+                        tree.AddLeftChild("begin");
+                        tree.SetParent(tree.Root);
+                        opIondex++;
                     }
-                    if (line.StartsWith("end"))
+                    if (line.Equals("end"))
                     {
-                        tree.AddRightChild(line);
+                        tree.AddRightChild(DefaultValue + opIondex);
+                        tree.AddLeftChild(line);
+                        tree.SetParent(tree.Root);
+                        opIondex++;
                     }
                     if (line.StartsWith("if"))
                     {
                         string condition = GetSubsString(line, line.IndexOf('('), line.LastIndexOf(')'));
                         BinaryTree condTree = ParseExpression(condition);
-                        tree.AddRightChild("if");
+                        tree.AddRightChild(DefaultValue + opIondex);
+                        tree.AddLeftChild("if");
                         tree.SetLeftChild(condTree.Root);
+                        tree.SetParent(tree.Root);
+                        opIondex++;
                     }
-                    if (line.StartsWith("then"))
+                    if (line.Equals("then"))
                     {
-                        tree.AddRightChild("then");
+                        tree.AddRightChild(DefaultValue + opIondex);
+                        tree.AddLeftChild(line);
+                        tree.SetParent(tree.Root);
+                        opIondex++;
                     }
-                    if (line.StartsWith("else"))
+                    if (line.Equals("else"))
                     {
-                        tree.AddRightChild("else");
+                        tree.AddRightChild(DefaultValue + opIondex);
+                        tree.AddLeftChild(line);
+                        tree.SetParent(tree.Root);
+                        opIondex++;
+                       
                     }
-                    if (line.StartsWith("repeat"))
+                    if (line.Equals("repeat"))
                     {
-                        tree.AddRightChild("repeat");
+                        tree.AddRightChild(DefaultValue + opIondex);
+                        tree.AddLeftChild(line);
+                        tree.SetParent(tree.Root);
+                        opIondex++;
                     }
                     if (line.StartsWith("until"))
                     {
                         string condition = GetSubsString(line, line.IndexOf('('), line.LastIndexOf(')'));
                         BinaryTree condTree = ParseExpression(condition);
-                        tree.AddRightChild("until");
+                        tree.AddRightChild(DefaultValue + opIondex);
+                        tree.AddLeftChild("until");
                         tree.SetLeftChild(condTree.Root);
+                        tree.SetParent(tree.Root);
+                        opIondex++;
                     }
                     if (line.Contains(":="))
                     {
                         string arg0 = line.Split(":=")[0];
                         string arg1 = line.Split(":=")[1];
                         BinaryTree exprTree = ParseExpression(arg1);
-                        tree.AddRightChild(":=");
+                        tree.AddRightChild(DefaultValue + opIondex);
+                        tree.AddLeftChild(":=");
                         tree.AddLeftChild(arg0);
                         tree.SetParent(tree.Root);
                         tree.SetRightChild(exprTree.Root);
+                        tree.SetParent(tree.Root);
+                        opIondex++;
                     }
                     if (line.StartsWith("write"))
                     {
@@ -197,9 +229,16 @@ namespace CourseProject
                             arg0 = "writeln";
                         }
                         string arg1 = GetSubsString(line, line.IndexOf('('), line.LastIndexOf(')'));
-                        BinaryTree outputTree = ParseExpression(arg1);
-                        tree.AddRightChild(arg0);
-                        tree.SetLeftChild(outputTree.Root);
+                        //BinaryTree outputTree = ParseExpression(arg1);
+                        tree.AddRightChild(DefaultValue + opIondex);
+                        tree.AddLeftChild(arg0);
+                        tree.AddLeftChild(arg1);
+                        
+                        tree.AddLeftChild(arg1);
+                        tree.SetParent(tree.Root);
+                        tree.SetParent(tree.Root);
+                        opIondex++;
+                        //tree.SetLeftChild(outputTree.Root);
                     }
                     if (line.StartsWith("read"))
                     {
@@ -209,7 +248,8 @@ namespace CourseProject
                             arg0 = "readln";
                         }
                         string[] inputArgs = GetSubsString(line, line.IndexOf('(') + 1, line.LastIndexOf(')') - 1).Split(',');
-                        tree.AddRightChild(arg0);
+                        tree.AddRightChild(DefaultValue + opIondex);
+                        tree.AddLeftChild(arg0);
                         for (int j=0; j<inputArgs.Length; j++)
                         {
                             tree.AddLeftChild(inputArgs[j]);
@@ -218,7 +258,10 @@ namespace CourseProject
                         {
                             tree.SetParent(tree.Root);
                         }
+                        tree.SetParent(tree.Root);
+                        opIondex++;
                     }
+                    
                 }
 
                 tree.SetHead();
@@ -263,7 +306,7 @@ namespace CourseProject
         }
 
 
-        private BinaryTree ParseExpression(string line)
+        public BinaryTree ParseExpression(string line)
         {
             BinaryTree tree = new BinaryTree();
             Console.ForegroundColor = ConsoleColor.Red;
@@ -521,7 +564,7 @@ namespace CourseProject
 
         char[] patterns = new char[] { '^', '*', '/', '+', '-', '(', ')', '<', '>', '=', '#' };
 
-        private string AddBrackets(string line)
+        public string AddBrackets(string line)
         {
           
 
@@ -901,7 +944,11 @@ namespace CourseProject
                 return indexes;
             }
 
-            
+            if (line.First().Equals('(') && line.Last().Equals(')'))
+            {
+                line = line.Remove(line.Length - 1, 1);
+                line = line.Substring(1);
+            }
            
             return line;
         }
@@ -969,12 +1016,12 @@ namespace CourseProject
                     arg1 = Parse(arg1);
                     program[i] = "until " + arg1;
                 }
-                if (line.StartsWith(":="))
+                if (line.Contains(":="))
                 {
                     string arg0 = line.Split(":=")[0];
                     if (arg0.Contains('[') && arg0.Contains(']'))
                     {
-
+                        arg0 = arg0.Trim();
                     }
                     string arg1 = line.Split(":=")[1];
                     arg1 = Parse(arg1);
@@ -995,93 +1042,54 @@ namespace CourseProject
                         int count = 0;
                         if (arg1[j].Equals('='))
                         {
-                            if (arg1[j - 1].Equals('<') || arg1[j - 1].Equals('>'))
+                            if (j-1>=0)
                             {
-                                if (arg1[j - 2].Equals(' '))
+                                if (arg1[j - 1].Equals('<') || arg1[j - 1].Equals('>'))
                                 {
-                                    si = j - 2;
-                                    count = 0;
-                                    while (si >= 0)
+                                    if (arg1[j - 2].Equals(' '))
                                     {
-                                        if (arg1[si].Equals(' '))
+                                        si = j - 2;
+                                        count = 0;
+                                        while (si >= 0)
                                         {
-                                            count++;
+                                            if (arg1[si].Equals(' '))
+                                            {
+                                                count++;
+                                            }
+                                            else
+                                            {
+                                                break;
+                                            }
+                                            si--;
                                         }
-                                        else
-                                        {
-                                            break;
-                                        }
-                                        si--;
+
+                                        arg1 = arg1.Remove(si, count);
                                     }
 
-                                    arg1 = arg1.Remove(si, count);
                                 }
-
-                            }
-                            else
-                            {
-                                if (arg1[j - 1].Equals(' '))
+                                else
                                 {
-                                    si = j - 1;
-                                    count = 0;
-                                    while (si >= 0)
+                                    if (arg1[j - 1].Equals(' '))
                                     {
-                                        if (arg1[si].Equals(' '))
+                                        si = j - 1;
+                                        count = 0;
+                                        while (si >= 0)
                                         {
-                                            count++;
+                                            if (arg1[si].Equals(' '))
+                                            {
+                                                count++;
+                                            }
+                                            else
+                                            {
+                                                break;
+                                            }
+                                            si--;
                                         }
-                                        else
-                                        {
-                                            break;
-                                        }
-                                        si--;
+                                        arg1 = arg1.Remove(si, count);
                                     }
-                                    arg1 = arg1.Remove(si, count);
                                 }
                             }
-                            if (arg1[j + 1].Equals(' '))
-                            {
-                                si = j + 1;
-                                count = 0;
-                                while (si < arg1.Length)
-                                {
-                                    if (arg1[si].Equals(' '))
-                                    {
-                                        count++;
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-                                    si++;
-                                }
-                                arg1 = arg1.Remove(j + 1, count);
-                            }
-                        }
-                        if (arg1[j].Equals('<'))
-                        {
-                            if (arg1[j + 1].Equals('>') || arg1[j + 1].Equals('='))
-                            {
-                                if (arg1[j + 2].Equals(' '))
-                                {
-                                    si = j + 2;
-                                    count = 0;
-                                    while (si < arg1.Length)
-                                    {
-                                        if (arg1[si].Equals(' '))
-                                        {
-                                            count++;
-                                        }
-                                        else
-                                        {
-                                            break;
-                                        }
-                                        si++;
-                                    }
-                                    arg1 = arg1.Remove(j + 2, count);
-                                }
-                            }
-                            else
+                            if (j+1<arg1.Length)
                             {
                                 if (arg1[j + 1].Equals(' '))
                                 {
@@ -1099,18 +1107,114 @@ namespace CourseProject
                                         }
                                         si++;
                                     }
+                                    arg1 = arg1.Remove(j + 1, count);
                                 }
                             }
+                            
+                        }
+                        if (arg1[j].Equals('<'))
+                        {
+                            if (j+1<arg1.Length)
+                            {
+                                if (arg1[j + 1].Equals('>') || arg1[j + 1].Equals('='))
+                                {
+                                    if (arg1[j + 2].Equals(' '))
+                                    {
+                                        si = j + 2;
+                                        count = 0;
+                                        while (si < arg1.Length)
+                                        {
+                                            if (arg1[si].Equals(' '))
+                                            {
+                                                count++;
+                                            }
+                                            else
+                                            {
+                                                break;
+                                            }
+                                            si++;
+                                        }
+                                        arg1 = arg1.Remove(j + 2, count);
+                                    }
+                                }
+                                else
+                                {
+                                    if (arg1[j + 1].Equals(' '))
+                                    {
+                                        si = j + 1;
+                                        count = 0;
+                                        while (si < arg1.Length)
+                                        {
+                                            if (arg1[si].Equals(' '))
+                                            {
+                                                count++;
+                                            }
+                                            else
+                                            {
+                                                break;
+                                            }
+                                            si++;
+                                        }
+                                    }
+                                }
+                            }
+                            
                         }
                         if (arg1[j].Equals('>'))
                         {
-                            if (arg1[j - 1].Equals('=') || arg1[j + 1].Equals('<'))
+                            if (j-1>=0)
                             {
-                                if (arg1[j - 2].Equals(' '))
+                                if (arg1[j - 1].Equals('=') || arg1[j + 1].Equals('<'))
                                 {
-                                    si = j - 2;
+                                    if (arg1[j - 2].Equals(' '))
+                                    {
+                                        si = j - 2;
+                                        count = 0;
+                                        while (si >= 0)
+                                        {
+                                            if (arg1[si].Equals(' '))
+                                            {
+                                                count++;
+                                            }
+                                            else
+                                            {
+                                                break;
+                                            }
+                                            si--;
+                                        }
+
+                                        arg1 = arg1.Remove(si, count);
+                                    }
+                                }
+                                else
+                                {
+                                    if (arg1[j - 1].Equals(' '))
+                                    {
+                                        si = j - 1;
+                                        count = 0;
+                                        while (si >= 0)
+                                        {
+                                            if (arg1[si].Equals(' '))
+                                            {
+                                                count++;
+                                            }
+                                            else
+                                            {
+                                                break;
+                                            }
+                                            si--;
+                                        }
+                                        arg1 = arg1.Remove(si, count);
+                                    }
+                                }
+                            }
+                           if (j+1<arg1.Length)
+                           {
+                                if (arg1[j + 1].Equals(' '))
+                                {
+                                    si = j + 1;
                                     count = 0;
-                                    while (si >= 0)
+                                    while (si < arg1.Length)
                                     {
                                         if (arg1[si].Equals(' '))
                                         {
@@ -1120,13 +1224,37 @@ namespace CourseProject
                                         {
                                             break;
                                         }
-                                        si--;
+                                        si++;
                                     }
-
-                                    arg1 = arg1.Remove(si, count);
+                                    arg1 = arg1.Remove(j + 1, count);
                                 }
                             }
-                            else
+                            
+                        }
+                        if (!arg1[j].Equals('=') && !arg1[j].Equals('<') && !arg1[j].Equals('>'))
+                        {
+                            if (j+1<arg1.Length)
+                            {
+                                if (arg1[j + 1].Equals(' '))
+                                {
+                                    si = j + 1;
+                                    count = 0;
+                                    while (si < arg1.Length)
+                                    {
+                                        if (arg1[si].Equals(' '))
+                                        {
+                                            count++;
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                        si++;
+                                    }
+                                    arg1 = arg1.Remove(j - 1, count);
+                                }
+                            }
+                            if (j-1>=0)
                             {
                                 if (arg1[j - 1].Equals(' '))
                                 {
@@ -1147,63 +1275,7 @@ namespace CourseProject
                                     arg1 = arg1.Remove(si, count);
                                 }
                             }
-                            if (arg1[j + 1].Equals(' '))
-                            {
-                                si = j + 1;
-                                count = 0;
-                                while (si < arg1.Length)
-                                {
-                                    if (arg1[si].Equals(' '))
-                                    {
-                                        count++;
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-                                    si++;
-                                }
-                                arg1 = arg1.Remove(j + 1, count);
-                            }
-                        }
-                        if (!arg1[j].Equals('=') && !arg1[j].Equals('<') && !arg1[j].Equals('>'))
-                        {
-                            if (arg1[j + 1].Equals(' '))
-                            {
-                                si = j + 1;
-                                count = 0;
-                                while (si < arg1.Length)
-                                {
-                                    if (arg1[si].Equals(' '))
-                                    {
-                                        count++;
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-                                    si++;
-                                }
-                                arg1 = arg1.Remove(j - 1, count);
-                            }
-                            if (arg1[j - 1].Equals(' '))
-                            {
-                                si = j - 1;
-                                count = 0;
-                                while (si >= 0)
-                                {
-                                    if (arg1[si].Equals(' '))
-                                    {
-                                        count++;
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-                                    si--;
-                                }
-                                arg1 = arg1.Remove(si, count);
-                            }
+                            
                         }
                     }
                     j++;
@@ -1286,6 +1358,18 @@ namespace CourseProject
                 }
             }
             return line;
+        }
+
+       
+        public void PrintProgram()
+        {
+            if (program.Count>0)
+            {
+               foreach (string line in program)
+                {
+                    Console.WriteLine(line);
+                }
+            }
         }
 
         public void PrintRepairProgram()
@@ -1432,18 +1516,66 @@ namespace CourseProject
             {
                 string line = program[i];
                 //check 
-                if (!(line.Contains("begin") || line.StartsWith("if") || line.Equals("then") || line.Equals("else") || line.StartsWith("until") ))
+                if (!(line.Contains("begin") || line.StartsWith("if") || line.Equals("then") || line.Equals("else") || line.StartsWith("repeat")))
                 {
-                    
-                    if (!line.Last().Equals(';') && !line.Last().Equals('.'))
+                    if (line.Equals("end"))
                     {
-                        Error error = new Error();
-                        error.Col = i;
-                        error.Message = "please add symbol \";\" in the end line " + i;
-                        errors.Add(error);
+                        if (i + 1 < n)
+                        {
+                            if (!program[i + 1].Equals("else"))
+                            {
+                                AddError(i);
+                            }
+                        }
+                        else
+                        {
+                            AddError(i);
+                        }
                     }
+                    else
+                    {
+                        if (!line.Last().Equals(';') && !line.Last().Equals('.'))
+                        {
+                            AddError(i);
+                        }
+                    }
+                    
 
                 }
+            }
+            void AddError(int ind)
+            {
+                bool f = true;
+               
+                if (errors.Count>0)
+                {
+                    for (int i=0; i<errors.Count; i++)
+                    {                        
+                        int t0 = errors[i].Col;
+                        int t1 = errors[i].Row;
+                        for (int j=i+1; j<errors.Count; j++)
+                        {
+                            if ((errors[j].Col == t0) && (errors[j].Row == t1))
+                            {
+                                f = false;
+                                break;
+                            }
+                        }
+                        if (!f)
+                        {
+                            break;
+                        }
+                    }
+                        
+                }
+                if (f)
+                {
+                    Error error = new Error();
+                    error.Col = ind;
+                    error.Message = "please add symbol \";\" in the end line " + ind;
+                    errors.Add(error);
+                }
+                
             }
             return errors;
         }
@@ -1637,7 +1769,10 @@ namespace CourseProject
                 if (line.Contains(":="))
                 {
                     string arg = line.Split(":=")[0];
-
+                    if (arg.Contains('[') && arg.Contains(']'))
+                    {
+                        arg = arg.Remove(arg.IndexOf('['));
+                    }
                     for (int j = 0; j < variables.Count; j++)
                     {
                         if (arg.Equals(variables[j].Identificator))
@@ -1698,6 +1833,10 @@ namespace CourseProject
             for (int i=body; i<n; i++)
             {
                 string line = program[i];
+                if (line.Last().Equals(';'))
+                {
+                    line = line.Remove(line.Length - 1, 1);
+                }
                 foreach (string op in operators)
                 {
                     List<int> indexes = GetAllContains(line, op);
@@ -1853,7 +1992,7 @@ namespace CourseProject
                                 foreach (int index in indexes)
                                 {
                                     flag = true;
-                                    if (line.Equals("begin"))
+                                    if (!line.Equals("begin"))
                                     {
                                         if (!IsLocatedInSpaces(line, index))
                                         {
@@ -1898,7 +2037,7 @@ namespace CourseProject
                                     {
                                         if (index + op.Length < line.Length)
                                         {
-                                            flag = line[index + op.Length].Equals(' ') || CheckFirstSymbolInIdentificator(line[index + op.Length]);
+                                            flag = line[index + op.Length].Equals(' ') || CheckLastSymbolInIdentificator(line[index + op.Length]);
                                         }
                                         else
                                         {
@@ -1924,12 +2063,23 @@ namespace CourseProject
                 bool fl = true;
                 if (errors.Count>1)
                 {
-                    int ind = errors[0].Col;
+                    int minInd = errors[0].Col;
+                    int maxInd = errors[0].Col;
                     for (int i=0; i<errors.Count; i++)
                     {
-                        if (errors[i].Col==ind)
+                        int t0 = errors[i].Col;
+                        int t1 = errors[i].Row;
+                        fl = true;
+                        for (int j=i+1; j<errors.Count; j++)
                         {
-                            fl = false;
+                            if ((errors[j].Col == t0) && (errors[j].Row == t1))
+                            {
+                                fl = false;
+                                break;
+                            }
+                        }
+                        if (!fl)
+                        {
                             break;
                         }
                     }
