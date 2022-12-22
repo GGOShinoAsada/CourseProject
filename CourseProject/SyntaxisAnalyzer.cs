@@ -360,7 +360,7 @@ namespace CourseProject
         }
 
 
-        public BinaryTree ParseExpression(string line)
+        private BinaryTree ParseExpression(string line)
         {
             BinaryTree tree = new BinaryTree();
             Console.ForegroundColor = ConsoleColor.Red;
@@ -874,7 +874,7 @@ namespace CourseProject
 
         char[] patterns = new char[] { '^', '*', '/', '+', '-', '(', ')', '<', '>', '=', '#' };
 
-        public string AddBrackets(string line)
+        private string AddBrackets(string line)
         {
           
 
