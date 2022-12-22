@@ -31,7 +31,7 @@ namespace CourseProject
 
         static void TestAddBracket()
         {
-            string val = "2+2*2";
+            string val = "2+2";
             SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
             val = analyzer.AddBrackets(val);
             Console.WriteLine(val);
@@ -94,7 +94,7 @@ namespace CourseProject
 
         static void TestParseExpression()
         {
-            string val = "(j^5)";//"(not 67)";
+            string val = "(a+1)";//"(not 67)";
             SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
             BinaryTree tree = analyzer.ParseExpression(val);
            // tree.PrintTree(tree.Root);
