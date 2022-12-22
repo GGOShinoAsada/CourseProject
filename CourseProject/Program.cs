@@ -14,9 +14,9 @@ namespace CourseProject
            
             //------------------------//
             ExecuteLexicAnalyzer(PATH);
-            PrintProgram();
+            //PrintProgram();
             ExecuteSyntaxAnalyzer();
-            // ExecuteCodeGenerator();
+            //ExecuteCodeGenerator();
             //-----------------------//
          
             Console.WriteLine("done");
@@ -37,23 +37,7 @@ namespace CourseProject
             analyzer.RemoveSpacesAndEmptySymbols();
             analyzer.FormIndentificators();
             analyzer.FormTokens();
-            //analyzer.RemoveSpacesAndEmptySymbols();
-            //List<string> errors = analyzer.CheckProgram();
-            //if (errors.Count == 0)
-            //{
-            //    analyzer.RemoveSpacesAndEmptySymbols();
-            //    analyzer.FormIndentificators();
-            //    analyzer.FormTokens();
-            //}
-            //else
-            //{
-            //    Console.ForegroundColor = ConsoleColor.Red;
-            //    foreach (string error in errors)
-            //    {
-            //        Console.WriteLine(error);
-            //    }
-            //    Console.ForegroundColor = ConsoleColor.White;
-            //}
+            
         }
         /// <summary>
         /// syntax analyzer
@@ -68,9 +52,8 @@ namespace CourseProject
                 analyzer.Optimizeprogram();
                 //analyzer.PrintProgram();
                 BinaryTree tree = analyzer.FormBinaryTree();
-                tree.PrintTree(tree.Root);
-                //analyzer.PrintProgram();
-                //BinaryTree.SaveTreeTofile(tree);
+                //tree.PrintTree(tree.Root);
+                BinaryTree.SaveTreeTofile(tree);
             }
         }
 
@@ -83,12 +66,6 @@ namespace CourseProject
             tree.PrintTree(tree.Root);
         }
 
-        //private static void TestFormTree()
-        //{
-        //    SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
-        //    BinaryTree tree = analyzer.FormBinaryTree();
-        //    int k = 0;
-        //}
 
         /// <summary>
         /// print repair program
@@ -98,46 +75,7 @@ namespace CourseProject
             SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
             analyzer.PrintRepairProgram();
         }
-
-        //private static void TestIOTree()
-        //{
-        //    BinaryTree tree = new BinaryTree();
-        //    tree.AddLeftChild("2");
-        //    tree.AddRightChild("3");
-        //    tree.SetParent(tree.Root);
-        //    tree.AddLeftChild("4");
-        //    tree.SetHead();
-        //    BinaryTree.SaveTreeTofile(tree);
-        //    tree = BinaryTree.RepairTreeFromFile();
-        //}
-
-        private static void TestSynaxAnalyzer()
-        {
-            SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
-            //string line = "(3+(4*5))";
-            BinaryTree tree = new BinaryTree();
-            string line = "if (a>10) then b:=b+52; else if (d>10) then s:=45+45; else c:=45;";
-            //analyzer.ParseOperatorIf(line, 0, ref tree);
-            line = "a:=(3+(4*5))";
-            //BinaryTree assign = analyzer.ParseAssignOperator(line);
-            int f = 0;
-            //analyzer.ParseExpression(line);
-            //analyzer.ParseProgramLine(line);
-            bool flag = analyzer.CheckProgram();
-            Console.WriteLine("flag=" + flag);
-            //analyzer.PrintRepairProgram();
-        }
-
-        //private static void TestTree()
-        //{
-        //    BinaryTree tree = new BinaryTree();
-        //    tree.AddLeftChild("1234");
-        //    tree.AddLeftChild("4558");
-        //    tree.SetParent(tree.Root);
-        //    tree.AddRightChild("67655");
-        //    tree.SetHead();
-        //    // tree.ScanTree(tree.Root);
-        //}
+        
 
         private static void TestLexicAnalyzer()
         {
@@ -148,17 +86,6 @@ namespace CourseProject
             analyzer.FormIndentificators();
         }
 
-        //SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
-        //LexicAnalyzer lexic = new LexicAnalyzer();
-        //TestTree();
-        //TestSynaxAnalyzer();
-        //TestLexicAnalyzer();
-        //TestIOTree();
-        //TestRepair();
-        //TestMethod();
-        //TestFormTree();
-        //--------------------//
-        //ExecuteLexicAnalyzer();
-        //ExecuteSyntaxAnalyzer();
+        
     }
 }

@@ -10,10 +10,7 @@
 
         public const string PatternsPath = "C:\\Users\\IRIS\\Documents\\COMP\\COMPILER\\data\\patterns.txt";
 
-        public const string DefaultValue = "OP";
-
-        
-
+        public const string DefaultValue = "OP";      
        
     }
 }

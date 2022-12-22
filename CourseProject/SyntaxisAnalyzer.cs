@@ -219,7 +219,6 @@ namespace CourseProject
                             a00 = arg0.Substring(0, arg0.IndexOf('['));
                             a01 = arg0.Substring(arg0.IndexOf('[')+1);
                             a01 = a01.Remove(a01.Length - 1, 1);
-                            //a01 = AddBrackets(a01);
                             a00 += "[index]";
                             f1 = true;
                         }
@@ -229,13 +228,11 @@ namespace CourseProject
                         {
                             arg1 = arg1.Remove(arg1.Length - 1, 1);
                             arg1 = AddBrackets(arg1);
-                           // arg1 = '(' + arg1 + ')';
                         }
 
                         BinaryTree exprTree = new BinaryTree();
                         if (!IsCorrectValue(arg1))
                         {
-                            //arg1 = '(' + arg1 + ')';
                             exprTree = ParseExpression(arg1);
                         }
                         
@@ -246,7 +243,6 @@ namespace CourseProject
                             tree.AddLeftChild(a00);
                             if (!IsCorrectValue(a01))
                             {
-                                //a01 = '(' + a01 + ')';
                                 BinaryTree eTree = ParseExpression(a01);
                                 tree.SetLeftChild(eTree.Root);
                                 
@@ -285,14 +281,12 @@ namespace CourseProject
                             arg0 = "writeln";
                         }
                         string arg1 = GetSubsString(line, line.IndexOf('('), line.LastIndexOf(')'));
-                        //BinaryTree outputTree = ParseExpression(arg1);
                         tree.AddRightChild(DefaultValue + opIondex);
                         tree.AddLeftChild(arg0);
                         tree.AddLeftChild(arg1);
                         tree.SetParent(tree.Root);
                         tree.SetParent(tree.Root);
                         opIondex++;
-                        //tree.SetLeftChild(outputTree.Root);
                     }
                     if (line.StartsWith("read"))
                     {
@@ -368,14 +362,8 @@ namespace CourseProject
             {
                 if (!string.IsNullOrEmpty(line))
                 {
-                    //add brackets
                     line = AddBrackets(line);
                     int ind = 0;
-
-                    //number - [0-9,.]
-                    //value - a-zA-Z0-9_
-                    //and, or, xor, not, <, >, =, <>, <=, >=, +, -, *, /
-
 
                     string temp = line;
 
@@ -559,7 +547,6 @@ namespace CourseProject
 
                         if (index >= 0)
                         {
-                            //operator
                             string op = operators[index].Value;
                             ind += op.Length - 1;
                             tree.SetRootValue(op);
@@ -568,10 +555,7 @@ namespace CourseProject
                         }
                         if (IsValue(line[ind]) && (index == -1))
                         {
-                            //value
                             string value = "";
-
-
                             while (IsValue(line[ind]))
                             {
                                 value += line[ind];
@@ -606,262 +590,6 @@ namespace CourseProject
             return tree;
         }
 
-        //public BinaryTree ParseExpression(string line)
-        //{
-        //    BinaryTree tree = new BinaryTree();
-        //    Console.ForegroundColor = ConsoleColor.Red;
-        //    try
-        //    {
-        //        if (!string.IsNullOrEmpty(line))
-        //        {
-        //            //add brackets
-        //            line = AddBrackets(line);
-        //            int ind = 0;
-
-        //            //number - [0-9,.]
-        //            //value - a-zA-Z0-9_
-        //            //and, or, xor, not, <, >, =, <>, <=, >=, +, -, *, /
-
-
-        //            string temp = line;
-
-        //            List<Operator> operators = new List<Operator>();
-
-        //            List<int> indexes = GetAllContains(line, "^");
-
-        //            foreach (int index in indexes)
-        //            {
-
-        //                operators.Add(new Operator("^", index));
-        //            }
-
-        //            indexes = GetAllContains(line, "*");
-
-        //            foreach (int index in indexes)
-        //            {
-
-        //                operators.Add(new Operator("*", index));
-        //            }
-
-        //            indexes = GetAllContains(line, "/");
-
-        //            foreach (int index in indexes)
-        //            {
-
-        //                operators.Add(new Operator("/", index));
-        //            }
-
-        //            indexes = GetAllContains(line, "+");
-
-        //            foreach (int index in indexes)
-        //            {
-
-        //                operators.Add(new Operator("+", index));
-        //            }
-
-        //            indexes = GetAllContains(line, "-");
-
-        //            foreach (int index in indexes)
-        //            {
-
-        //                operators.Add(new Operator("-", index));
-        //            }
-
-        //            indexes = GetAllContains(line, "<=");
-
-        //            foreach (int index in indexes)
-        //            {
-        //                operators.Add(new Operator("<=", index));
-        //            }
-
-        //            indexes = GetAllContains(line, ">=");
-
-        //            foreach (int index in indexes)
-        //            {
-        //                operators.Add(new Operator(">=", index));
-        //            }
-
-        //            indexes = GetAllContains(line, "<>");
-
-        //            foreach (int index in indexes)
-        //            {
-        //                operators.Add(new Operator("<>", index));
-        //            }
-
-        //            indexes = GetAllContains(line, "=");
-
-        //            foreach (int index in indexes)
-        //            {
-        //                if (index-1>=0)
-        //                {
-        //                    if (!line[index-1].Equals('<') && !line[index-1].Equals('>'))
-        //                    {
-        //                        operators.Add(new Operator("=", index));
-        //                    }
-        //                }
-
-        //            }
-
-        //            indexes = GetAllContains(line, "<");
-
-        //            foreach (int index in indexes)
-        //            {
-        //                if (index + 1 < line.Length)
-        //                {
-        //                    if (!line[index + 1].Equals('>') && !line[index + 1].Equals('='))
-        //                    {
-        //                        operators.Add(new Operator("<", index));
-        //                    }
-        //                }
-
-        //            }
-
-        //            indexes = GetAllContains(line, ">");
-
-        //            foreach (int index in indexes)
-        //            {
-        //                if (index + 1 < line.Length)
-        //                {
-        //                    if (!line[index + 1].Equals('='))
-        //                    {
-        //                        if (index-1>=0)
-        //                        {
-        //                            if (!line[index-1].Equals('<'))
-        //                            {
-        //                                operators.Add(new Operator(">", index));
-        //                            }
-        //                        }
-
-        //                    }
-        //                }
-
-        //            }
-
-        //            indexes = GetAllContains(line, "div");
-
-        //            foreach (int index in indexes)
-        //            {
-        //                operators.Add(new Operator("div", index));
-        //            }
-
-        //            indexes = GetAllContains(line, "mod");
-
-        //            foreach (int index in indexes)
-        //            {
-        //                operators.Add(new Operator("mod", index));
-        //            }
-
-        //            indexes = GetAllContains(line, "xor");
-
-        //            foreach (int index in indexes)
-        //            {
-        //                operators.Add(new Operator("xor", index));
-        //            }
-
-        //            indexes = GetAllContains(line, "or");
-
-        //            foreach (int index in indexes)
-        //            {
-        //                if (index - 1 >=0)
-        //                {
-        //                    if (!line[index - 1].Equals('x'))
-        //                    {
-        //                        operators.Add(new Operator("or", index));
-        //                    }
-        //                }
-
-        //            }
-
-        //            indexes = GetAllContains(line, "and");
-
-        //            foreach (int index in indexes)
-        //            {
-        //                operators.Add(new Operator("and", index));
-        //            }
-
-        //            indexes = GetAllContains(line, "not");
-
-        //            foreach (int index in indexes)
-        //            {
-        //                operators.Add(new Operator("not", index));
-        //            }
-
-        //            while (ind < line.Length)
-        //            {
-        //                if (line[ind].Equals('('))
-        //                {
-        //                    tree.AddLeftChild("");
-        //                }
-        //                int index = -1;
-        //                for (int j=0; j<operators.Count; j++)
-        //                {
-        //                    if (operators[j].Position == ind)
-        //                    {
-        //                        index = j;
-        //                        operators[j].Flag = false;
-        //                        break;
-        //                    }
-        //                }
-
-        //                if (index>=0)
-        //                {
-        //                    //operator
-        //                    string op = operators[index].Value;
-        //                    ind += op.Length-1;
-        //                    tree.SetRootValue(op);
-        //                    tree.AddRightChild("");
-
-        //                }             
-        //                if (IsValue(line[ind]) && (index==-1))
-        //                {
-        //                    //value
-        //                    string value = "";
-
-        //                    //int eInd = line.Length;
-        //                    //while (ind<eInd)
-        //                    //{
-        //                    //    if (IsValue(line[ind]))
-        //                    //        value += line[ind];
-        //                    //    else
-        //                    //    {
-        //                    //        break;
-        //                    //    }
-        //                    //    ind++;
-        //                    //}
-        //                    while (IsValue(line[ind]))
-        //                    {
-        //                        value += line[ind];
-        //                        ind++;
-        //                    }
-        //                    ind--;
-        //                    tree.SetRootValue(value);
-        //                    tree.SetParent(tree.Root);
-
-        //                }
-
-
-        //                if (line[ind].Equals(')'))
-        //                {
-        //                    tree.SetParent(tree.Root);
-        //                }
-        //                ind++;
-        //            }
-
-
-        //        }
-        //        tree.SetHead();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.StackTrace);
-        //    }
-
-
-
-        //    Console.ForegroundColor = ConsoleColor.White;
-        //    return tree;
-        //}
-
 
         private bool IsValue(char c)
         {
@@ -876,9 +604,6 @@ namespace CourseProject
 
         private string AddBrackets(string line)
         {
-          
-
-            //replase 
 
             line = ChangeSymbols(line);
 
@@ -933,13 +658,6 @@ namespace CourseProject
                             {
                                 f1 = line[tmp - 1].Equals('(');
                             }
-                            //else
-                            //{
-                            //    f1 = false;
-                            //}
-
-                            //indexes = FormIndexes();
-                            //ind = indexes[i].Position;
                             tmp = ind + op.Length;
                             br = 0;
                             while (tmp < line.Length)
@@ -968,10 +686,6 @@ namespace CourseProject
                             {
                                 f2 = line[tmp + 1].Equals(')');
                             }
-                            //else
-                            //{
-                            //    f2 = false;
-                            //}
                             if (!(f1 && f2))
                             {
                                 string arg0 = GetSubsString(line, 0, lp - 1);
@@ -1253,12 +967,6 @@ namespace CourseProject
                 }
                 return indexes;
             }
-
-            //if (line.First().Equals('(') && line.Last().Equals(')'))
-            //{
-            //    line = line.Remove(line.Length - 1, 1);
-            //    line = line.Substring(1);
-            //}
            
             return line;
         }
@@ -1781,17 +1489,7 @@ namespace CourseProject
                             break;
                     }
                 }
-            }
-
-            //errors = CheckBracketDistance();
-            //if (errors.Count>0)
-            //{
-            //    flag = false;
-            //    foreach (Error error in errors)
-            //    {
-            //        Console.WriteLine(error.Message);
-            //    }
-            //}
+            }            
             errors = CheckArrayDeclaration();
             if (errors.Count>0)
             {
@@ -1801,7 +1499,6 @@ namespace CourseProject
                     Console.WriteLine(error.Message);
                 }
             }
-            //?
             errors = CheckCorrectDeclaredOfOperators();
             if (errors.Count > 0)
             {
@@ -1831,7 +1528,6 @@ namespace CourseProject
             for (int i=0; i<n; i++)
             {
                 string line = program[i];
-                //check 
                 if (!(line.Contains("begin") || line.StartsWith("if") || line.Equals("then") || line.Equals("else") || line.StartsWith("repeat")))
                 {
                     if (line.Equals("end"))
@@ -1965,15 +1661,12 @@ namespace CourseProject
                     }
                 }
             }
-            //:=5; must be exists operator before :=
             return errors;
         }
         
 
         private List<Error> CheckIdentificators()
         {
-
-
             List<Error> errors = new List<Error>();
             if (program.Count > 0)
             {
@@ -2131,9 +1824,6 @@ namespace CourseProject
 
         private List<Error> CheckCorrectDeclaredOfOperators()
         {
-            
-            //check correct location for all supported operators
-         
             List<Error> errors = new List<Error>();
             int n = program.Count;
             int body = 0;
@@ -2458,9 +2148,7 @@ namespace CourseProject
                                     int arg2 = indexes[0];//]
                                     string sval = GetSubsString(line, arg1 + 1, arg0 - 1);
                                     string eval = GetSubsString(line, arg0 + 2, arg2 - 1);
-                                    
                                     f = (arg0 - arg1 > 1) && (arg2 - arg1 > 1) && IsCorrectNumber(sval) && IsCorrectNumber(eval);
-                                    //f = arg1 < arg0 && arg0 < arg2;
                                 }
                             }
                             else
@@ -2496,174 +2184,9 @@ namespace CourseProject
             return f;
         }
 
-        //private List<Error> CheckBracketDistance()
-        //{
-        //    List<Error> errors = new List<Error>();
-        //    List<int> indexes = new();
-        //    string value = "";
-                       
-        //    for (int i=0; i<program.Count; i++)
-        //    {
-               
-        //        string line = program[i];
-        //        indexes = GetAllContains(line, "(");
-        //        foreach (int index in indexes)
-        //        {
-        //            bool flag = true;
-        //            sbyte br = 0;
-        //            int si = -1; int ei = -1;
-
-        //            si = index;
-        //            for (int j=index; j<line.Length; j++)
-        //            {
-        //                if (line[j].Equals('('))
-        //                {
-        //                    br++;
-        //                }
-        //                if (line[j].Equals(')'))
-        //                {
-        //                    br--;
-        //                }
-        //                if (br<0)
-        //                {
-        //                    flag = false;
-        //                    break;
-        //                }
-        //                if (br==0)
-        //                {
-        //                    if (line[j].Equals(')'))
-        //                    {
-        //                        ei = j;
-        //                        break;
-        //                    }
-        //                    else
-        //                    {
-        //                        value += line[j];
-        //                    }
-                            
-        //                }
-        //            }
-        //            flag = !IsLocatedInSpaces(line, si) && !IsLocatedInSpaces(line, ei) && (ei - si > 0) && IsExcression(value);
-        //            if (!flag)
-        //            {
-        //                Error error = new Error();
-        //                error.Message = "find uncorrect declaration of symbols \"()\", line "+i;
-        //                error.Col = i;
-        //                errors.Add(error);
-        //            }
-                   
-        //        }
-        //        indexes = GetAllContains(line, "[");
-        //        foreach (int index in indexes)
-        //        {
-        //            bool flag = true;
-        //            sbyte br = 0;
-        //            int si = -1; int ei = -1;
-        //            si = index;
-        //            for (int j=si; j<line.Length; j++)
-        //            {
-        //                if (line[j].Equals('['))
-        //                {
-        //                    flag = false;
-        //                    break;
-        //                }
-        //                if (line[j].Equals(']'))
-        //                {
-        //                    ei = j;
-        //                    break;
-        //                }
-        //                if (!line[j].Equals('[') && !line[j].Equals(']'))
-        //                {
-        //                    value += line[j];
-        //                }
-        //            }
-        //            flag = !IsLocatedInSpaces(line, si) && !IsLocatedInSpaces(line, ei) 
-        //                && (ei - si > 0) && IsExcression(value);
-                    
-        //            if (!flag)
-        //            {
-        //                Error error = new Error();
-        //                error.Message = "find uncorrect declaration of symbols \"[]\", line " + i;
-        //                error.Col = i;
-        //                errors.Add(error);
-        //            }
-        //        }
-        //    }
-
-        //    bool IsExcression(string expr)
-        //    { 
-        //        //like identificator{<operator>identificator}
-        //        bool flag = true;
-        //        bool f1 = true;
-        //        foreach (string op in operators)
-        //        {
-        //            if (expr.Contains(op))
-        //            {
-        //                List<int> indexes = GetAllContains(expr, op);
-        //                //<-
-        //                foreach (int index in indexes)
-        //                {
-        //                    string value = "";
-        //                    for (int i=index-1; i>=0; i--)
-        //                    {
-        //                        if (operators.Contains(expr[i].ToString()))
-        //                        {
-        //                            break;
-        //                        }
-        //                        else
-        //                        {
-        //                            value += expr[i];
-        //                        }
-        //                    }
-        //                    char[] arr = value.ToCharArray();
-        //                    Array.Reverse(arr);
-        //                    value = new string(arr);
-        //                    flag = IsCorrectIdentificator(value);
-        //                    if (flag)
-        //                    {
-        //                        //->
-        //                        for (int i=index+1; i<expr.Length; i++)
-        //                        {
-        //                            if (operators.Contains(expr[i].ToString()))
-        //                            {
-        //                                break;
-        //                            }
-        //                            else
-        //                            {
-        //                                value += expr[i];
-        //                            }
-        //                        }
-        //                        flag = IsCorrectIdentificator(value);
-                                
-        //                    }
-        //                    if (!flag)
-        //                    {
-        //                        break;
-        //                    }
-        //                }
-        //                if (!flag)
-        //                {
-        //                    break;
-        //                }
-        //                f1 = false;
-        //            }
-        //        }
-        //        if (!f1)
-        //        {
-        //            flag = IsCorrectIdentificator(expr);
-        //        }
-        //        return flag;
-        //    }
-           
-            
-        //    return errors;
-        //}
-
 
         private List<Error> CheckPairSymbols()
         {
-
-            //[ and ], ( and ), begin/end;
             List<Error> errors = new List<Error>();
             sbyte br0, br1, br2;
             br2 = 0;
@@ -2755,7 +2278,6 @@ namespace CourseProject
             byte ind0 = 0;
             byte ind1 = 0;
             byte ind2 = 0;
-            //if-then-else; repeat-until (cond)
             for (int i=0; i < n; i++)
             {
                 string line = program[i];
@@ -2851,39 +2373,7 @@ namespace CourseProject
                
             }
           
-            //var 2 (if):
-            //идем сначала; если встретили if (condition)
-            //  если следующая строка eq then
-            //    если следующая строка eq begin
-            //      ind+1;
-            //    идем вниз
-            //    если строка eq end
-            //      ind-1;
-            //     если ind<0
-            //       error count of begin end; break;
-            //     если ind ==0
-            //     если след строка = else
-            //       если след строка = begin
-            //        ind+1;
-            //       если след строка = end
-            //        ind -1;
-            //       если ind<0
-            //        throw error
-            //         если ind=0
-            //         конструкция корректна
-            //--------------------
-            //для if: скнанируем с конца:
-            //если line eq 'else'
-            //идем на 1 вниз - проверяем наличия оператора или begin
-            //идем на 1 вверх - проверяем наличие оператора или end, if end =>f67 = true
-            //идем вверх, пока не встретим then
-            //если встретили then; if (f67) =>next line must be eq begin else next line must be exists
-            //; то на 1 вверх - проверяем, соответствует ли строка формату if (condition)
-            //для repeat
-            //идем сначала 
-            //if line is eq repeat fl = fl+1;
-            //if line is line until (condition) -> fl = fl-1;
-            //if fl<0 -> throw error
+           
             return errors;
         }
 
@@ -2921,532 +2411,524 @@ namespace CourseProject
         private bool IsCorrectExpression(string value)
         {
             bool flag = true;
-            if (value.Contains('(') && value.Contains(')'))
+            string[] delimiters = new string[] { "not", "and", "^", "/", "*", "div", "mod", "and", "+", "-", "or", "xor", "=", "<>", "<", ">", "<=", ">=", "in", "(", ")" };
+            List<Element> indexes = new List<Element>();
+
+            sbyte bi = 0;
+            for (int i = 0; i < value.Length; i++)
             {
-                string[] delimiters = new string[] { "not", "and", "^", "/", "*", "div", "mod", "and", "+", "-", "or", "xor", "=", "<>", "<", ">", "<=", ">=", "in", "(", ")" };
-                List<Element> indexes = new List<Element>();
-
-                sbyte bi = 0;
-                for (int i = 0; i < value.Length; i++)
+                if (value[i].Equals('('))
                 {
-                    if (value[i].Equals('('))
-                    {
-                        bi++;
-                    }
-                    if (value[i].Equals(')'))
-                    {
-                        bi--;
-                    }
-                    if (bi < 0)
-                    {
-                        break;
-                    }
+                    bi++;
                 }
-                flag = bi == 0;
-                if (flag)
+                if (value[i].Equals(')'))
                 {
-                    foreach (string del in delimiters)
+                    bi--;
+                }
+                if (bi < 0)
+                {
+                    break;
+                }
+            }
+            flag = bi == 0;
+            if (flag)
+            {
+                foreach (string del in delimiters)
+                {
+                    List<int> temp = new List<int>();
+                    if (del.Equals("<") || del.Equals(">") || del.Equals("=") || del.Equals("or") || del.Equals("in") || del.Equals("not") || del.Equals("(") || del.Equals(")"))
                     {
-                        List<int> temp = new List<int>();
-                        if (del.Equals("<") || del.Equals(">") || del.Equals("=") || del.Equals("or") || del.Equals("in") || del.Equals("not") || del.Equals("(") || del.Equals(")"))
+                        temp = GetAllContains(value, del);
+                        foreach (int index in temp)
                         {
-                            temp = GetAllContains(value, del);
-                            foreach (int index in temp)
+                            bool f1 = true;
+                            int si = 0; int ei = 0;
+                            switch (del)
                             {
-                                bool f1 = true;
-                                int si = 0; int ei = 0;
-                                switch (del)
-                                {
-                                    case "<":
-                                        if (index - 1 >= 0)
-                                        {
-                                            si = index - 1;
-                                            if (value[si].Equals(' '))
-                                            {
-                                                while (value[si].Equals(' '))
-                                                {
-                                                    si--;
-                                                }
-                                            }
-                                            f1 = IsValue(value[si]) || value[si].Equals(')');
-                                        }
-                                        else
-                                        {
-                                            f1 = false;
-                                        }
-                                        if (f1)
-                                        {
-                                            if (index + 1 < value.Length)
-                                            {
-                                                ei = index + 1;
-                                                if (value[ei].Equals(' '))
-                                                {
-                                                    while (value[ei].Equals(' '))
-                                                    {
-                                                        ei++;
-                                                    }
-                                                }
-                                                f1 = IsValue(value[ei]) || value[ei].Equals('>') || value[ei].Equals('=') || value[ei].Equals('(');
-                                            }
-                                            else
-                                            {
-                                                f1 = false;
-                                            }
-                                        }
-                                        if (f1)
-                                        {
-                                            AddIndex(new Element(index, del));
-                                        }
-                                        break;
-                                    case ">":
-                                        if (index - 1 >= 0)
-                                        {
-                                            si = index - 1;
-                                            if (value[si].Equals(' '))
-                                            {
-                                                while (value[si].Equals(' '))
-                                                {
-                                                    si--;
-                                                }
-                                            }
-                                            f1 = IsValue(value[si]) || value[si].Equals(')');
-
-                                        }
-                                        else
-                                        {
-                                            f1 = false;
-                                        }
-                                        if (f1)
-                                        {
-                                            if (index + 1 < value.Length)
-                                            {
-                                                ei = index + 1;
-                                                if (value[ei].Equals(' '))
-                                                {
-                                                    while (value[ei].Equals(' '))
-                                                    {
-                                                        ei++;
-                                                    }
-                                                }
-                                                f1 = IsValue(value[ei]) || value[ei].Equals('=') || value[ei].Equals('(');
-                                            }
-                                            else
-                                            {
-                                                f1 = false;
-                                            }
-                                        }
-                                        if (f1)
-                                        {
-                                            AddIndex(new Element(index, del));
-                                        }
-                                        break;
-                                    case "=":
-                                        if (index - 1 >= 0)
-                                        {
-                                            si = index - 1;
-                                            if (value[si].Equals(' '))
-                                            {
-                                                while (value[si].Equals(' '))
-                                                {
-                                                    si--;
-                                                }
-                                            }
-                                            f1 = IsValue(value[si]) || value[si].Equals('<') || value[si].Equals('>') || value[si].Equals(')');
-                                        }
-                                        else
-                                        {
-                                            f1 = false;
-                                        }
-                                        if (f1)
-                                        {
-                                            if (index + 1 < value.Length)
-                                            {
-                                                ei = index + 1;
-                                                if (value[ei].Equals(' '))
-                                                {
-                                                    while (value[ei].Equals(' '))
-                                                    {
-                                                        ei++;
-                                                    }
-                                                }
-                                                f1 = IsValue(value[ei]) || value[ei].Equals('(');
-                                            }
-                                            else
-                                            {
-                                                f1 = false;
-                                            }
-                                        }
-                                        if (f1)
-                                        {
-                                            AddIndex(new Element(index, del));
-                                        }
-                                        break;
-                                    case "or":
-                                        if (index - 1 >= 0)
-                                        {
-                                            si = index - 1;
-                                            if (value[si].Equals(' '))
-                                            {
-                                                while (value[si].Equals(' '))
-                                                {
-                                                    si--;
-                                                }
-                                            }
-                                            f1 = IsValue(value[si]) || value[si].Equals(')');
-                                        }
-                                        else
-                                        {
-                                            f1 = false;
-                                        }
-                                        if (f1)
-                                        {
-                                            if (index + 2 < value.Length)
-                                            {
-                                                ei = index + 2;
-                                                if (value[ei].Equals(' '))
-                                                {
-                                                    while (value[ei].Equals(' '))
-                                                    {
-                                                        ei++;
-                                                    }
-                                                    f1 = IsValue(value[ei]) || value[ei].Equals('(');
-                                                }
-                                            }
-                                            else
-                                            {
-                                                f1 = false;
-                                            }
-                                        }
-                                        if (f1)
-                                        {
-                                            AddIndex(new Element(index, del));
-                                        }
-                                        break;
-                                    case "in":
-                                        if (index - 1 >= 0)
-                                        {
-
-                                            List<int> data = GetAllContains(value, "begin");
-                                            bool f2 = true;
-                                            foreach (int ind in data)
-                                            {
-                                                f2 = index < ind && ind > ind + 6;
-                                                if (!f2)
-                                                    break;
-                                            }
-                                            if (f2)
-                                            {
-                                                si = index - 1;
-                                                if (value[si].Equals(' '))
-                                                {
-                                                    while (value[si].Equals(' '))
-                                                    {
-                                                        si--;
-                                                    }
-                                                }
-                                                f1 = IsValue(value[si]) || value[si].Equals(')');
-                                                if (f1)
-                                                {
-                                                    if (index + 3 < value.Length)
-                                                    {
-                                                        ei = index + 3;
-                                                        if (value[ei].Equals(' '))
-                                                        {
-                                                            while (value[ei].Equals(' '))
-                                                            {
-                                                                ei++;
-                                                            }
-                                                        }
-                                                        f1 = IsValue(value[ei]) || value[ei].Equals('(');
-                                                    }
-                                                    else
-                                                    {
-                                                        f1 = false;
-                                                    }
-                                                }
-
-                                            }
-                                            else
-                                            {
-                                                f1 = false;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            f1 = false;
-                                        }
-                                        if (f1)
-                                        {
-                                            AddIndex(new Element(index, del));
-                                        }
-                                        break;
-                                    case "not":
-                                        if (index != 0)
-                                        {
-                                            if (index - 1 >= 0)
-                                            {
-                                                si = index - 1;
-                                                if (value[si].Equals(' '))
-                                                {
-                                                    while (value[si].Equals(' '))
-                                                    {
-                                                        si--;
-                                                    }
-                                                }
-                                                f1 = IsAllowSymbolBeforeNot(value[si]);
-                                            }
-                                        }
-                                        if (f1)
-                                        {
-                                            if (index + 4 < value.Length)
-                                            {
-                                                ei = index + 4;
-                                                if (value[ei].Equals(' '))
-                                                {
-                                                    while (value[ei].Equals(' '))
-                                                    {
-                                                        ei++;
-                                                    }
-                                                }
-                                                f1 = IsValue(value[ei]);
-                                            }
-                                            else
-                                            {
-                                                f1 = false;
-                                            }
-                                        }
-                                        if (f1)
-                                        {
-                                            AddIndex(new Element(index, del));
-                                        }
-                                        break;
-                                    case "(":
-                                        if (index != 0)
-                                        {
-                                            if (index - 1 >= 0)
-                                            {
-                                                si = index - 1;
-                                                if (value[si].Equals(' '))
-                                                {
-                                                    while (value[si].Equals(' '))
-                                                    {
-                                                        si--;
-                                                    }
-                                                }
-                                                f1 = IsOperator(value[si]);
-
-                                            }
-                                        }
-                                        if (f1)
-                                        {
-                                            if (index + 1 < value.Length)
-                                            {
-                                                ei = index + 1;
-                                                if (value[ei].Equals(' '))
-                                                {
-                                                    while (value[ei].Equals(' '))
-                                                    {
-                                                        ei++;
-                                                    }
-                                                }
-                                                f1 = IsValue(value[ei]);
-                                            }
-
-                                            else
-                                            {
-                                                f1 = false;
-                                            }
-                                        }
-                                        if (f1)
-                                        {
-                                            AddIndex(new Element(index, del));
-                                        }
-                                        break;
-                                    case ")":
-                                        if (index != value.Length - 1)
-                                        {
-                                            if (index - 1 >= 0)
-                                            {
-                                                si = index - 1;
-                                                if (value[si].Equals(' '))
-                                                {
-                                                    while (value[si].Equals(' '))
-                                                    {
-                                                        si--;
-                                                    }
-                                                }
-                                                f1 = IsValue(value[si]);
-                                            }
-                                            else
-                                            {
-                                                f1 = false;
-                                            }
-                                        }
-                                        if (f1)
-                                        {
-                                            if (index + 1 < value.Length)
-                                            {
-                                                ei = index + 1;
-                                                if (value[ei].Equals(' '))
-                                                {
-                                                    while (value[ei].Equals(' '))
-                                                    {
-                                                        ei++;
-                                                    }
-                                                }
-                                            }
-                                            else
-                                            {
-                                                f1 = false;
-                                            }
-                                        }
-                                        if (f1)
-                                        {
-                                            AddIndex(new Element(index, del));
-                                        }
-                                        break;
-                                }
-                            }
-                        }
-                        if (!del.Equals("<") && !del.Equals(">") && !del.Equals("=") && !del.Equals("or") && !del.Equals("in") && !del.Equals("not") && !del.Equals("(") && !del.Equals(")"))
-                        {
-                            temp = GetAllContains(value, del);
-
-                            foreach (int index in temp)
-                            {
-                                bool f1 = true;
-                                int si = 0; int ei = 0;
-                                if (index - 1 >= 0)
-                                {
-                                    si = index - 1;
-                                    if (value[si].Equals(' '))
+                                case "<":
+                                    if (index - 1 >= 0)
                                     {
-                                        while (value[si].Equals(' '))
+                                        si = index - 1;
+                                        if (value[si].Equals(' '))
                                         {
-                                            si--;
-                                        }
-                                    }
-                                    f1 = IsValue(value[si]) || value[si].Equals(')');
-                                }
-                                if (f1)
-                                {
-                                    if (index + del.Length < value.Length)
-                                    {
-                                        ei = index + del.Length;
-                                        if (value[ei].Equals(' '))
-                                        {
-                                            while (value[ei].Equals(' '))
+                                            while (value[si].Equals(' '))
                                             {
-                                                ei++;
+                                                si--;
                                             }
                                         }
-                                        f1 = IsValue(value[ei]) || value[ei].Equals('(');
+                                        f1 = IsValue(value[si]) || value[si].Equals(')');
                                     }
                                     else
                                     {
                                         f1 = false;
                                     }
-                                }
-                                if (f1)
-                                {
+                                    if (f1)
+                                    {
+                                        if (index + 1 < value.Length)
+                                        {
+                                            ei = index + 1;
+                                            if (value[ei].Equals(' '))
+                                            {
+                                                while (value[ei].Equals(' '))
+                                                {
+                                                    ei++;
+                                                }
+                                            }
+                                            f1 = IsValue(value[ei]) || value[ei].Equals('>') || value[ei].Equals('=') || value[ei].Equals('(');
+                                        }
+                                        else
+                                        {
+                                            f1 = false;
+                                        }
+                                    }
+                                    if (f1)
+                                    {
+                                        AddIndex(new Element(index, del));
+                                    }
+                                    break;
+                                case ">":
+                                    if (index - 1 >= 0)
+                                    {
+                                        si = index - 1;
+                                        if (value[si].Equals(' '))
+                                        {
+                                            while (value[si].Equals(' '))
+                                            {
+                                                si--;
+                                            }
+                                        }
+                                        f1 = IsValue(value[si]) || value[si].Equals(')');
 
-                                    AddIndex(new Element(index, del));
-                                }
+                                    }
+                                    else
+                                    {
+                                        f1 = false;
+                                    }
+                                    if (f1)
+                                    {
+                                        if (index + 1 < value.Length)
+                                        {
+                                            ei = index + 1;
+                                            if (value[ei].Equals(' '))
+                                            {
+                                                while (value[ei].Equals(' '))
+                                                {
+                                                    ei++;
+                                                }
+                                            }
+                                            f1 = IsValue(value[ei]) || value[ei].Equals('=') || value[ei].Equals('(');
+                                        }
+                                        else
+                                        {
+                                            f1 = false;
+                                        }
+                                    }
+                                    if (f1)
+                                    {
+                                        AddIndex(new Element(index, del));
+                                    }
+                                    break;
+                                case "=":
+                                    if (index - 1 >= 0)
+                                    {
+                                        si = index - 1;
+                                        if (value[si].Equals(' '))
+                                        {
+                                            while (value[si].Equals(' '))
+                                            {
+                                                si--;
+                                            }
+                                        }
+                                        f1 = IsValue(value[si]) || value[si].Equals('<') || value[si].Equals('>') || value[si].Equals(')');
+                                    }
+                                    else
+                                    {
+                                        f1 = false;
+                                    }
+                                    if (f1)
+                                    {
+                                        if (index + 1 < value.Length)
+                                        {
+                                            ei = index + 1;
+                                            if (value[ei].Equals(' '))
+                                            {
+                                                while (value[ei].Equals(' '))
+                                                {
+                                                    ei++;
+                                                }
+                                            }
+                                            f1 = IsValue(value[ei]) || value[ei].Equals('(');
+                                        }
+                                        else
+                                        {
+                                            f1 = false;
+                                        }
+                                    }
+                                    if (f1)
+                                    {
+                                        AddIndex(new Element(index, del));
+                                    }
+                                    break;
+                                case "or":
+                                    if (index - 1 >= 0)
+                                    {
+                                        si = index - 1;
+                                        if (value[si].Equals(' '))
+                                        {
+                                            while (value[si].Equals(' '))
+                                            {
+                                                si--;
+                                            }
+                                        }
+                                        f1 = IsValue(value[si]) || value[si].Equals(')');
+                                    }
+                                    else
+                                    {
+                                        f1 = false;
+                                    }
+                                    if (f1)
+                                    {
+                                        if (index + 2 < value.Length)
+                                        {
+                                            ei = index + 2;
+                                            if (value[ei].Equals(' '))
+                                            {
+                                                while (value[ei].Equals(' '))
+                                                {
+                                                    ei++;
+                                                }
+                                                f1 = IsValue(value[ei]) || value[ei].Equals('(');
+                                            }
+                                        }
+                                        else
+                                        {
+                                            f1 = false;
+                                        }
+                                    }
+                                    if (f1)
+                                    {
+                                        AddIndex(new Element(index, del));
+                                    }
+                                    break;
+                                case "in":
+                                    if (index - 1 >= 0)
+                                    {
+
+                                        List<int> data = GetAllContains(value, "begin");
+                                        bool f2 = true;
+                                        foreach (int ind in data)
+                                        {
+                                            f2 = index < ind && ind > ind + 6;
+                                            if (!f2)
+                                                break;
+                                        }
+                                        if (f2)
+                                        {
+                                            si = index - 1;
+                                            if (value[si].Equals(' '))
+                                            {
+                                                while (value[si].Equals(' '))
+                                                {
+                                                    si--;
+                                                }
+                                            }
+                                            f1 = IsValue(value[si]) || value[si].Equals(')');
+                                            if (f1)
+                                            {
+                                                if (index + 3 < value.Length)
+                                                {
+                                                    ei = index + 3;
+                                                    if (value[ei].Equals(' '))
+                                                    {
+                                                        while (value[ei].Equals(' '))
+                                                        {
+                                                            ei++;
+                                                        }
+                                                    }
+                                                    f1 = IsValue(value[ei]) || value[ei].Equals('(');
+                                                }
+                                                else
+                                                {
+                                                    f1 = false;
+                                                }
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            f1 = false;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        f1 = false;
+                                    }
+                                    if (f1)
+                                    {
+                                        AddIndex(new Element(index, del));
+                                    }
+                                    break;
+                                case "not":
+                                    if (index != 0)
+                                    {
+                                        if (index - 1 >= 0)
+                                        {
+                                            si = index - 1;
+                                            if (value[si].Equals(' '))
+                                            {
+                                                while (value[si].Equals(' '))
+                                                {
+                                                    si--;
+                                                }
+                                            }
+                                            f1 = IsAllowSymbolBeforeNot(value[si]);
+                                        }
+                                    }
+                                    if (f1)
+                                    {
+                                        if (index + 4 < value.Length)
+                                        {
+                                            ei = index + 4;
+                                            if (value[ei].Equals(' '))
+                                            {
+                                                while (value[ei].Equals(' '))
+                                                {
+                                                    ei++;
+                                                }
+                                            }
+                                            f1 = IsValue(value[ei]);
+                                        }
+                                        else
+                                        {
+                                            f1 = false;
+                                        }
+                                    }
+                                    if (f1)
+                                    {
+                                        AddIndex(new Element(index, del));
+                                    }
+                                    break;
+                                case "(":
+                                    if (index != 0)
+                                    {
+                                        if (index - 1 >= 0)
+                                        {
+                                            si = index - 1;
+                                            if (value[si].Equals(' '))
+                                            {
+                                                while (value[si].Equals(' '))
+                                                {
+                                                    si--;
+                                                }
+                                            }
+                                            f1 = IsOperator(value[si]);
+
+                                        }
+                                    }
+                                    if (f1)
+                                    {
+                                        if (index + 1 < value.Length)
+                                        {
+                                            ei = index + 1;
+                                            if (value[ei].Equals(' '))
+                                            {
+                                                while (value[ei].Equals(' '))
+                                                {
+                                                    ei++;
+                                                }
+                                            }
+                                            f1 = IsValue(value[ei]);
+                                        }
+
+                                        else
+                                        {
+                                            f1 = false;
+                                        }
+                                    }
+                                    if (f1)
+                                    {
+                                        AddIndex(new Element(index, del));
+                                    }
+                                    break;
+                                case ")":
+                                    if (index != value.Length - 1)
+                                    {
+                                        if (index - 1 >= 0)
+                                        {
+                                            si = index - 1;
+                                            if (value[si].Equals(' '))
+                                            {
+                                                while (value[si].Equals(' '))
+                                                {
+                                                    si--;
+                                                }
+                                            }
+                                            f1 = IsValue(value[si]);
+                                        }
+                                        else
+                                        {
+                                            f1 = false;
+                                        }
+                                    }
+                                    if (f1)
+                                    {
+                                        if (index + 1 < value.Length)
+                                        {
+                                            ei = index + 1;
+                                            if (value[ei].Equals(' '))
+                                            {
+                                                while (value[ei].Equals(' '))
+                                                {
+                                                    ei++;
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            f1 = false;
+                                        }
+                                    }
+                                    if (f1)
+                                    {
+                                        AddIndex(new Element(index, del));
+                                    }
+                                    break;
                             }
                         }
                     }
-
-
-                    string variable = "";
-                    if (indexes.Count == 0)
+                    if (!del.Equals("<") && !del.Equals(">") && !del.Equals("=") && !del.Equals("or") && !del.Equals("in") && !del.Equals("not") && !del.Equals("(") && !del.Equals(")"))
                     {
-                        flag = IsCorrectIdentificator(value) || IsNumber(value);
-                    }
-                    else
-                    {
-                        int ind = 0;
-                        while (ind < value.Length)
+                        temp = GetAllContains(value, del);
+
+                        foreach (int index in temp)
                         {
-                            if (value[ind].Equals(' '))
+                            bool f1 = true;
+                            int si = 0; int ei = 0;
+                            if (index - 1 >= 0)
                             {
-                                ind++;
-                            }
-                            else
-                            {
-                                Element el = IsDelimiter(ind);
-                                if (el != null)
+                                si = index - 1;
+                                if (value[si].Equals(' '))
                                 {
-                                    if (!string.IsNullOrEmpty(variable))
+                                    while (value[si].Equals(' '))
                                     {
-                                        flag = IsCorrectIdentificator(variable) || IsNumber(variable);
-                                        variable = "";
-                                        if (!flag)
-                                            break;
+                                        si--;
                                     }
-                                    ind += el.Name.Length;
+                                }
+                                f1 = IsValue(value[si]) || value[si].Equals(')');
+                            }
+                            if (f1)
+                            {
+                                if (index + del.Length < value.Length)
+                                {
+                                    ei = index + del.Length;
+                                    if (value[ei].Equals(' '))
+                                    {
+                                        while (value[ei].Equals(' '))
+                                        {
+                                            ei++;
+                                        }
+                                    }
+                                    f1 = IsValue(value[ei]) || value[ei].Equals('(');
                                 }
                                 else
                                 {
-                                    variable += value[ind];
-                                    ind++;
+                                    f1 = false;
                                 }
                             }
+                            if (f1)
+                            {
 
-
+                                AddIndex(new Element(index, del));
+                            }
                         }
-
                     }
-
                 }
 
-                Element IsDelimiter(int p)
-                {
-                    Element el = null;
-                    foreach (Element e in indexes)
-                    {
-                        if (e.StartIndex == p)
-                        {
-                            el = e;
-                            break;
-                        }
 
-                    }
-                    return el;
+                string variable = "";
+                if (indexes.Count == 0)
+                {
+                    flag = IsCorrectIdentificator(value) || IsNumber(value);
                 }
-
-                void AddIndex(Element el)
+                else
                 {
-                    if (el != null)
+                    int ind = 0;
+                    while (ind < value.Length)
                     {
-                        if (indexes.Count > 0)
+                        if (value[ind].Equals(' '))
                         {
-                            bool f = true;
-                            foreach (Element element in indexes)
-                            {
-                                if ((element.Name.Equals(el.Name)) && (el.StartIndex == element.StartIndex))
-                                {
-                                    f = false;
-                                    break;
-                                }
-                            }
-                            if (f)
-                            {
-                                indexes.Add(el);
-                            }
+                            ind++;
                         }
                         else
+                        {
+                            Element el = IsDelimiter(ind);
+                            if (el != null)
+                            {
+                                if (!string.IsNullOrEmpty(variable))
+                                {
+                                    flag = IsCorrectIdentificator(variable) || IsNumber(variable);
+                                    variable = "";
+                                    if (!flag)
+                                        break;
+                                }
+                                ind += el.Name.Length;
+                            }
+                            else
+                            {
+                                variable += value[ind];
+                                ind++;
+                            }
+                        }
+
+
+                    }
+
+                }
+
+            }
+
+            Element IsDelimiter(int p)
+            {
+                Element el = null;
+                foreach (Element e in indexes)
+                {
+                    if (e.StartIndex == p)
+                    {
+                        el = e;
+                        break;
+                    }
+
+                }
+                return el;
+            }
+
+            void AddIndex(Element el)
+            {
+                if (el != null)
+                {
+                    if (indexes.Count > 0)
+                    {
+                        bool f = true;
+                        foreach (Element element in indexes)
+                        {
+                            if ((element.Name.Equals(el.Name)) && (el.StartIndex == element.StartIndex))
+                            {
+                                f = false;
+                                break;
+                            }
+                        }
+                        if (f)
                         {
                             indexes.Add(el);
                         }
                     }
-
+                    else
+                    {
+                        indexes.Add(el);
+                    }
                 }
-            }
-            else
-            {
-                //flag = false;
-            }
 
+            }
             return flag;
         }
 
@@ -3659,24 +3141,5 @@ namespace CourseProject
             return line;
         }
 
-        //public List<string> ReadProgramFromFile(string path)
-        //{
-        //    List<string> program = new List<string>();
-        //    try{
-        //        using (StreamReader reader = new StreamReader(path))
-        //        {
-        //            string? line;
-        //            while (!string.IsNullOrEmpty(line=reader.ReadLine()))
-        //            {
-        //                program.Add(line);
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.StackTrace);
-        //    }
-        //    return program;
-        //}
     }
 }

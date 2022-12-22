@@ -117,8 +117,7 @@
                     {
                         child.Parent = Root;
                         child.Parent.LeftChild = child;
-                        Root = child;
-                        //Root = Root.LeftChild;
+                        Root = child;                        
                     }
                     else
                     {
@@ -141,7 +140,6 @@
                     Root.RightChild = item;
                     item.Parent = Root;
                     Root = item;
-                    //Root = Root.RightChild;
                 }
                 else
                 {
@@ -171,18 +169,6 @@
         {
             this.Root = new Item();
         }
-
-        //public void RemoveItem(string value)
-        //{
-        //    throw new Exception("not realized");
-        //}
-
-        //public void SearchElement(Item item)
-        //{
-        //    if (item != null)
-        //    {
-        //    }
-        //}
 
         string[] ArifmeticOperators = { "+", "-", "/", "*" };
 
@@ -310,7 +296,6 @@
                 }
                 return n;
             }
-            //sort by increase
             for (int i = 0; i < repairTree.Count - 1; i++)
             {
                 for (int j = i + 1; j < repairTree.Count; j++)
