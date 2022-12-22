@@ -4,7 +4,7 @@ namespace CourseProject
 {
     public class CourseProject
     {
-        private const string PATH = "D:\\COMPILER\\programs\\program_tree_demonstration.pas";//"D:\\\\COMPILER\\\\programs\\\\ex1-operatorCompare.pas"; //"D:\\COMPILER\\programs\\ex5_different_types.pas";
+        private const string PATH = "C:\\Users\\IRIS\\Documents\\COMP\\COMPILER\\programs\\program_tree_demonstration.pas";//"D:\\\\COMPILER\\\\programs\\\\ex1-operatorCompare.pas"; //"D:\\COMPILER\\programs\\ex5_different_types.pas";
 
         
 
@@ -220,9 +220,9 @@ namespace CourseProject
                 analyzer.Optimizeprogram();
                 //analyzer.PrintProgram();
                 BinaryTree tree = analyzer.FormBinaryTree();
-                //tree.PrintTree(tree.Root);
+                tree.PrintTree(tree.Root);
                 //analyzer.PrintProgram();
-                BinaryTree.SaveTreeTofile(tree);
+                //BinaryTree.SaveTreeTofile(tree);
             }
         }
 

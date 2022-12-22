@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
@@ -159,7 +160,7 @@ namespace CourseProject
                         tree.SetParent(tree.Root);
                         opIondex++;
                     }
-                    if (line.Equals("end"))
+                    if (line.StartsWith("end"))
                     {
                         tree.AddRightChild(DefaultValue + opIondex);
                         tree.AddLeftChild(line);
@@ -211,12 +212,44 @@ namespace CourseProject
                     if (line.Contains(":="))
                     {
                         string arg0 = line.Split(":=")[0];
+                        bool f1 = false;
+                        string a00 = ""; string a01 = "";
+                        if (arg0.Contains('[') && arg0.Contains(']'))
+                        {
+                            a00 = arg0.Substring(0, arg0.IndexOf('['));
+                            a01 = arg0.Substring(arg0.IndexOf('[')+1);
+                            a01 = a01.Remove(a01.Length - 1, 1);
+                            a01 = AddBrackets(a01);
+                            a00 += "[index]";
+                            f1 = true;
+                        }
+
                         string arg1 = line.Split(":=")[1];
                         BinaryTree exprTree = ParseExpression(arg1);
                         tree.AddRightChild(DefaultValue + opIondex);
                         tree.AddLeftChild(":=");
-                        tree.AddLeftChild(arg0);
-                        tree.SetParent(tree.Root);
+                        if (f1)
+                        {
+                            tree.AddLeftChild(a00);
+                            if (IsCorrectExpression(a01))
+                            {
+                                tree.AddLeftChild(a01);
+                                tree.SetParent(tree.Root);
+                            }
+                            else
+                            {
+                                BinaryTree eTree = ParseExpression(a01);
+                                tree.SetLeftChild(eTree.Root);
+                            }
+                            
+                            tree.SetParent(tree.Root);
+                        }
+                        else
+                        {
+                            tree.AddLeftChild(arg0);
+                            tree.SetParent(tree.Root);
+                        }
+                        
                         tree.SetRightChild(exprTree.Root);
                         tree.SetParent(tree.Root);
                         opIondex++;
@@ -232,8 +265,6 @@ namespace CourseProject
                         //BinaryTree outputTree = ParseExpression(arg1);
                         tree.AddRightChild(DefaultValue + opIondex);
                         tree.AddLeftChild(arg0);
-                        tree.AddLeftChild(arg1);
-                        
                         tree.AddLeftChild(arg1);
                         tree.SetParent(tree.Root);
                         tree.SetParent(tree.Root);
@@ -1021,7 +1052,13 @@ namespace CourseProject
                     string arg0 = line.Split(":=")[0];
                     if (arg0.Contains('[') && arg0.Contains(']'))
                     {
-                        arg0 = arg0.Trim();
+                        string a00 = arg0.Substring(0, arg0.IndexOf('[') );
+                        string a01 = arg0.Substring(arg0.IndexOf('[')+1);
+                        a01 = a01.Remove(a01.Length - 1, 1);
+                        a01 = Parse(a01);
+                        a01 = AddBrackets(a01);
+                        arg0 = a00 + '[' + a01 + ']';
+                       
                     }
                     string arg1 = line.Split(":=")[1];
                     arg1 = Parse(arg1);
