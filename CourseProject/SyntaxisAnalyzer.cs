@@ -323,16 +323,6 @@ namespace CourseProject
             return tree;
         }
 
-        private string GetSubsString(string line, int sp, int ep)
-        {
-            string result = string.Empty;
-            for (int i = sp; i <= ep; i++)
-            {
-                result += line[i];
-            }
-            return result;
-        }
-
         private int GetProgramSize()
         {
             Console.ForegroundColor = ConsoleColor.Red;
@@ -354,7 +344,7 @@ namespace CourseProject
         }
 
 
-        private BinaryTree ParseExpression(string line)
+        protected BinaryTree ParseExpression(string line)
         {
             BinaryTree tree = new BinaryTree();
             Console.ForegroundColor = ConsoleColor.Red;
@@ -363,6 +353,11 @@ namespace CourseProject
                 if (!string.IsNullOrEmpty(line))
                 {
                     line = AddBrackets(line);
+                    //if (line.First().Equals('(') && line.Last().Equals(')'))
+                    //{
+                    //    line = line.Substring(1);
+                    //    line = line.Remove(line.Length - 1, 1);
+                    //}
                     int ind = 0;
 
                     string temp = line;
@@ -591,7 +586,7 @@ namespace CourseProject
         }
 
 
-        private bool IsValue(char c)
+        protected bool IsValue(char c)
         {
             return Regex.IsMatch(c.ToString(), "^[0-9]+$") || Regex.IsMatch(c.ToString(), "^[a-zA-Z]+$") || c.Equals('.') || c.Equals('_');
         }
@@ -602,12 +597,19 @@ namespace CourseProject
 
         char[] patterns = new char[] { '^', '*', '/', '+', '-', '(', ')', '<', '>', '=', '#' };
 
-        private string AddBrackets(string line)
+        protected string AddBrackets(string line)
         {
 
             line = ChangeSymbols(line);
 
             List<string> lines = new List<string>();
+
+            if (line.First().Equals('(') && line.Last().Equals(')'))
+            {
+                line = line.Substring(1);
+                line = line.Remove(line.Length - 1, 1);
+            }
+
 
             bool IsHaveBrackets = line.Contains('(') && line.Contains(')');
 
@@ -2170,12 +2172,12 @@ namespace CourseProject
             return errors;
         }
 
-        private bool IsCorrectNumber(string val)
+        protected bool IsCorrectNumber(string val)
         {
             bool f = true;
             try
             {
-                double dval = double.Parse(val);
+                double dval = double.Parse(val, CultureInfo.InvariantCulture);
             }
             catch (Exception ex)
             {
@@ -2389,7 +2391,7 @@ namespace CourseProject
             return indexes;
         }
 
-        private bool CheckFirstSymbolInIdentificator(char c)
+        protected bool CheckFirstSymbolInIdentificator(char c)
         {
             bool f = !Regex.IsMatch(c.ToString(), @"^[0-9]*$");
             if (f)
@@ -2402,13 +2404,13 @@ namespace CourseProject
             }
             return f;
         }
-        private bool CheckLastSymbolInIdentificator(char c)
+        protected bool CheckLastSymbolInIdentificator(char c)
         {
             bool f = Regex.IsMatch(c.ToString(), @"^[a-zA-Z0-9]*$") || c.Equals('_');
             return f;
         }
 
-        private bool IsCorrectExpression(string value)
+        protected bool IsCorrectExpression(string value)
         {
             bool flag = true;
             string[] delimiters = new string[] { "not", "and", "^", "/", "*", "div", "mod", "and", "+", "-", "or", "xor", "=", "<>", "<", ">", "<=", ">=", "in", "(", ")" };
@@ -2938,7 +2940,7 @@ namespace CourseProject
             return c.Equals('=') || c.Equals('^') || c.Equals('*') || c.Equals('/') || c.Equals('+') || c.Equals('-') || c.Equals('<') || c.Equals('>') || c.Equals(';');
         }
 
-        private bool IsAllowSymbolBeforeNot(char c)
+        protected bool IsAllowSymbolBeforeNot(char c)
         {
             return c.Equals('=') || c.Equals('^') || c.Equals('*') || c.Equals('/') || c.Equals('+') || c.Equals('-') || c.Equals('<') || c.Equals('>') || c.Equals('(') || c.Equals(' ');
         }
@@ -2958,36 +2960,14 @@ namespace CourseProject
             return f;
         }
 
-        private bool IsCorrectValue(string val)
+        protected bool IsCorrectValue(string val)
         {
             bool f = true;
             f =   Regex.IsMatch(val, "^[0-9]+$") || Regex.IsMatch(val, "^[a-zA-Z]+$") || val.Contains('.') || val.Contains('_');
            
             return f;
         }
-        private bool IsCorrectIdentificator(string line)
-        {
-            bool flag = true;
-            flag = !Regex.IsMatch(line[0].ToString(), @"^[0-9]*$");
-            if (flag)
-            {
-                flag = line[0].Equals('_') || Regex.IsMatch(line[0].ToString(), @"^[a-zA-Z]+$");
-            }
-            if (flag)
-            {
-                flag = !line[0].Equals("&") && !line[0].Equals("$") && !line[0].Equals("%");
-            }
-            if (flag)
-            {
-                string arg = line.Remove(0, 1);
-                if (flag)
-                {
-                    flag = Regex.IsMatch(arg, @"^[a-zA-Z0-9]*$") || arg.Contains("_");
-                }
-            }
-           
-            return flag;
-        }
+        
 
         private bool IsContainsBaseType(string line)
         {
@@ -3096,50 +3076,7 @@ namespace CourseProject
             return line;
         }
 
-        private string RemoveLeftSpaces(string line)
-        {
-            if (!string.IsNullOrEmpty(line))
-            {
-                int si = 0;
-                for (int k = 0; k < line.Length; k++)
-                {
-                    if (line[k].Equals(' '))
-                    {
-                        si++;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                line = line.Substring(si);
-            }
-            return line;
-        }
-
-        private string RemoveRigthSpaces(string line)
-        {
-            if (!string.IsNullOrEmpty(line))
-            {
-                int index = line.Length - 1;
-                while (index >= 0)
-                {
-                    if (line[index].Equals(' '))
-                    {
-
-                    }
-                    else
-                    {
-                        break;
-                    }
-                    index--;
-                }
-
-
-                line = line.Remove(index);
-            }
-            return line;
-        }
+      
 
     }
 }

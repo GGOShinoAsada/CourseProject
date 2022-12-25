@@ -530,29 +530,7 @@ namespace CourseProject
             return items;
         }
 
-        private bool IsCorrectIdentificator(string line)
-        {
-            bool flag = true;
-            flag = !Regex.IsMatch(line[0].ToString(), @"^[0-9]*$");
-            if (flag)
-            {
-                flag = line[0].Equals('_') || Regex.IsMatch(line[0].ToString(), @"^[a-zA-Z]+$");
-            }
-            if (flag)
-            {
-                flag = !line[0].Equals("&") && !line[0].Equals("$") && !line[0].Equals("%");
-            }
-            if (flag)
-            {
-                string arg = line.Remove(0, 1);
-                if (flag)
-                {
-                    flag = Regex.IsMatch(arg, @"^[a-zA-Z0-9]*$") || arg.Contains("_");
-                }
-            }
-
-            return flag;
-        }
+     
 
         private List<int> GetStartPositions(string line, string value)
         {
@@ -595,7 +573,7 @@ namespace CourseProject
             return positions;
         }
 
-        private bool IsHexDigitValue(string line)
+        protected bool IsHexDigitValue(string line)
         {
             bool flag = true;
             if (line.IndexOf('$') >= 0)
@@ -635,7 +613,7 @@ namespace CourseProject
        
         }
 
-        private bool IsOctDigitValue(string line)
+        protected bool IsOctDigitValue(string line)
         {
             bool flag = true;
             if (line.IndexOf('&') >= 0)
@@ -676,7 +654,7 @@ namespace CourseProject
             return flag;
         }
 
-        private bool IsBinDigitValue(string line)
+        protected bool IsBinDigitValue(string line)
         {
             bool flag = true;
             if (line.IndexOf('%') >= 0)
@@ -1199,15 +1177,7 @@ namespace CourseProject
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        private string GetSubsString(string line, int sp, int ep)
-        {
-            string result = string.Empty;
-            for (int i = sp; i <= ep; i++)
-            {
-                result += line[i];
-            }
-            return result;
-        }
+      
         private bool IsLocatedInSpaces(string line, int pos)
         {
             short ind = 0;
@@ -1473,50 +1443,7 @@ namespace CourseProject
             int t = 0;
         }
 
-        private string RemoveLeftSpaces(string line)
-        {
-            if (!string.IsNullOrEmpty(line))
-            {
-                int si = 0;
-                for (int k = 0; k < line.Length; k++)
-                {
-                    if (line[k].Equals(' '))
-                    {
-                        si++;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                line = line.Substring(si);
-            }
-            return line;
-        }
-
-        private string RemoveRigthSpaces(string line)
-        {
-            if (!string.IsNullOrEmpty(line))
-            {
-                int index = line.Length - 1;
-                while (index>=0)
-                {
-                    if (line[index].Equals(' '))
-                    {
-                        
-                    }
-                    else
-                    {
-                        break;
-                    }
-                    index--;
-                }
-
-                
-                line = line.Remove(index+1);
-            }
-            return line;
-        }
+     
 
         public List<string> ReadProgram(string path)
         {

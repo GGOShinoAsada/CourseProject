@@ -11,19 +11,30 @@ namespace CourseProject
         private static void Main(string[] args)
         {
 
-           
+
             //------------------------//
-            ExecuteLexicAnalyzer(PATH);
+            //ExecuteLexicAnalyzer(PATH);
             //PrintProgram();
-            ExecuteSyntaxAnalyzer();
+            //ExecuteSyntaxAnalyzer();
             //ExecuteCodeGenerator();
             //-----------------------//
-         
+            RuntimeTests();
             Console.WriteLine("done");
             Console.ReadKey();
         }
 
        
+      
+
+
+        static void RuntimeTests()
+        {
+            RuntimeTest test = new RuntimeTest();
+            test.Test2();
+        }
+
+
+
         /// <summary>
         /// lexic analyzer
         /// </summary>
