@@ -105,7 +105,6 @@ namespace TestCourseProject
             program.Add("a[4]:=4;");
             List<Error> errors = CheckCorrectAssign();
             Assert.True(errors.Count == 0);
-
         }
 
         [Test]

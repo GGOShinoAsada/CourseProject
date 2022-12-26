@@ -117,7 +117,7 @@
                     {
                         child.Parent = Root;
                         child.Parent.LeftChild = child;
-                        Root = child;                        
+                        Root = child;
                     }
                     else
                     {
@@ -170,16 +170,16 @@
             this.Root = new Item();
         }
 
-        string[] ArifmeticOperators = { "+", "-", "/", "*" };
+        private string[] ArifmeticOperators = { "+", "-", "/", "*" };
 
-        bool IsNumber(string value)
+        private bool IsNumber(string value)
         {
             return false;
         }
 
         public void OptimizeTree(Item root)
         {
-            if (root==null)
+            if (root == null)
             {
                 return;
             }
@@ -192,7 +192,7 @@
                 if (IsNumber(root.LeftChild.Value))
                 {
                     double n = double.Parse(root.LeftChild.Value);
-                    if (root.RightChild!=null)
+                    if (root.RightChild != null)
                     {
                         if (ArifmeticOperators.Contains(root.RightChild.Value))
                         {
@@ -200,7 +200,7 @@
                         }
                         if (IsNumber(root.RightChild.Value))
                         {
-                            double m = double.Parse(root.RightChild.Value);  
+                            double m = double.Parse(root.RightChild.Value);
                             if (ArifmeticOperators.Contains(root.Value))
                             {
                                 double result = 0;
@@ -209,12 +209,15 @@
                                     case "+":
                                         result = m + n;
                                         break;
+
                                     case "-":
                                         result = m - n;
                                         break;
+
                                     case "*":
                                         result = m * n;
                                         break;
+
                                     case "/":
                                         result = m / n;
                                         break;
@@ -223,7 +226,6 @@
                                 item.Value = result.ToString();
                                 root = item;
                             }
-                           
                         }
                     }
                 }

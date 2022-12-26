@@ -1,9 +1,4 @@
-﻿using System;
-using System.Data;
-using System.Data.SqlTypes;
-using System.Diagnostics.CodeAnalysis;
-using System.Reflection.Metadata;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace CourseProject
 {
@@ -42,9 +37,6 @@ namespace CourseProject
 
         private List<string> program = new();
 
-    
-
-
         public void PrintProgram()
         {
             foreach (string line in program)
@@ -52,7 +44,6 @@ namespace CourseProject
                 Console.WriteLine(line);
             }
         }
-
 
         public void FormIndentificators()
         {
@@ -190,9 +181,8 @@ namespace CourseProject
                             temp[j].Row += dx;
                         }
                         items.AddRange(temp);
-
                     }
-                
+
                     if (line.StartsWith("if"))
                     {
                         dx = 0;
@@ -210,7 +200,7 @@ namespace CourseProject
                         List<Item> data = GetIdentificatorsInExpression(line, i);
                         for (int j = 0; j < data.Count; j++)
                         {
-                            data[j].Row += dx-1;
+                            data[j].Row += dx - 1;
                         }
                         items.AddRange(data);
                     }
@@ -244,7 +234,6 @@ namespace CourseProject
                             data[j].Row = data[j].Row + dx;
                         }
                         items.AddRange(data);
-
                     }
                     if (line.StartsWith("until"))
                     {
@@ -261,15 +250,12 @@ namespace CourseProject
                         }
                         dx += si;
                         List<Item> data = GetIdentificatorsInExpression(line, i);
-                        for (int j=0; j<data.Count; j++)
+                        for (int j = 0; j < data.Count; j++)
                         {
                             data[j].Row += dx - 1;
                         }
                         items.AddRange(data);
-
-
                     }
-                   
                 }
                 for (int i = 0; i < program.Count; i++)
                 {
@@ -344,7 +330,6 @@ namespace CourseProject
                                             }
                                         }
                                     }
-
                                 }
                             }
                             if (IsHexDigitValue(item))
@@ -377,7 +362,6 @@ namespace CourseProject
                                                 items.Add(item1);
                                                 break;
                                             }
-
                                         }
                                     }
                                 }
@@ -460,7 +444,6 @@ namespace CourseProject
                     }
                 }
             }
-            
             catch (DirectoryNotFoundException ex0)
             {
                 Console.WriteLine(ex0.StackTrace);
@@ -470,11 +453,8 @@ namespace CourseProject
                 Console.WriteLine(ex.StackTrace);
             }
 
-           
-
-        Console.ForegroundColor = ConsoleColor.White;
+            Console.ForegroundColor = ConsoleColor.White;
         }
-
 
         private List<Item> GetIdentificatorsInExpression(string value, int col)
         {
@@ -494,7 +474,6 @@ namespace CourseProject
                             {
                                 AddItem(temp);
                             }
-
                         }
                         temp = "";
                         si = -1;
@@ -508,10 +487,8 @@ namespace CourseProject
                         temp += value[i];
                     }
                 }
-               
-                
             }
-            if ((items.Count==0) && (!string.IsNullOrEmpty(temp)))
+            if ((items.Count == 0) && (!string.IsNullOrEmpty(temp)))
             {
                 if (IsCorrectIdentificator(temp))
                 {
@@ -529,8 +506,6 @@ namespace CourseProject
             }
             return items;
         }
-
-     
 
         private List<int> GetStartPositions(string line, string value)
         {
@@ -569,7 +544,7 @@ namespace CourseProject
                 }
                 index = line.IndexOf(value, index + value.Length);
             }
-            
+
             return positions;
         }
 
@@ -610,7 +585,6 @@ namespace CourseProject
                 flag = false;
             }
             return flag;
-       
         }
 
         protected bool IsOctDigitValue(string line)
@@ -649,7 +623,6 @@ namespace CourseProject
             {
                 flag = false;
             }
-
 
             return flag;
         }
@@ -690,7 +663,6 @@ namespace CourseProject
             {
                 flag = false;
             }
-
 
             return flag;
         }
@@ -801,7 +773,6 @@ namespace CourseProject
                 {
                     int n = line.IndexOf("}") - line.IndexOf("{");
                     data.Add(line.Remove(line.IndexOf("{"), n));
-
                 }
                 if (line.IndexOf("{") >= 0 && line.IndexOf("}") == -1)
                 {
@@ -830,10 +801,8 @@ namespace CourseProject
                             data.Add(line);
                     }
                 }
-
             }
             program = data;
-
         }
 
         public void FormTokens()
@@ -843,7 +812,6 @@ namespace CourseProject
 
             try
             {
-
                 for (int i = 0; i < program.Count; i++)
                 {
                     string line = program[i];
@@ -1151,8 +1119,6 @@ namespace CourseProject
                 Console.WriteLine(ex0.StackTrace);
             }
 
-
-
             Console.ForegroundColor = ConsoleColor.White;
         }
 
@@ -1177,7 +1143,6 @@ namespace CourseProject
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-      
         private bool IsLocatedInSpaces(string line, int pos)
         {
             short ind = 0;
@@ -1353,11 +1318,11 @@ namespace CourseProject
                     {
                         if (!IsLocatedInSpaces(line, pos))
                         {
-                            if (pos-1>=0)
+                            if (pos - 1 >= 0)
                             {
                                 if (line[pos - 1].Equals(' '))
                                 {
-                                    if (pos+3<line.Length)
+                                    if (pos + 3 < line.Length)
                                     {
                                         if ((line[pos + 3].Equals('(')) || (line[pos + 3].Equals(' ')))
                                         {
@@ -1369,7 +1334,6 @@ namespace CourseProject
                                     }
                                 }
                             }
-                          
                         }
                     }
                 }
@@ -1402,10 +1366,10 @@ namespace CourseProject
 
         public void RemoveSpacesAndEmptySymbols()
         {
-            char[] patterns = new char[] { '^','+', '-', '*', '/', '<', '>', '=' };
+            char[] patterns = new char[] { '^', '+', '-', '*', '/', '<', '>', '=' };
 
             int ind = 0;
-            if (program.Count>0)
+            if (program.Count > 0)
             {
                 while (!program[ind].Equals("begin"))
                 {
@@ -1414,8 +1378,6 @@ namespace CourseProject
                     if (line.StartsWith("var"))
                     {
                         line = line.Remove(0, 4);
-
-
                     }
                     string[] args = line.Split(":")[0].Split(',');
                     string arg1 = line.Split(':')[1];
@@ -1439,11 +1401,9 @@ namespace CourseProject
                     program[i] = RemoveRigthSpaces(program[i]);
                 }
             }
-           
+
             int t = 0;
         }
-
-     
 
         public List<string> ReadProgram(string path)
         {
@@ -1456,7 +1416,6 @@ namespace CourseProject
                     while ((line = reader.ReadLine()) != null)
                     {
                         program.Add(line);
-                       
                     }
                 }
             }

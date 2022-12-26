@@ -14,7 +14,6 @@ namespace CourseProject
 
         public const string DefaultValue = "OP";
 
-
         protected string RemoveLeftSpaces(string line)
         {
             if (!string.IsNullOrEmpty(line))
@@ -45,7 +44,6 @@ namespace CourseProject
                 {
                     if (line[index].Equals(' '))
                     {
-
                     }
                     else
                     {
@@ -53,7 +51,6 @@ namespace CourseProject
                     }
                     index--;
                 }
-
 
                 line = line.Remove(index + 1);
             }
@@ -93,6 +90,5 @@ namespace CourseProject
             }
             return result;
         }
-
     }
 }

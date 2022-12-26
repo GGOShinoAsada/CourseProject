@@ -1,30 +1,20 @@
-﻿using static CourseProject.LexicAnalyzer;
-
-namespace CourseProject
+﻿namespace CourseProject
 {
     public class CourseProject
     {
         private const string PATH = "D:\\COMPILER\\programs\\program_tree_demonstration.pas";//"D:\\\\COMPILER\\\\programs\\\\ex1-operatorCompare.pas"; //"D:\\COMPILER\\programs\\ex5_different_types.pas";
 
-        
-
         private static void Main(string[] args)
         {
-
-
             //------------------------//
             ExecuteLexicAnalyzer(PATH);
             PrintProgram();
             ExecuteSyntaxAnalyzer();
             //ExecuteCodeGenerator();
             //-----------------------//
-
             Console.WriteLine("done");
             Console.ReadKey();
         }
-
-
-    
 
         /// <summary>
         /// lexic analyzer
@@ -39,8 +29,8 @@ namespace CourseProject
             analyzer.RemoveSpacesAndEmptySymbols();
             analyzer.FormIndentificators();
             analyzer.FormTokens();
-            
         }
+
         /// <summary>
         /// syntax analyzer
         /// </summary>
@@ -48,7 +38,7 @@ namespace CourseProject
         {
             SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
             analyzer.RepairProgram();
-           // analyzer.FormatProgram(); not realized (split by key words)
+            // analyzer.FormatProgram(); not realized (split by key words)
             if (analyzer.CheckProgram())
             {
                 analyzer.Optimizeprogram();
@@ -68,7 +58,6 @@ namespace CourseProject
             tree.PrintTree(tree.Root);
         }
 
-
         /// <summary>
         /// print repair program
         /// </summary>
@@ -77,7 +66,6 @@ namespace CourseProject
             SyntaxisAnalyzer analyzer = new SyntaxisAnalyzer();
             analyzer.PrintRepairProgram();
         }
-        
 
         private static void TestLexicAnalyzer()
         {
@@ -87,7 +75,5 @@ namespace CourseProject
             analyzer.FormTokens();
             analyzer.FormIndentificators();
         }
-
-        
     }
 }

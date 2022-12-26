@@ -1,17 +1,10 @@
-﻿
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq.Expressions;
+﻿using System.Globalization;
 using System.Text.RegularExpressions;
-using static CourseProject.BinaryTree;
 
 namespace CourseProject
 {
     public class SyntaxisAnalyzer : Service
     {
-
         protected List<string> program = new();
 
         private class Element
@@ -19,12 +12,12 @@ namespace CourseProject
             public string Name { get; set; }
 
             public int StartIndex { get; set; }
+
             public Element(int si, string val)
             {
                 this.StartIndex = si;
                 this.Name = val;
             }
-
         }
 
         protected class Error
@@ -57,11 +50,10 @@ namespace CourseProject
             }
         }
 
-    
         private class Operator
         {
             public string Value { get; set; }
-            
+
             public int Position { get; set; }
 
             public bool Flag { get; set; } = true;
@@ -78,7 +70,6 @@ namespace CourseProject
                 this.Position = pos;
                 this.Flag = f;
             }
-
         }
 
         private class Item
@@ -87,8 +78,6 @@ namespace CourseProject
 
             public int Position { get; set; }
         }
-
-        
 
         private class Item2
         {
@@ -116,12 +105,10 @@ namespace CourseProject
             int index = 0;
             try
             {
-                
                 string line = program[index];
                 bool flag = true;
                 while (!line.Contains("begin"))
                 {
-
                     if (line.StartsWith("var"))
                     {
                         if (flag)
@@ -129,7 +116,7 @@ namespace CourseProject
                             tree.AddLeftChild("var");
                             flag = false;
                         }
-                        
+
                         line = line.Remove(0, 4);
                     }
                     string[] arg0 = line.Split(":")[0].Split(",");
@@ -141,7 +128,7 @@ namespace CourseProject
                     {
                         tree.AddLeftChild(arg0[j]);
                         tree.AddRightChild(arg1);
-                        tree.SetParent(tree.Root);                       
+                        tree.SetParent(tree.Root);
                     }
                     index++;
                     line = program[index];
@@ -149,8 +136,8 @@ namespace CourseProject
                 tree.SetHead();
 
                 int opIondex = 0;
-                
-                for (int i=index; i<n; i++)
+
+                for (int i = index; i < n; i++)
                 {
                     line = program[i];
                     if (line.Equals("begin"))
@@ -190,7 +177,6 @@ namespace CourseProject
                         tree.AddLeftChild(line);
                         tree.SetParent(tree.Root);
                         opIondex++;
-                       
                     }
                     if (line.Equals("repeat"))
                     {
@@ -217,7 +203,7 @@ namespace CourseProject
                         if (arg0.Contains('[') && arg0.Contains(']'))
                         {
                             a00 = arg0.Substring(0, arg0.IndexOf('['));
-                            a01 = arg0.Substring(arg0.IndexOf('[')+1);
+                            a01 = arg0.Substring(arg0.IndexOf('[') + 1);
                             a01 = a01.Remove(a01.Length - 1, 1);
                             a00 += "[index]";
                             f1 = true;
@@ -235,7 +221,7 @@ namespace CourseProject
                         {
                             exprTree = ParseExpression(arg1);
                         }
-                        
+
                         tree.AddRightChild(DefaultValue + opIondex);
                         tree.AddLeftChild(":=");
                         if (f1)
@@ -245,14 +231,13 @@ namespace CourseProject
                             {
                                 BinaryTree eTree = ParseExpression(a01);
                                 tree.SetLeftChild(eTree.Root);
-                                
                             }
                             else
                             {
                                 tree.AddLeftChild(a01);
                                 tree.SetParent(tree.Root);
                             }
-                            
+
                             tree.SetParent(tree.Root);
                         }
                         else
@@ -269,7 +254,7 @@ namespace CourseProject
                             tree.AddRightChild(arg1);
                             tree.SetParent(tree.Root);
                         }
-                        
+
                         tree.SetParent(tree.Root);
                         opIondex++;
                     }
@@ -298,7 +283,7 @@ namespace CourseProject
                         string[] inputArgs = GetSubsString(line, line.IndexOf('(') + 1, line.LastIndexOf(')') - 1).Split(',');
                         tree.AddRightChild(DefaultValue + opIondex);
                         tree.AddLeftChild(arg0);
-                        for (int j=0; j<inputArgs.Length; j++)
+                        for (int j = 0; j < inputArgs.Length; j++)
                         {
                             tree.AddLeftChild(inputArgs[j]);
                         }
@@ -309,11 +294,9 @@ namespace CourseProject
                         tree.SetParent(tree.Root);
                         opIondex++;
                     }
-                    
                 }
 
                 tree.SetHead();
-               
             }
             catch (Exception ex)
             {
@@ -343,7 +326,6 @@ namespace CourseProject
             return n;
         }
 
-
         protected BinaryTree ParseExpression(string line)
         {
             BinaryTree tree = new BinaryTree();
@@ -368,7 +350,6 @@ namespace CourseProject
 
                     foreach (int index in indexes)
                     {
-
                         operators.Add(new Operator("^", index));
                     }
 
@@ -376,7 +357,6 @@ namespace CourseProject
 
                     foreach (int index in indexes)
                     {
-
                         operators.Add(new Operator("*", index));
                     }
 
@@ -384,7 +364,6 @@ namespace CourseProject
 
                     foreach (int index in indexes)
                     {
-
                         operators.Add(new Operator("/", index));
                     }
 
@@ -392,7 +371,6 @@ namespace CourseProject
 
                     foreach (int index in indexes)
                     {
-
                         operators.Add(new Operator("+", index));
                     }
 
@@ -400,7 +378,6 @@ namespace CourseProject
 
                     foreach (int index in indexes)
                     {
-
                         operators.Add(new Operator("-", index));
                     }
 
@@ -436,7 +413,6 @@ namespace CourseProject
                                 operators.Add(new Operator("=", index));
                             }
                         }
-
                     }
 
                     indexes = GetAllContains(line, "<");
@@ -450,7 +426,6 @@ namespace CourseProject
                                 operators.Add(new Operator("<", index));
                             }
                         }
-
                     }
 
                     indexes = GetAllContains(line, ">");
@@ -468,10 +443,8 @@ namespace CourseProject
                                         operators.Add(new Operator(">", index));
                                     }
                                 }
-
                             }
                         }
-
                     }
 
                     indexes = GetAllContains(line, "div");
@@ -506,7 +479,6 @@ namespace CourseProject
                                 operators.Add(new Operator("or", index));
                             }
                         }
-
                     }
 
                     indexes = GetAllContains(line, "and");
@@ -546,7 +518,6 @@ namespace CourseProject
                             ind += op.Length - 1;
                             tree.SetRootValue(op);
                             tree.AddRightChild("");
-
                         }
                         if (IsValue(line[ind]) && (index == -1))
                         {
@@ -559,9 +530,7 @@ namespace CourseProject
                             ind--;
                             tree.SetRootValue(value);
                             tree.SetParent(tree.Root);
-
                         }
-
 
                         if (line[ind].Equals(')'))
                         {
@@ -569,8 +538,6 @@ namespace CourseProject
                         }
                         ind++;
                     }
-
-
                 }
                 tree.SetHead();
             }
@@ -579,27 +546,23 @@ namespace CourseProject
                 Console.WriteLine(ex.StackTrace);
             }
 
-
-
             Console.ForegroundColor = ConsoleColor.White;
             return tree;
         }
-
 
         protected bool IsValue(char c)
         {
             return Regex.IsMatch(c.ToString(), "^[0-9]+$") || Regex.IsMatch(c.ToString(), "^[a-zA-Z]+$") || c.Equals('.') || c.Equals('_');
         }
 
-        string[] operators = new string[] { "not", "and", "^", "/", "*", "div", "mod", "and", "+", "-", "or", "xor", "=", "<>", "<", ">", "<=", ">=", "in" };
+        private string[] operators = new string[] { "not", "and", "^", "/", "*", "div", "mod", "and", "+", "-", "or", "xor", "=", "<>", "<", ">", "<=", ">=", "in" };
 
-        string[] array = new string[] { "not#", "^", "*", "/", "#div#", "#mod#", "#and#", "+", "-", "#or#", "#xor#", "=", "<>", "<", ">", "<=", ">=", "#in#" };
+        private string[] array = new string[] { "not#", "^", "*", "/", "#div#", "#mod#", "#and#", "+", "-", "#or#", "#xor#", "=", "<>", "<", ">", "<=", ">=", "#in#" };
 
-        char[] patterns = new char[] { '^', '*', '/', '+', '-', '(', ')', '<', '>', '=', '#' };
+        private char[] patterns = new char[] { '^', '*', '/', '+', '-', '(', ')', '<', '>', '=', '#' };
 
         protected string AddBrackets(string line)
         {
-
             line = ChangeSymbols(line);
 
             List<string> lines = new List<string>();
@@ -610,10 +573,7 @@ namespace CourseProject
                 line = line.Remove(line.Length - 1, 1);
             }
 
-
             bool IsHaveBrackets = line.Contains('(') && line.Contains(')');
-
-        
 
             List<Item> indexes = FormIndexes();
 
@@ -621,7 +581,7 @@ namespace CourseProject
 
             foreach (string op in array)
             {
-                if (!op.Equals("#xor#") && !op.Equals("not#") && !op.Equals("#and#") && !op.Equals("#or#") && !op.Equals("#div#") && !op.Equals("#mod#") && !op.Equals("#in#")) 
+                if (!op.Equals("#xor#") && !op.Equals("not#") && !op.Equals("#and#") && !op.Equals("#or#") && !op.Equals("#div#") && !op.Equals("#mod#") && !op.Equals("#in#"))
                 {
                     for (int i = 0; i < n; i++)
                     {
@@ -664,7 +624,6 @@ namespace CourseProject
                             br = 0;
                             while (tmp < line.Length)
                             {
-
                                 if (line[tmp].Equals(')'))
                                     br++;
                                 if (line[tmp].Equals('('))
@@ -695,23 +654,19 @@ namespace CourseProject
                                 string arg2 = GetSubsString(line, rp + 1, line.Length - 1);
                                 line = arg0 + "(" + arg1 + ")" + arg2;
                             }
-
                         }
                     }
                 }
-
                 else
                 {
                     if (line.Contains("#xor#") || line.Contains("not#") || line.Contains("#and#") || line.Contains("#or#") || line.Contains("#div#") || line.Contains("#mod#") || line.Contains("#in#"))
                     {
                         if (IsHaveBrackets)
                         {
-                            
                             line = line.Substring(1);
                             line = line.Remove(line.Length - 1, 1);
                             IsHaveBrackets = false;
                         }
-                       
                     }
                     switch (op)
                     {
@@ -800,6 +755,7 @@ namespace CourseProject
                                 }
                             }
                             break;
+
                         case "not#":
                             for (int i = 0; i < n; i++)
                             {
@@ -858,13 +814,11 @@ namespace CourseProject
                                 }
                             }
                             break;
-                    }                  
+                    }
                 }
-                
             }
 
             line = ChangeSymbols(line, false);
-            
 
             bool IsSpecificSymbol(int index)
             {
@@ -880,7 +834,7 @@ namespace CourseProject
                 List<int> data = new List<int>();
                 foreach (string delimiter in array)
                 {
-                    if (delimiter.Equals("<") || delimiter.Equals(">") || delimiter.Equals("=")) 
+                    if (delimiter.Equals("<") || delimiter.Equals(">") || delimiter.Equals("="))
                     {
                         int ind = 0;
                         switch (delimiter)
@@ -905,6 +859,7 @@ namespace CourseProject
                                 }
 
                                 break;
+
                             case ">":
                                 ind = line.IndexOf(delimiter);
                                 while (ind >= 0)
@@ -913,7 +868,6 @@ namespace CourseProject
                                     if (f)
                                     {
                                         f = !line[ind + 1].Equals('=');
-
                                     }
                                     bool f1 = ind - 1 >= 0;
                                     if (f1)
@@ -930,6 +884,7 @@ namespace CourseProject
                                     ind = line.IndexOf(delimiter, ind + delimiter.Length);
                                 }
                                 break;
+
                             case "=":
                                 ind = line.IndexOf(delimiter);
                                 while (ind >= 0)
@@ -950,8 +905,6 @@ namespace CourseProject
                                 }
 
                                 break;
-                        
-                                
                         }
                     }
                     else
@@ -969,7 +922,7 @@ namespace CourseProject
                 }
                 return indexes;
             }
-           
+
             return line;
         }
 
@@ -977,14 +930,14 @@ namespace CourseProject
         {
             int n = GetProgramSize();
             int body = 0;
-            for (int i=0; i<program.Count; i++)
+            for (int i = 0; i < program.Count; i++)
             {
                 string line = program[i];
                 if (line.Contains('[') && line.Contains(']') && line.Contains(".."))
                 {
                     int si = line.IndexOf('[');
                     int count = 0;
-                    for (int j=si+1; j<line.Length; j++)
+                    for (int j = si + 1; j < line.Length; j++)
                     {
                         if (line[j] == ' ')
                         {
@@ -998,7 +951,7 @@ namespace CourseProject
                     line = line.Remove(si + 1, count);
                     si = line.IndexOf(']');
                     count = 0;
-                    for (int j=si-1; j>=0; j--)
+                    for (int j = si - 1; j >= 0; j--)
                     {
                         if (line[j].Equals(' '))
                         {
@@ -1009,7 +962,7 @@ namespace CourseProject
                             break;
                         }
                     }
-                    line = line.Remove(si+1, count);
+                    line = line.Remove(si + 1, count);
                     program[i] = line;
                 }
                 if (line.Equals("begin"))
@@ -1018,8 +971,8 @@ namespace CourseProject
                     break;
                 }
             }
-           
-            for (int i=body; i<n; i++)
+
+            for (int i = body; i < n; i++)
             {
                 string line = program[i];
                 if (line.StartsWith("if"))
@@ -1041,21 +994,18 @@ namespace CourseProject
                     string arg0 = line.Split(":=")[0];
                     if (arg0.Contains('[') && arg0.Contains(']'))
                     {
-                        string a00 = arg0.Substring(0, arg0.IndexOf('[') );
-                        string a01 = arg0.Substring(arg0.IndexOf('[')+1);
+                        string a00 = arg0.Substring(0, arg0.IndexOf('['));
+                        string a01 = arg0.Substring(arg0.IndexOf('[') + 1);
                         a01 = a01.Remove(a01.Length - 1, 1);
                         a01 = Parse(a01);
                         a01 = AddBrackets(a01);
                         arg0 = a00 + '[' + a01 + ']';
-                       
                     }
                     string arg1 = line.Split(":=")[1];
                     arg1 = Parse(arg1);
                     program[i] = arg0 + ":=" + arg1;
                 }
-                
             }
-            
 
             string Parse(string arg1)
             {
@@ -1068,7 +1018,7 @@ namespace CourseProject
                         int count = 0;
                         if (arg1[j].Equals('='))
                         {
-                            if (j-1>=0)
+                            if (j - 1 >= 0)
                             {
                                 if (arg1[j - 1].Equals('<') || arg1[j - 1].Equals('>'))
                                 {
@@ -1091,7 +1041,6 @@ namespace CourseProject
 
                                         arg1 = arg1.Remove(si, count);
                                     }
-
                                 }
                                 else
                                 {
@@ -1115,7 +1064,7 @@ namespace CourseProject
                                     }
                                 }
                             }
-                            if (j+1<arg1.Length)
+                            if (j + 1 < arg1.Length)
                             {
                                 if (arg1[j + 1].Equals(' '))
                                 {
@@ -1136,11 +1085,10 @@ namespace CourseProject
                                     arg1 = arg1.Remove(j + 1, count);
                                 }
                             }
-                            
                         }
                         if (arg1[j].Equals('<'))
                         {
-                            if (j+1<arg1.Length)
+                            if (j + 1 < arg1.Length)
                             {
                                 if (arg1[j + 1].Equals('>') || arg1[j + 1].Equals('='))
                                 {
@@ -1184,11 +1132,10 @@ namespace CourseProject
                                     }
                                 }
                             }
-                            
                         }
                         if (arg1[j].Equals('>'))
                         {
-                            if (j-1>=0)
+                            if (j - 1 >= 0)
                             {
                                 if (arg1[j - 1].Equals('=') || arg1[j + 1].Equals('<'))
                                 {
@@ -1234,8 +1181,8 @@ namespace CourseProject
                                     }
                                 }
                             }
-                           if (j+1<arg1.Length)
-                           {
+                            if (j + 1 < arg1.Length)
+                            {
                                 if (arg1[j + 1].Equals(' '))
                                 {
                                     si = j + 1;
@@ -1255,11 +1202,10 @@ namespace CourseProject
                                     arg1 = arg1.Remove(j + 1, count);
                                 }
                             }
-                            
                         }
                         if (!arg1[j].Equals('=') && !arg1[j].Equals('<') && !arg1[j].Equals('>'))
                         {
-                            if (j+1<arg1.Length)
+                            if (j + 1 < arg1.Length)
                             {
                                 if (arg1[j + 1].Equals(' '))
                                 {
@@ -1280,7 +1226,7 @@ namespace CourseProject
                                     arg1 = arg1.Remove(j - 1, count);
                                 }
                             }
-                            if (j-1>=0)
+                            if (j - 1 >= 0)
                             {
                                 if (arg1[j - 1].Equals(' '))
                                 {
@@ -1301,19 +1247,16 @@ namespace CourseProject
                                     arg1 = arg1.Remove(si, count);
                                 }
                             }
-                            
                         }
                     }
                     j++;
                 }
                 return arg1;
             }
-     
         }
 
         private string ChangeSymbols(string line, bool flag = true)
         {
-
             if (flag)
             {
                 string[] array = new string[] { "xor", "not", "and", "or", "div", "mod", "in" };
@@ -1329,54 +1272,64 @@ namespace CourseProject
                         case "xor":
                             line = line.Replace(temp, "#xor#");
                             break;
+
                         case "not":
                             line = line.Replace(temp, "not#");
                             break;
+
                         case "and":
                             line = line.Replace(temp, "#and#");
                             break;
+
                         case "or":
                             line = line.Replace(temp, "#or#");
                             break;
+
                         case "div":
                             line = line.Replace(temp, "#div#");
                             break;
+
                         case "mod":
                             line = line.Replace(temp, "#mod#");
                             break;
+
                         case "in":
                             line = line.Replace(temp, "#in#");
                             break;
                     }
                 }
-
             }
             else
             {
                 string[] array = new string[] { "#xor#", "not#", "#and#", "#or#", "#div#", "#mod#", "#in#" };
                 foreach (string value in array)
                 {
-
                     switch (value)
                     {
                         case "#xor#":
                             line = line.Replace(value, " xor ");
                             break;
+
                         case "not#":
                             line = line.Replace(value, "not ");
                             break;
+
                         case "#and#":
                             line = line.Replace(value, " and ");
                             break;
+
                         case "#or#":
                             line = line.Replace(value, " or ");
                             break;
+
                         case "#div#":
                             line = line.Replace(value, " div ");
                             break;
+
                         case "#mod#":
                             line = line.Replace(value, " mod ");
                             break;
+
                         case "#in#":
                             line = line.Replace(value, " in ");
                             break;
@@ -1386,12 +1339,11 @@ namespace CourseProject
             return line;
         }
 
-       
         public void PrintProgram()
         {
-            if (program.Count>0)
+            if (program.Count > 0)
             {
-               foreach (string line in program)
+                foreach (string line in program)
                 {
                     Console.WriteLine(line);
                 }
@@ -1419,14 +1371,11 @@ namespace CourseProject
                         Console.WriteLine(line);
                     }
                 }
-
-             
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace);
             }
-           
         }
 
         public bool CheckProgram()
@@ -1453,7 +1402,7 @@ namespace CourseProject
                 }
             }
             errors = CheckInicializeVariables();
-            if (errors.Count>0)
+            if (errors.Count > 0)
             {
                 flag = false;
                 foreach (Error error in errors)
@@ -1491,9 +1440,9 @@ namespace CourseProject
                             break;
                     }
                 }
-            }            
+            }
             errors = CheckArrayDeclaration();
-            if (errors.Count>0)
+            if (errors.Count > 0)
             {
                 flag = false;
                 foreach (Error error in errors)
@@ -1527,7 +1476,7 @@ namespace CourseProject
         {
             List<Error> errors = new List<Error>();
             int n = program.Count;
-            for (int i=0; i<n; i++)
+            for (int i = 0; i < n; i++)
             {
                 string line = program[i];
                 if (!(line.Contains("begin") || line.StartsWith("if") || line.Equals("then") || line.Equals("else") || line.StartsWith("repeat")))
@@ -1553,21 +1502,19 @@ namespace CourseProject
                             AddError(i);
                         }
                     }
-                    
-
                 }
             }
             void AddError(int ind)
             {
                 bool f = true;
-               
-                if (errors.Count>0)
+
+                if (errors.Count > 0)
                 {
-                    for (int i=0; i<errors.Count; i++)
-                    {                        
+                    for (int i = 0; i < errors.Count; i++)
+                    {
                         int t0 = errors[i].Col;
                         int t1 = errors[i].Row;
-                        for (int j=i+1; j<errors.Count; j++)
+                        for (int j = i + 1; j < errors.Count; j++)
                         {
                             if ((errors[j].Col == t0) && (errors[j].Row == t1))
                             {
@@ -1580,7 +1527,6 @@ namespace CourseProject
                             break;
                         }
                     }
-                        
                 }
                 if (f)
                 {
@@ -1589,7 +1535,6 @@ namespace CourseProject
                     error.Message = "please add symbol \";\" in the end line " + ind;
                     errors.Add(error);
                 }
-                
             }
             return errors;
         }
@@ -1597,20 +1542,20 @@ namespace CourseProject
         protected List<Error> CheckCorrectAssign()
         {
             List<Error> errors = new List<Error>();
-            for (int i=0; i<program.Count; i++)
+            for (int i = 0; i < program.Count; i++)
             {
                 string line = program[i];
-                bool flag = true;   
+                bool flag = true;
                 if (line.Contains(":="))
                 {
-                    string arg0 = line.Split(":=")[0];                   
+                    string arg0 = line.Split(":=")[0];
                     if (!string.IsNullOrEmpty(arg0))
                     {
                         if (arg0.Contains('[') && arg0.Contains(']'))
                         {
-                            if ((GetAllContains(arg0, "[").Count==1) && (GetAllContains(arg0, "]").Count ==1) )
+                            if ((GetAllContains(arg0, "[").Count == 1) && (GetAllContains(arg0, "]").Count == 1))
                             {
-                                if (arg0.IndexOf('[')<arg0.LastIndexOf(']'))
+                                if (arg0.IndexOf('[') < arg0.LastIndexOf(']'))
                                 {
                                     string temp = arg0.Substring(0, arg0.IndexOf('['));
                                     string expr = GetSubsString(arg0, arg0.IndexOf('[') + 1, arg0.LastIndexOf(']') - 1);
@@ -1625,17 +1570,14 @@ namespace CourseProject
                             {
                                 flag = false;
                             }
-                            
                         }
                         else
                         {
                             if (!IsCorrectIdentificator(arg0))
                             {
                                 flag = false;
-                                
                             }
                         }
-                       
                     }
                     else
                     {
@@ -1665,7 +1607,6 @@ namespace CourseProject
             }
             return errors;
         }
-        
 
         protected List<Error> CheckIdentificators()
         {
@@ -1708,27 +1649,19 @@ namespace CourseProject
                                     errors.Add(error);
                                     break;
                                 }
-                               
-                              
                             }
                             if (IsExists)
                             {
                                 break;
                             }
                         }
-
                     }
                 }
-
             }
-
-          
 
             Console.ForegroundColor = ConsoleColor.White;
             return errors;
         }
-       
-
 
         protected List<Error> CheckInicializeVariables()
         {
@@ -1766,14 +1699,13 @@ namespace CourseProject
                         variables.Add(item);
                     }
                 }
-               
             }
             bool[] flags = new bool[variables.Count];
             for (int j = 0; j < flags.Length; j++)
             {
                 flags[j] = false;
             }
-            for (int i=body; i<n; i++)
+            for (int i = body; i < n; i++)
             {
                 string line = program[i];
                 line = line.Trim();
@@ -1806,12 +1738,9 @@ namespace CourseProject
                             }
                         }
                     }
-
-
                 }
-
             }
-            for (int j=0; j<flags.Length; j++)
+            for (int j = 0; j < flags.Length; j++)
             {
                 if (!flags[j])
                 {
@@ -1820,7 +1749,7 @@ namespace CourseProject
                     errors.Add(error);
                 }
             }
-            
+
             return errors;
         }
 
@@ -1829,7 +1758,7 @@ namespace CourseProject
             List<Error> errors = new List<Error>();
             int n = program.Count;
             int body = 0;
-            for (int i=0; i<n; i++)
+            for (int i = 0; i < n; i++)
             {
                 string line = program[i];
                 if (line.Equals("begin"))
@@ -1838,7 +1767,7 @@ namespace CourseProject
                     break;
                 }
             }
-            for (int i=body; i<n; i++)
+            for (int i = body; i < n; i++)
             {
                 string line = program[i];
                 if (line.Last().Equals(';'))
@@ -1875,7 +1804,6 @@ namespace CourseProject
                                                 }
                                             }
                                         }
-                                        
                                     }
                                     if (!flag)
                                     {
@@ -1883,18 +1811,19 @@ namespace CourseProject
                                     }
                                 }
                                 break;
+
                             case "or":
                                 foreach (int index in indexes)
                                 {
                                     flag = true;
                                     if (!IsLocatedInSpaces(line, index))
                                     {
-                                        if (index-1>=0)
+                                        if (index - 1 >= 0)
                                         {
                                             flag = line[index - 1].Equals(' ') || line[index - 1].Equals('x');
                                             if (flag)
                                             {
-                                                if (index+3<line.Length)
+                                                if (index + 3 < line.Length)
                                                 {
                                                     flag = line[index + 3].Equals(' ');
                                                 }
@@ -1907,10 +1836,11 @@ namespace CourseProject
                                     }
                                     if (!flag)
                                     {
-                                        AddError(i,op);
+                                        AddError(i, op);
                                     }
                                 }
                                 break;
+
                             case "<":
                                 foreach (int index in indexes)
                                 {
@@ -1939,6 +1869,7 @@ namespace CourseProject
                                     }
                                 }
                                 break;
+
                             case ">":
                                 foreach (int index in indexes)
                                 {
@@ -1967,6 +1898,7 @@ namespace CourseProject
                                     }
                                 }
                                 break;
+
                             case "=":
                                 foreach (int index in indexes)
                                 {
@@ -1975,7 +1907,7 @@ namespace CourseProject
                                     {
                                         if (index - 1 >= 0)
                                         {
-                                            flag = line[index - 1].Equals('<') || line[index - 1].Equals('>') || line[index-1].Equals(':') || CheckLastSymbolInIdentificator(line[index - 1]);
+                                            flag = line[index - 1].Equals('<') || line[index - 1].Equals('>') || line[index - 1].Equals(':') || CheckLastSymbolInIdentificator(line[index - 1]);
                                             if (flag)
                                             {
                                                 if (index + 1 < line.Length)
@@ -1991,12 +1923,12 @@ namespace CourseProject
                                     }
                                     if (!flag)
                                     {
-                                        AddError(i,op);
+                                        AddError(i, op);
                                     }
-                                  
                                 }
                                 break;
-                            case "in":                            
+
+                            case "in":
                                 foreach (int index in indexes)
                                 {
                                     flag = true;
@@ -2009,7 +1941,7 @@ namespace CourseProject
                                                 flag = line[index - 1].Equals(' ');
                                                 if (flag)
                                                 {
-                                                    if (index+3<line.Length)
+                                                    if (index + 3 < line.Length)
                                                     {
                                                         flag = line[index + 3].Equals(' ');
                                                     }
@@ -2023,12 +1955,10 @@ namespace CourseProject
                                     }
                                     if (!flag)
                                     {
-                                        AddError(i,op);
+                                        AddError(i, op);
                                     }
-                                   
                                 }
                                 break;
-
                         }
                     }
                     else
@@ -2054,31 +1984,27 @@ namespace CourseProject
                                     }
                                     if (!flag)
                                     {
-                                        AddError(i,op);
+                                        AddError(i, op);
                                     }
                                 }
-
                             }
                         }
                     }
-                    
-                  
-
                 }
             }
             void AddError(int col, string opr)
             {
                 bool fl = true;
-                if (errors.Count>1)
+                if (errors.Count > 1)
                 {
                     int minInd = errors[0].Col;
                     int maxInd = errors[0].Col;
-                    for (int i=0; i<errors.Count; i++)
+                    for (int i = 0; i < errors.Count; i++)
                     {
                         int t0 = errors[i].Col;
                         int t1 = errors[i].Row;
                         fl = true;
-                        for (int j=i+1; j<errors.Count; j++)
+                        for (int j = i + 1; j < errors.Count; j++)
                         {
                             if ((errors[j].Col == t0) && (errors[j].Row == t1))
                             {
@@ -2095,11 +2021,10 @@ namespace CourseProject
                 if (fl)
                 {
                     Error error = new Error();
-                    error.Message = "find uncorrect operator \""+opr+"\", line: " + col;
+                    error.Message = "find uncorrect operator \"" + opr + "\", line: " + col;
                     error.Col = col;
                     errors.Add(error);
                 }
-            
             }
             return errors;
         }
@@ -2124,7 +2049,7 @@ namespace CourseProject
         protected List<Error> CheckArrayDeclaration()
         {
             List<Error> errors = new List<Error>();
-            for (int i=0; i<program.Count; i++)
+            for (int i = 0; i < program.Count; i++)
             {
                 bool f = true;
                 string line = program[i];
@@ -2214,13 +2139,12 @@ namespace CourseProject
             return f;
         }
 
-
         protected List<Error> CheckPairSymbols()
         {
             List<Error> errors = new List<Error>();
             sbyte br0, br1, br2;
             br2 = 0;
-            for (int i=0; i<program.Count; i++)
+            for (int i = 0; i < program.Count; i++)
             {
                 string line = program[i];
                 if (line.Last().Equals(';') || line.Last().Equals('.'))
@@ -2229,10 +2153,10 @@ namespace CourseProject
                 }
                 br0 = 0;
                 br1 = 0;
-                
+
                 foreach (char c in line)
                 {
-                    if (br0>=0)
+                    if (br0 >= 0)
                     {
                         if (c.Equals('['))
                             br0++;
@@ -2240,10 +2164,9 @@ namespace CourseProject
                         {
                             br0--;
                         }
-                        
-                    }                   
-                    
-                    if (br1>=0)
+                    }
+
+                    if (br1 >= 0)
                     {
                         if (c.Equals('('))
                             br1++;
@@ -2251,9 +2174,7 @@ namespace CourseProject
                         {
                             br1--;
                         }
-                       
                     }
-
                 }
                 if (line.Equals("begin"))
                 {
@@ -2263,32 +2184,30 @@ namespace CourseProject
                 {
                     br2--;
                 }
-                if (br0!=0)
+                if (br0 != 0)
                 {
                     Error error = new Error();
                     error.Col = i;
                     error.Message = "RECTANGLE_BRACKET";
                     errors.Add(error);
                 }
-                if (br1!=0)
+                if (br1 != 0)
                 {
                     Error error = new Error();
                     error.Col = i;
                     error.Message = "CIRCLE_BRACKET";
                     errors.Add(error);
                 }
-                
             }
             if (br2 != 0)
             {
                 Error error = new Error();
-                
+
                 error.Message = "BEGIN_END";
                 errors.Add(error);
             }
             return errors;
         }
-
 
         public void FormatProgram()
         {
@@ -2301,7 +2220,7 @@ namespace CourseProject
             int n = program.Count;
             sbyte i0 = 0;
             sbyte i1 = 0;
-            
+
             bool f0 = true;
             bool f1 = true;
             bool f2 = true;
@@ -2310,7 +2229,7 @@ namespace CourseProject
             //byte ind0 = 0;
             //byte ind1 = 0;
             //byte ind2 = 0;
-            for (int i=0; i < n; i++)
+            for (int i = 0; i < n; i++)
             {
                 string line = program[i];
                 if (f0)
@@ -2323,7 +2242,7 @@ namespace CourseProject
                     {
                         i0--;
                     }
-                    if (i0<0)
+                    if (i0 < 0)
                     {
                         Error error = new Error();
                         error.Message = "find uncorect operator \"begin/end\", line: " + i;
@@ -2338,7 +2257,7 @@ namespace CourseProject
                     {
                         i1++;
                     }
-                    if (line.StartsWith("until") )
+                    if (line.StartsWith("until"))
                     {
                         if (line.Contains("(") && line.Contains(")"))
                         {
@@ -2348,9 +2267,8 @@ namespace CourseProject
                         {
                             f1 = false;
                         }
-                       
                     }
-                    if (!f1 || (i1<0))
+                    if (!f1 || (i1 < 0))
                     {
                         Error error = new Error();
                         error.Message = "find uncorect operator \"repeat/until\", line: " + i;
@@ -2358,16 +2276,16 @@ namespace CourseProject
                         errors.Add(error);
                         f0 = false;
                     }
-                } 
+                }
                 if (f2)
                 {
-                    if (line.StartsWith("if") )
+                    if (line.StartsWith("if"))
                     {
                         ind0 = 0;
                         ind1 = 0;
                         if (line.Contains('(') && line.Contains(')'))
                         {
-                            for (int j=i + 1; j<program.Count; j++)
+                            for (int j = i + 1; j < program.Count; j++)
                             {
                                 if (program[j].StartsWith("if"))
                                 {
@@ -2380,13 +2298,12 @@ namespace CourseProject
                                 if (program[j].Equals("esle"))
                                 {
                                     ind1++;
-                                }                                
+                                }
                             }
                             if (!(ind0 == 1 && (ind1 == 0 || ind1 == 1)))
                             {
                                 f2 = false;
                             }
-
                         }
                         else
                         {
@@ -2400,12 +2317,9 @@ namespace CourseProject
                             errors.Add(error);
                         }
                     }
-                   
                 }
-               
             }
-          
-           
+
             return errors;
         }
 
@@ -2434,6 +2348,7 @@ namespace CourseProject
             }
             return f;
         }
+
         protected bool CheckLastSymbolInIdentificator(char c)
         {
             bool f = Regex.IsMatch(c.ToString(), @"^[a-zA-Z0-9]*$") || c.Equals('_');
@@ -2518,6 +2433,7 @@ namespace CourseProject
                                         AddIndex(new Element(index, del));
                                     }
                                     break;
+
                                 case ">":
                                     if (index - 1 >= 0)
                                     {
@@ -2530,7 +2446,6 @@ namespace CourseProject
                                             }
                                         }
                                         f1 = IsValue(value[si]) || value[si].Equals(')');
-
                                     }
                                     else
                                     {
@@ -2560,6 +2475,7 @@ namespace CourseProject
                                         AddIndex(new Element(index, del));
                                     }
                                     break;
+
                                 case "=":
                                     if (index - 1 >= 0)
                                     {
@@ -2601,6 +2517,7 @@ namespace CourseProject
                                         AddIndex(new Element(index, del));
                                     }
                                     break;
+
                                 case "or":
                                     if (index - 1 >= 0)
                                     {
@@ -2642,10 +2559,10 @@ namespace CourseProject
                                         AddIndex(new Element(index, del));
                                     }
                                     break;
+
                                 case "in":
                                     if (index - 1 >= 0)
                                     {
-
                                         List<int> data = GetAllContains(value, "begin");
                                         bool f2 = true;
                                         foreach (int ind in data)
@@ -2684,7 +2601,6 @@ namespace CourseProject
                                                     f1 = false;
                                                 }
                                             }
-
                                         }
                                         else
                                         {
@@ -2700,6 +2616,7 @@ namespace CourseProject
                                         AddIndex(new Element(index, del));
                                     }
                                     break;
+
                                 case "not":
                                     if (index != 0)
                                     {
@@ -2740,6 +2657,7 @@ namespace CourseProject
                                         AddIndex(new Element(index, del));
                                     }
                                     break;
+
                                 case "(":
                                     if (index != 0)
                                     {
@@ -2754,7 +2672,6 @@ namespace CourseProject
                                                 }
                                             }
                                             f1 = IsOperator(value[si]);
-
                                         }
                                     }
                                     if (f1)
@@ -2771,7 +2688,6 @@ namespace CourseProject
                                             }
                                             f1 = IsValue(value[ei]);
                                         }
-
                                         else
                                         {
                                             f1 = false;
@@ -2782,6 +2698,7 @@ namespace CourseProject
                                         AddIndex(new Element(index, del));
                                     }
                                     break;
+
                                 case ")":
                                     if (index != value.Length - 1)
                                     {
@@ -2869,13 +2786,11 @@ namespace CourseProject
                             }
                             if (f1)
                             {
-
                                 AddIndex(new Element(index, del));
                             }
                         }
                     }
                 }
-
 
                 string variable = "";
                 if (indexes.Count == 0)
@@ -2911,12 +2826,8 @@ namespace CourseProject
                                 ind++;
                             }
                         }
-
-
                     }
-
                 }
-
             }
 
             Element IsDelimiter(int p)
@@ -2929,7 +2840,6 @@ namespace CourseProject
                         el = e;
                         break;
                     }
-
                 }
                 return el;
             }
@@ -2959,11 +2869,9 @@ namespace CourseProject
                         indexes.Add(el);
                     }
                 }
-
             }
             return flag;
         }
-
 
         private bool IsOperator(char c)
         {
@@ -2993,11 +2901,10 @@ namespace CourseProject
         protected bool IsCorrectValue(string val)
         {
             bool f = true;
-            f =   Regex.IsMatch(val, "^[0-9]+$") || Regex.IsMatch(val, "^[a-zA-Z]+$") || val.Contains('.') || val.Contains('_');
-           
+            f = Regex.IsMatch(val, "^[0-9]+$") || Regex.IsMatch(val, "^[a-zA-Z]+$") || val.Contains('.') || val.Contains('_');
+
             return f;
         }
-        
 
         private bool IsContainsBaseType(string line)
         {
@@ -3028,16 +2935,16 @@ namespace CourseProject
         public void RepairProgram()
         {
             int n = GetProgramSize();
-            for (int i=0; i<n;i++)
+            for (int i = 0; i < n; i++)
             {
                 string line = RepairProgramLine(i);
                 if (!string.IsNullOrEmpty(line))
                 {
                     program.Add(line);
-                }               
+                }
             }
         }
-        
+
         private string RepairProgramLine(int col)
         {
             List<Item> items = new List<Item>();
@@ -3105,8 +3012,5 @@ namespace CourseProject
             }
             return line;
         }
-
-      
-
     }
 }
