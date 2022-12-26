@@ -87,6 +87,94 @@ namespace TestCourseProject
         }
 
 
+        [Test]
+        public void CheckCorrectIdentificatorsTest()
+        {
+            program = new List<string>();
+            program.Add("var a,b,c:integer;");
+            program.Add("begin");
+            List<Error> errors = CheckIdentificators();
+            Assert.True(errors.Count == 0);
+        }
+
+        [Test]
+        public void CheckCorrectAssignTest()
+        {
+            program = new List<string>();
+            program.Add("d:=4+5;");
+            program.Add("a[4]:=4;");
+            List<Error> errors = CheckCorrectAssign();
+            Assert.True(errors.Count == 0);
+
+        }
+
+        [Test]
+        public void CheckInitializeVariablesTest()
+        {
+            program = new List<string>();
+            program.Add("var a,b:integer;");
+            program.Add("begin");
+            program.Add("a:=0;");
+            program.Add("read(b);");
+            List<Error> errors = CheckInicializeVariables();
+            Assert.True(errors.Count == 0);
+        }
+
+        [Test]
+        public void CheckDelimitersTest()
+        {
+            program = new List<string>();
+            program.Add("d:=0");
+            List<Error> errors = CheckDelimiters();
+            Assert.True(errors.Count > 0);
+        }
+
+
+        [Test]
+        public void CheckPairSymbolsTest()
+        {
+            program = new List<string>();
+            program.Add("d[4]]:=0;");
+            program.Add("end");
+            program.Add("begin");
+            List<Error> errors = CheckPairSymbols();
+            Assert.True(errors.Count > 0);
+        }
+
+        [Test]
+        public void CheckArrayDeclarationTest()
+        {
+            program = new List<string>();
+            program.Add("var a: array [0..10] of integer;");
+            List<Error> errors = CheckArrayDeclaration();
+            Assert.True(errors.Count == 0);
+            program = new List<string>();
+            program.Add("var f: array [..10] of integer");
+            errors = CheckArrayDeclaration();
+            Assert.True(errors.Count > 0);
+        }
+
+        [Test]
+        public void CheckLanguageConstructionsTest()
+        {
+            program = new List<string>();
+            program.Add("if (a>b)");
+            program.Add("then");
+            program.Add("if (c>d)");
+            program.Add("then");
+            program.Add("begin");
+            program.Add("a:=12");
+            program.Add("end");
+            program.Add("else");
+            program.Add("a:=10");
+            List<Error> errors = CheckLanguageConstructions();
+            Assert.True(errors.Count == 0);
+            program = new List<string>();
+            program.Add("repeat");
+            program.Add("until (a<10)");
+            errors = CheckLanguageConstructions();
+            Assert.True(errors.Count == 0);
+        }
 
     }
 }

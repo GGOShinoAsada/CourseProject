@@ -12,7 +12,7 @@ namespace CourseProject
     public class SyntaxisAnalyzer : Service
     {
 
-        private List<string> program = new();
+        protected List<string> program = new();
 
         private class Element
         {
@@ -27,7 +27,7 @@ namespace CourseProject
 
         }
 
-        private class Error
+        protected class Error
         {
             public string Message { get; set; }
 
@@ -1523,7 +1523,7 @@ namespace CourseProject
             return flag;
         }
 
-        private List<Error> CheckDelimiters()
+        protected List<Error> CheckDelimiters()
         {
             List<Error> errors = new List<Error>();
             int n = program.Count;
@@ -1594,7 +1594,7 @@ namespace CourseProject
             return errors;
         }
 
-        private List<Error> CheckCorrectAssign()
+        protected List<Error> CheckCorrectAssign()
         {
             List<Error> errors = new List<Error>();
             for (int i=0; i<program.Count; i++)
@@ -1667,7 +1667,7 @@ namespace CourseProject
         }
         
 
-        private List<Error> CheckIdentificators()
+        protected List<Error> CheckIdentificators()
         {
             List<Error> errors = new List<Error>();
             if (program.Count > 0)
@@ -1730,7 +1730,7 @@ namespace CourseProject
        
 
 
-        private List<Error> CheckInicializeVariables()
+        protected List<Error> CheckInicializeVariables()
         {
             List<Error> errors = new List<Error>();
             int n = program.Count;
@@ -1794,7 +1794,7 @@ namespace CourseProject
                 }
                 if (line.StartsWith("read"))
                 {
-                    string[] args = GetSubsString(line, line.IndexOf("("), line.IndexOf(")")).Split(',');
+                    string[] args = GetSubsString(line, line.IndexOf("(") + 1, line.IndexOf(")") - 1).Split(',');
                     for (int k = 0; k < args.Length; k++)
                     {
                         args[k] = args[k].Trim();
@@ -1824,7 +1824,7 @@ namespace CourseProject
             return errors;
         }
 
-        private List<Error> CheckCorrectDeclaredOfOperators()
+        protected List<Error> CheckCorrectDeclaredOfOperators()
         {
             List<Error> errors = new List<Error>();
             int n = program.Count;
@@ -2121,7 +2121,7 @@ namespace CourseProject
             return ind % 2 == 1;
         }
 
-        private List<Error> CheckArrayDeclaration()
+        protected List<Error> CheckArrayDeclaration()
         {
             List<Error> errors = new List<Error>();
             for (int i=0; i<program.Count; i++)
@@ -2130,33 +2130,62 @@ namespace CourseProject
                 string line = program[i];
                 if (line.Equals("begin"))
                     break;
-                if (line.Contains(".."))
+                if (line.Contains(':'))
                 {
-                    f = line.Contains("array") && line.Contains("of")
-                        && line.Contains('[') && line.Contains(']'); 
-                    if (f)
+                    string arg1 = line.Split(':')[1];
+                    arg1 = RemoveLeftSpaces(arg1);
+                    if (arg1.StartsWith("array"))
                     {
-                        List<int> indexes = GetAllContains(line, "..");
-                        if (indexes.Count==1)
+                        if (arg1.Contains('[') && arg1.Contains(']'))
                         {
-                            int arg0 = indexes[0];//..
-                            indexes = GetAllContains(line, "[");
-                            if (indexes.Count==1)
+                            if (arg1.IndexOf('[') < arg1.IndexOf(']'))
                             {
-                                int arg1 = indexes[0];//[
-                                indexes = GetAllContains(line, "]");
-                                if (indexes.Count==1)
+                                string area = GetSubsString(arg1, arg1.IndexOf('[') + 1, arg1.IndexOf(']') - 1);
+                                if (area.Contains(".."))
                                 {
-                                    int arg2 = indexes[0];//]
-                                    string sval = GetSubsString(line, arg1 + 1, arg0 - 1);
-                                    string eval = GetSubsString(line, arg0 + 2, arg2 - 1);
-                                    f = (arg0 - arg1 > 1) && (arg2 - arg1 > 1) && IsCorrectNumber(sval) && IsCorrectNumber(eval);
+                                    string si = area.Split("..")[0];
+                                    string ei = area.Split("..")[1];
+                                    if (IsNumber(si) && IsNumber(ei))
+                                    {
+                                        string btype = line.Substring(line.IndexOf(']') + 1);
+                                        btype = RemoveLeftSpaces(btype);
+                                        if (btype.StartsWith("of"))
+                                        {
+                                            btype = btype.Remove(0, 2);
+                                            btype = RemoveLeftSpaces(btype);
+                                            if (btype.Last().Equals(';'))
+                                            {
+                                                btype = btype.Remove(btype.Length - 1, 1);
+                                                f = IsContainsBaseType(btype);
+                                            }
+                                            else
+                                            {
+                                                f = false;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            f = false;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        f = false;
+                                    }
+                                }
+                                else
+                                {
+                                    f = false;
                                 }
                             }
                             else
                             {
                                 f = false;
                             }
+                        }
+                        else
+                        {
+                            f = false;
                         }
                     }
                     if (!f)
@@ -2166,7 +2195,6 @@ namespace CourseProject
                         error.Col = i;
                         errors.Add(error);
                     }
-                    
                 }
             }
             return errors;
@@ -2187,7 +2215,7 @@ namespace CourseProject
         }
 
 
-        private List<Error> CheckPairSymbols()
+        protected List<Error> CheckPairSymbols()
         {
             List<Error> errors = new List<Error>();
             sbyte br0, br1, br2;
@@ -2267,7 +2295,7 @@ namespace CourseProject
             //add enter symbols after ;, if (), then, else, begin, end, repeat, until
         }
 
-        private List<Error> CheckLanguageConstructions()
+        protected List<Error> CheckLanguageConstructions()
         {
             List<Error> errors = new List<Error>();
             int n = program.Count;
@@ -2279,7 +2307,9 @@ namespace CourseProject
             bool f2 = true;
             byte ind0 = 0;
             byte ind1 = 0;
-            byte ind2 = 0;
+            //byte ind0 = 0;
+            //byte ind1 = 0;
+            //byte ind2 = 0;
             for (int i=0; i < n; i++)
             {
                 string line = program[i];
@@ -2333,44 +2363,44 @@ namespace CourseProject
                 {
                     if (line.StartsWith("if") )
                     {
+                        ind0 = 0;
+                        ind1 = 0;
                         if (line.Contains('(') && line.Contains(')'))
                         {
-                            ind0++;
+                            for (int j=i + 1; j<program.Count; j++)
+                            {
+                                if (program[j].StartsWith("if"))
+                                {
+                                    break;
+                                }
+                                if (program[j].Equals("then"))
+                                {
+                                    ind0++;
+                                }
+                                if (program[j].Equals("esle"))
+                                {
+                                    ind1++;
+                                }                                
+                            }
+                            if (!(ind0 == 1 && (ind1 == 0 || ind1 == 1)))
+                            {
+                                f2 = false;
+                            }
+
                         }
                         else
                         {
                             f2 = false;
                         }
-                    }
-                    if (line.Equals("then"))
-                    {
-                        if (ind1 == ind0 - 1)
+                        if (!f2)
                         {
-                            ind1++;
-                        }
-                        else
-                        {
-                            f2 = false;
+                            Error error = new Error();
+                            error.Message = "find uncorrect construction of condition operator, line: " + i;
+                            error.Col = i;
+                            errors.Add(error);
                         }
                     }
-                    if (line.Equals("else"))
-                    {
-                        if ((ind2 == ind0-1) && (ind2 == ind1-1))
-                        {
-                            ind2++;
-                        }
-                        else
-                        {
-                            f2 = false;
-                        }
-                    }
-                    if (!f2)
-                    {
-                        Error error = new Error();
-                        error.Message = "find uncorrect construction of condition operator, line: " + i;
-                        error.Col = i;
-                        errors.Add(error);
-                    }
+                   
                 }
                
             }
